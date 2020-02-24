@@ -1,0 +1,33 @@
+{
+  "name": "hummingbird",
+  "version": "0.0.1",
+  "description": "A game engine for JavaScript running on WebGL.",
+  "main": "main.js",
+  "scripts": {
+    "build": "bash build.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SantaClausNL/Hummingbird.git"
+  },
+  "keywords": [
+    "game",
+    "engine",
+    "javascript",
+    "webgl",
+    "webgl2",
+    "games",
+    "graphics"
+  ],
+  "author": "SantaClausNL",
+  "license": "WTFPL",
+  "bugs": {
+    "url": "https://github.com/SantaClausNL/Hummingbird/issues"
+  },
+  "homepage": "https://github.com/SantaClausNL/Hummingbird#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-minify": "^0.5.1",
+    "babel-plugin-minify-mangle-names": "^0.5.0"
+  }
+}

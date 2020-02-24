@@ -1,94 +1,86 @@
-let c = document.getElementById('canvas'), gl = c.getContext('webgl2');
-let renderer, shader, texture;
-let vertexArray, vertexBuffer, indexBuffer;
-let projectionMatrix, viewMatrix, modelMatrix;
+window.addEventListener("load", HummingbirdSetup);
+let HummingbirdCanvas, gl;
+const Hummingbird = {
+	version: "v0.0.69",
+	noUpdate: false,
+	toLoad: 0,
+	loadTimeout: 5000,
+	frames: 0,
+	prevTime: 0,
+	mouse: [0, 0],
+	mouseIsPressed: false,
+	renderer: undefined,
+	textures: [],
+};
 
-window.addEventListener('load', () => {
-	if(gl === null) {
-		// gl = c.getContext('webgl');
-		c.parentNode.removeChild(c);
-		const p = document.createElement('p');
-		p.innerText = 'WebGL2 is not supported on your browser or machine.';
-		document.documentElement.appendChild(p);
-	} else {
-		renderer = new Renderer();
+function HummingbirdSetup() {
+	console.log("Hummingbird "+Hummingbird.version+" by SantaClausNL. https://www.santaclausnl.ga/");
 
-		shader = new Shader(vertexShaderSource, fragmentShaderSource);
-		shader.bind();
+	if(typeof preload === 'function') {
+		preload();
+		const loading = document.createTextNode("LOADING...");
+		document.body.appendChild(loading);
+		if(Hummingbird.toLoad <= 0) Continue(); else {
+			let elapsedLoading = 0;
+			const loadingLoop = setInterval(() => {
+				if(Hummingbird.toLoad <= 0 || elapsedLoading >= Hummingbird.loadTimeout) {
+					if(elapsedLoading >= Hummingbird.loadTimeout) console.warn("Failed to load assets.");
+					clearInterval(loadingLoop);
+					loading.remove();
+					Continue();
+				} else elapsedLoading += 25;
+			}, 25);
+		}
+	} else Continue();
 
-		projectionMatrix = Mat4.orthographic(0, c.width, c.height, 0);
-		// const projectionMatrix = Mat4.perspective(c.width/c.height, 60*(Math.PI/180));
-		viewMatrix = Mat4.translate(Mat4.identity(), -100, 0, 0);
-		modelMatrix = Mat4.translate(Mat4.identity(), 200, 200, 0);
-
-		// const mat1 = Mat4.new(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15);
-		// const mat2 = Mat4.new(30, 28, 26, 24, 22, 20, 18, 16, 14, 12, 10, 8, 6, 4, 2, 0);
-		// const vec1 = Vec4.new(0, 1, 2, 3);
-		// const testResult = Vec4.multMat4(vec1, mat1);
-		// console.log(testResult);
-		// console.log(Mat4.multMat4(projectionMatrix, projectionMatrix));
-
-		vertexArray = new VertexArray();
-
-		const vertices = [
-			100, 100, 0, 0, 0, 1, 1, 0, 0, 0,
-			200, 100, 0, 0, 0, 1, 1, 1, 0, 0,
-			200, 200, 0, 0, 0, 1, 1, 1, 1, 0,
-			100, 200, 0, 0, 0, 1, 1, 0, 1, 0,
-
-			300, 200, 0, 0, 0, 1, 1, 0, 0, 0,
-			400, 200, 0, 0, 0, 1, 1, 1, 0, 0,
-			400, 300, 0, 0, 0, 1, 1, 1, 1, 0,
-			300, 300, 0, 0, 0, 1, 1, 0, 1, 0,
-		];
-		vertexBuffer = new VertexBuffer(vertices);
-		vertexArray.layout.add('aVertexPosition', gl.FLOAT, 3);
-		vertexArray.layout.add('aVertexColor', gl.FLOAT, 4);
-		vertexArray.layout.add('aTexturePosition', gl.FLOAT, 2);
-		vertexArray.layout.add('aTextureId', gl.FLOAT, 1);
-		vertexArray.addBuffer(vertexArray);
-
-		const indices = [
-			0, 1, 2,
-			2, 3, 0,
-
-			4, 5, 6,
-			6, 7, 4,
-		];
-		indexBuffer = new IndexBuffer(indices);
-
-		texture = new Texture('assets/oof.png');
-		shader.setUniform('i', 'uTexture', [0]);
-
-		vertexArray.unbind();
-		shader.unbind();
-		vertexBuffer.unbind();
-		indexBuffer.unbind();
-
-		requestAnimationFrame(update);
+	function Continue() {
+		if(typeof setup === 'function') setup();
+		if(typeof update === 'function' && Hummingbird.noUpdate !== true) requestAnimationFrame(HummingbirdUpdate);
 	}
-});
-
-function update(now) {
-	const deltaTime = renderer.getDeltaTime(now);
-
-
-	renderer.clear();
-
-	const modelView = Mat4.multMat4(modelMatrix, viewMatrix);
-	const MVP = Mat4.multMat4(modelView, projectionMatrix);
-	shader.setUniformMatrix('f', 'uMVP', MVP);
-
-	renderer.draw(shader, vertexArray, 12);
-
-
-	requestAnimationFrame(update);
 }
 
-window.addEventListener('beforeunload', () => {
-	texture.delete();
-	shader.delete();
-	vertexArray.delete();
-	vertexBuffer.delete();
-	indexBuffer.delete();
-});
+function init(width_, height_, options) {
+	if(!defined(options)) options = {};
+	if(options["noUpdate"] === true) Hummingbird.noUpdate = true;
+	if(defined(options["canvas"])) {
+		HummingbirdCanvas = options["canvas"], gl = HummingbirdCanvas.getContext('webgl2');
+	} else {
+		HummingbirdCanvas = document.createElement("CANVAS"), gl = HummingbirdCanvas.getContext('webgl2');
+		if(defined(options["parent"])) options["parent"].appendChild(HummingbirdCanvas); else document.body.appendChild(HummingbirdCanvas);
+	}
+	if(gl === null) {
+		HummingbirdCanvas.parentNode.removeChild(HummingbirdCanvas);
+		const p = document.createElement('p');
+		p.innerText = 'WebGL2 is not supported on your browser or machine.';
+		if(defined(options["parent"])) options["parent"].appendChild(p); else document.body.appendChild(p);
+	} else {
+		HummingbirdCanvas.width = width_ || 100, HummingbirdCanvas.height = height_ || 100;
+		HummingbirdCanvas.id = defined(options["id"]) ? options["id"] : "HummingbirdCanvas";
+
+		Hummingbird.renderer = new Renderer();
+	}
+
+	if(typeof keyPressed === 'function') window.addEventListener('keydown', (e) => { keyPressed(e); });
+	if(typeof keyReleased === 'function') window.addEventListener('keyup', (e) => { keyReleased(e); });
+	window.addEventListener('mousemove', (e) => { Hummingbird.mouse = getMousePos(e); if(typeof mouseMoved === 'function') mouseMoved(e); });
+	window.addEventListener('mousedown', (e) => { Hummingbird.mouseIsPressed = true; if(typeof mousePressed === 'function') mousePressed(e); });
+	window.addEventListener('mouseup', (e) => { Hummingbird.mouseIsPressed = false; if(typeof mouseReleased === 'function') mouseReleased(e); });
+	window.addEventListener('beforeunload', () => {
+		Hummingbird.textures.forEach((texture) => { texture.delete(); });
+		Hummingbird.renderer.delete();
+	});
+}
+
+function resizeWindow(width_, height_) {
+	HummingbirdCanvas.width = width_, HummingbirdCanvas.height = height_;
+	gl.viewport(0, 0, width_, height_);
+	projectionMatrix = Mat4.orthographic(0, HummingbirdCanvas.width, 0, HummingbirdCanvas.heigh, -100, 100);
+}
+
+function HummingbirdUpdate(now) {
+	const deltaTime = now-Hummingbird.prevTime;
+	Hummingbird.prevTime = now;
+	update(deltaTime);
+	Hummingbird.frames++;
+	requestAnimationFrame(HummingbirdUpdate);
+}

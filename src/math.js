@@ -1,7 +1,6 @@
-// https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Matrix_math_for_the_web
-
 class Meth{
-
+	static radians(degrees) { return degrees*(Math.PI/180); }
+	static degrees(radians) { return radians*(180/Math.PI); }
 }
 
 class Mat4{
@@ -11,22 +10,34 @@ class Mat4{
 
 	static identity() { return [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]; }
 
-	static orthographic(left, right, bottom, top, near = -1, far = 1) {
+	static orthographic(left, right, top, bottom, near = -1, far = 1) {
 		return [
 			2/(right-left),              0,             0, -((right+left)/(right-left)),
-			             0, 2/(top-bottom),             0, -((top+bottom)/(top-bottom)),
-			             0,              0, -2/(far-near),     -((far+near)/(far-near)),
-			             0,              0,             0,                            1,
+									 0, 2/(top-bottom),             0, -((top+bottom)/(top-bottom)),
+									 0,              0, -2/(far-near),     -((far+near)/(far-near)),
+									 0,              0,             0,                            1,
 		];
 	}
 
-	static perspective(aspectRatio, fieldOfView, near = 0.1, far = 100) {
-		return [
-			1/(aspectRatio*Math.tan(fieldOfView/2)),                         0,                        0,                          0,
-			                                      0, 1/Math.tan(fieldOfView/2),                        0,                          0,
-			                                      0,                         0, -((far+near)/(far-near)), -((2*far*near)/(far-near)),
-			                                      0,                         0,                       -1,                          0,
-		];
+	// static perspective(aspectRatio, fieldOfView, near = 1, far = 100) {
+	// 	return [
+	// 		1/(aspectRatio*Math.tan(fieldOfView/2)),                         0,                        0,                          0,
+	// 		                                      0, 1/Math.tan(fieldOfView/2),                        0,                          0,
+	// 		                                      0,                         0, -((far+near)/(far-near)), -((2*far*near)/(far-near)),
+	// 		                                      0,                         0,                       -1,                          0,
+	// 	];
+	// }
+	// static perspective(left, right, top, bottom, near, far) {
+	// 	return [
+	// 		(2*near)/(right-left), 0, (right+left)/(right-left), 0,
+	// 		0, (2*near)/(top-bottom), (top+bottom)/(top-bottom), 0,
+	// 		0, 0, -(far+near)/(far-near), -(2*far*near)/(far-near),
+	// 		0, 0, -1, 0,
+	// 	];
+	// }
+	static perspective(fovy, aspect, near, far) {
+		let f = 1/Math.tan(fovy/2), nf =  1/(near-far);
+		return [f/aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (far+near)*nf, -1, 0, 0, 2*far*near*nf, 0];
 	}
 
 	static multMat4(matrixA, matrixB) {
@@ -38,22 +49,19 @@ class Mat4{
 		return [row1[0], row1[1], row1[2], row1[3], row2[0], row2[1], row2[2], row2[3], row3[0], row3[1], row3[2], row3[3], row4[0], row4[1], row4[2], row4[3]];
 	}
 
-	static translate(matrix, x = 0, y = 0, z = 0) { return Mat4.multMat4(matrix, [1, 0, 0, x, 0, 1, 0, y, 0, 0, 1, z, 0, 0, 0, 1]); }
+	static scale(matrix, vector) { return Mat4.multMat4(matrix, [vector[0], 0, 0, 0, 0, vector[1], 0, 0, 0, 0, vector[2], 0, 0, 0, 0, 1]); }
+	static translate(matrix, vector) { return Mat4.multMat4(matrix, [1, 0, 0, vector[0], 0, 1, 0, vector[1], 0, 0, 1, vector[2], 0, 0, 0, 1]); }
+	static rotateX(matrix, angle) { return Mat4.multMat4(matrix, [1, 0, 0, 0, 0, Math.cos(-angle), Math.sin(angle), 0, 0, Math.sin(-angle), Math.cos(-angle), 0, 0, 0, 0, 1]); }
+	static rotateY(matrix, angle) { return Mat4.multMat4(matrix, [Math.cos(-angle), 0, Math.sin(-angle), 0, 0, 1, 0, 0, Math.sin(angle), 0, Math.cos(-angle), 0, 0, 0, 0, 1]); }
+	static rotateZ(matrix, angle) { return Mat4.multMat4(matrix, [Math.cos(-angle), Math.sin(angle), 0, 0, Math.sin(-angle), Math.cos(-angle), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); }
 }
 
 class Vec2{
-	constructor(x, y) {
-		this.x = x;
-		this.y = y;
-	}
+	static new(x, y) { return [x, y]; }
 }
 
 class Vec3{
-	constructor(x, y, z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-	}
+	static new(x, y, z) { return [x, y, z]; }
 }
 
 class Vec4{

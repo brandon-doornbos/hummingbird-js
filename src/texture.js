@@ -9,13 +9,14 @@ class Texture{
 		const errorTexture = new Uint8Array([255, 255, 255, 255, 191, 191, 191, 255, 191, 191, 191, 255, 255, 255, 255, 255]);
 		this.setTextureParameters(gl.NEAREST, gl.REPEAT);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, errorTexture);
-		this.unbind();
+		// this.unbind();
 	}
 
 	createTexture(filePath) {
 		this.id = gl.createTexture();
 
 		this.setErrorTexture();
+		if(!defined(filePath)) return;
 
 		const image = new Image();
 		image.onload = () => {
@@ -40,7 +41,7 @@ class Texture{
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, image);
 			// gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
 			// gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, flippedImageData);
-			this.unbind();
+			// this.unbind();
 		}
 		image.src = filePath;
 	}
@@ -52,7 +53,7 @@ class Texture{
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap);
 	}
 
-	bind(slot = 0) {
+	bind(slot = 1) {
 		gl.activeTexture(gl['TEXTURE' + slot]);
 		gl.bindTexture(gl.TEXTURE_2D, this.id);
 	}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Hummingbird, by SantaClausNL</title>
+	</head>
+	<body>
+		<script defer src="./dist/hummingbird.js"></script>
+		<script>
+			let render;
+			const keysPressed = {};
+			let ooflaugh;
+
+			function setup() {
+				init(960, 540);
+				render = Hummingbird.renderer;
+
+				ooflaugh = new Texture('assets/oof.png');
+				Hummingbird.textures.push(ooflaugh);
+			}
+
+			function keyPressed(e) {
+				keysPressed[e.keyCode] = true;
+			}
+
+			function keyReleased(e) {
+				keysPressed[e.keyCode] = false;
+			}
+
+			let angle = 0;
+
+			function update(deltaTime) {
+				render.clear();
+
+				Object.entries(keysPressed).forEach(([key, state]) => {
+					if(state !== true) return;
+					switch(key) {
+						case '87': render.viewMatrix = Mat4.translate(render.viewMatrix, Vec3.new(0, -5, 0)); break;
+						case '65': render.viewMatrix = Mat4.translate(render.viewMatrix, Vec3.new(-5, 0, 0)); break;
+						case '83': render.viewMatrix = Mat4.translate(render.viewMatrix, Vec3.new(0, 5, 0)); break;
+						case '68': render.viewMatrix = Mat4.translate(render.viewMatrix, Vec3.new(5, 0, 0)); break;
+
+						case '69': render.viewMatrix = Mat4.translate(render.viewMatrix, Vec3.new(0, 0, 0.1)); break;
+						case '81': render.viewMatrix = Mat4.translate(render.viewMatrix, Vec3.new(0, 0, -0.1)); break;
+					}
+				});
+
+				render.shader.bind();
+				{
+					angle++;
+					render.modelMatrix = Mat4.translate(Mat4.identity(), Vec3.new(-150, -150, 0));
+					render.modelMatrix = Mat4.rotateX(render.modelMatrix, Meth.radians(angle));
+					render.modelMatrix = Mat4.rotateY(render.modelMatrix, Meth.radians(angle));
+					render.modelMatrix = Mat4.rotateZ(render.modelMatrix, Meth.radians(angle));
+					render.modelMatrix = Mat4.translate(render.modelMatrix, Vec3.new(150, 150, 0));
+					const modelView = Mat4.multMat4(render.modelMatrix, render.viewMatrix);
+					const MVP = Mat4.multMat4(modelView, render.projectionMatrix);
+					render.shader.setUniformMatrix('f', 'uMVP', MVP);
+
+					render.draw(render.shader, render.vertexArray, 6);
+				}
+
+				{
+					render.modelMatrix = Mat4.translate(Mat4.identity(), Vec3.new(200, 0, 0));
+					const modelView = Mat4.multMat4(render.modelMatrix, render.viewMatrix);
+					const MVP = Mat4.multMat4(modelView, render.projectionMatrix);
+					render.shader.setUniformMatrix('f', 'uMVP', MVP);
+
+					render.draw(render.shader, render.vertexArray, 6);
+				}
+			}
+		</script>
+	</body>
+</html>

@@ -28,7 +28,7 @@ class IndexBuffer extends Buffer{
 }
 
 class VertexArray{
-	constructor() {
+	constructor(renderer) {
 		this.id = gl.createVertexArray();
 		gl.bindVertexArray(this.id);
 
@@ -39,7 +39,7 @@ class VertexArray{
 			}
 
 			add(name, type, count, normalized = false) {
-				const index = shader.getAttribLocation(name);
+				const index = renderer.shader.getAttribLocation(name);
 				if(index !== -1) this.elements.push({ index: index, type: type, count: count, normalized: normalized });
 				this.stride += count*bytes(type);
 				return index;

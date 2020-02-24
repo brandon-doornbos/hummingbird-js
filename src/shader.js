@@ -1,6 +1,34 @@
 class Shader{
 	constructor(vertexShaderSource, fragmentShaderSource) {
-		this.id = this.createProgram(vertexShaderSource, fragmentShaderSource);
+		this.vertexShaderSource = vertexShaderSource || `
+			attribute vec4 aVertexPosition;
+			attribute vec4 aVertexColor;
+			attribute vec2 aTexturePosition;
+			attribute float aTextureId;
+
+			varying vec4 vVertexColor;
+			varying vec2 vTexturePosition;
+
+			uniform mat4 uMVP;
+
+			void main() {
+				gl_Position = uMVP * aVertexPosition;
+				vVertexColor = aVertexColor;
+				vTexturePosition = aTexturePosition;
+			}
+		`, this.fragmentShaderSource = fragmentShaderSource || `
+			precision mediump float;
+			varying vec4 vVertexColor;
+			varying vec2 vTexturePosition;
+
+			uniform sampler2D uTextureId;
+
+			void main() {
+				gl_FragColor = texture2D(uTextureId, vTexturePosition);// * vVertexColor;
+			}
+		`;
+
+		this.id = this.createProgram(this.vertexShaderSource, this.fragmentShaderSource);
 		this.attribLocationCache = {};
 		this.uniformLocationCache = {};
 	}

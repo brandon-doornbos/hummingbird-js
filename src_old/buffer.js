@@ -6,6 +6,9 @@ class Buffer{
 		gl.bufferData(this.type, data, usage);
 	}
 
+	write(data) { gl.bufferSubData(this.type, 0, data); }
+	partialWrite(data, length) { gl.bufferSubData(this.type, 0, data, 0, length); }
+
 	bind() { gl.bindBuffer(this.type, this.id); }
 	unbind() { gl.bindBuffer(this.type, null); }
 	delete() {
@@ -16,19 +19,25 @@ class Buffer{
 
 class VertexBuffer extends Buffer{
 	constructor(data) {
-		super(gl.ARRAY_BUFFER, gl.STATIC_DRAW, new Float32Array(data));
+		super(gl.ARRAY_BUFFER, gl.DYNAMIC_DRAW, data);
 	}
+
+	write(data) {	super.write(data); }
+	partialWrite(data, length) { super.partialWrite(data, length); }
 }
 
 class IndexBuffer extends Buffer{
 	constructor(data/*, count*/) {
-		super(gl.ELEMENT_ARRAY_BUFFER, gl.STATIC_DRAW, new Uint32Array(data));
+		super(gl.ELEMENT_ARRAY_BUFFER, gl.DYNAMIC_DRAW, data);
 		// this.count = count;
 	}
+
+	write(data) {	super.write(data); }
+	partialWrite(data, length) { super.partialWrite(data, length); }
 }
 
 class VertexArray{
-	constructor(renderer) {
+	constructor() {
 		this.id = gl.createVertexArray();
 		gl.bindVertexArray(this.id);
 
@@ -39,7 +48,7 @@ class VertexArray{
 			}
 
 			add(name, type, count, normalized = false) {
-				const index = renderer.shader.getAttribLocation(name);
+				const index = shader.getAttribLocation(name);
 				if(index !== -1) this.elements.push({ index: index, type: type, count: count, normalized: normalized });
 				this.stride += count*bytes(type);
 				return index;

@@ -1,49 +1,33 @@
 class Texture{
 	constructor(filePath) {
-		this.id = 0;
+		this.id = gl.createTexture();
 		this.createTexture(filePath);
+		this.textureIndex;
+		renderer.textures.push(this);
 	}
 
 	setErrorTexture() {
-		this.bind();
 		const errorTexture = new Uint8Array([255, 255, 255, 255, 191, 191, 191, 255, 191, 191, 191, 255, 255, 255, 255, 255]);
 		this.setTextureParameters(gl.NEAREST, gl.REPEAT);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, errorTexture);
-		// this.unbind();
 	}
 
 	createTexture(filePath) {
-		this.id = gl.createTexture();
-
+		this.bind();
 		this.setErrorTexture();
-		if(!defined(filePath)) return;
+
+		if(filePath === undefined) return;
 
 		const image = new Image();
 		image.onload = () => {
-			// const canvas = document.createElement('canvas');
-			// canvas.width = image.width, canvas.height = image.height;
-			// const canvasContext = canvas.getContext('2d');
-			// canvasContext.drawImage(image, 0, 0);
-			// const imageData = canvasContext.getImageData(0, 0, canvas.width, canvas.height);
-			// const flippedImageData = new ImageData(imageData.width, imageData.height);
-			// for(let i = 0; i < imageData.data.length; i += 4) {
-			// 	flippedImageData.data[imageData.data.length-i-4] = imageData.data[i+0];
-			// 	flippedImageData.data[imageData.data.length-i-3] = imageData.data[i+1];
-			// 	flippedImageData.data[imageData.data.length-i-2] = imageData.data[i+2];
-			// 	flippedImageData.data[imageData.data.length-i-1] = imageData.data[i+3];
-			// }
-			// // canvasContext.putImageData(newData, 0, 0);
-			// // document.documentElement.appendChild(canvas);
-			// canvas.remove();
-
 			this.bind();
 			this.setTextureParameters(gl.LINEAR, gl.CLAMP_TO_EDGE);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, image);
-			// gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
-			// gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, flippedImageData);
 			// this.unbind();
+			this.textureIndex = undefined;
 		}
 		image.src = filePath;
+		this.textureIndex = undefined;
 	}
 
 	setTextureParameters(filter, wrap) {
@@ -54,6 +38,7 @@ class Texture{
 	}
 
 	bind(slot = 1) {
+		this.textureIndex = slot;
 		gl.activeTexture(gl['TEXTURE' + slot]);
 		gl.bindTexture(gl.TEXTURE_2D, this.id);
 	}

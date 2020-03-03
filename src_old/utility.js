@@ -5,10 +5,8 @@ function bytes(type) {
 		case gl.BYTE: return 1;
 	}
 }
-// returns true if passed variable is not undefined
-function defined(variable) { return variable !== undefined; }
 // get the mouse position in the form of a Vec2
 function getMousePos(e) {
-	const rect = HummingbirdCanvas.getBoundingClientRect(), root = document.body;
+	const rect = HBCanvas.getBoundingClientRect(), root = document.body;
 	return [e.clientX-rect.left-root.scrollLeft, e.clientY-rect.top-root.scrollTop];
 }

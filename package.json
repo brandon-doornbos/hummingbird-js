@@ -1,7 +1,7 @@
 {
   "name": "hummingbird",
   "version": "0.0.1",
-  "description": "A game engine for JavaScript running on WebGL.",
+  "description": "A game engine for JavaScript running on WebGL2.",
   "main": "main.js",
   "scripts": {
     "build": "bash build.sh"
@@ -27,7 +27,6 @@
   "homepage": "https://github.com/SantaClausNL/Hummingbird#readme",
   "dependencies": {},
   "devDependencies": {
-    "babel-minify": "^0.5.1",
-    "babel-plugin-minify-mangle-names": "^0.5.0"
+    "babel-minify": "^0.5.1"
   }
 }

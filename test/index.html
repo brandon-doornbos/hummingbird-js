@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Hummingbird, by SantaClausNL</title>
+		<script src="https://projects.santaclausnl.ga/Hummingbird/dist/hummingbird.js"></script>
+		<style>
+			html{ background-color: gray; }
+			#HummingbirdCanvas{
+				margin: auto;
+				position: absolute;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			let objects;
+
+			function setup() {
+				HB.init(1280, 720);
+
+				new HB.Texture('oof', './oof.png');
+				new HB.Texture('birb', 'https://projects.santaclausnl.ga/Hummingbird/assets/logo.svg');
+				new HB.Texture('piet', './piet-piraat.jpg');
+				new HB.Texture('dickbutt', './dickbutt.jpg');
+				new HB.Texture('cat1', './cat1.jpg');
+				new HB.Texture('cat2', './cat2.png');
+				new HB.Texture('cat3', './cat3.png');
+				new HB.Texture('cat4', './cat4.jpg');
+
+				objects = [
+					new Bouncer('oof'),
+					new Bouncer('birb'),
+					new Bouncer('piet'),
+					new Bouncer('dickbutt'),
+					new Bouncer('cat1'),
+					new Bouncer('cat2'),
+					new Bouncer('cat3'),
+					new Bouncer('cat4'),
+				];
+			}
+
+			class Bouncer{
+				constructor(texture) {
+					this.pos = HB.Vec2.new();
+					this.size = HB.Vec2.new(100, 100);
+					this.vel = HB.Vec2.new(HB.Math.random(-150, 150), HB.Math.random(-150, 150));
+					this.texture = texture;
+				}
+
+				update(deltaTime) {
+					this.pos[0] += (this.vel[0]*(deltaTime/1000));
+					this.pos[1] += (this.vel[1]*(deltaTime/1000));
+
+					if(this.pos[0] > HB.canvas.width-this.size[0]) {
+						this.vel[0] *= -1;
+						this.pos[0] = HB.canvas.width-this.size[0];
+					} else if(this.pos[0] < 0) {
+						this.vel[0] *= -1;
+						this.pos[0] = 0;
+					}
+					if(this.pos[1] > HB.canvas.height-this.size[1]) {
+						this.vel[1] *= -1;
+						this.pos[1] = HB.canvas.height-this.size[1];
+					} else if(this.pos[1] < 0) {
+						this.vel[1] *= -1;
+						this.pos[1] = 0;
+					}
+				}
+			}
+
+			let angle = 0, cameraSpeed = 500;
+
+			function update(deltaTime) {
+				HB.renderer.clear(HB.Vec4.new(0, 0, 0, 1));
+
+				const speed = cameraSpeed * (deltaTime/1000);
+				Object.entries(HB.keysPressed).forEach(([key, state]) => {
+					if(state !== true) return;
+					switch(key) {
+						case '87': HB.camera.translate(HB.Vec3.new(0, speed, 0)); break;
+						case '65': HB.camera.translate(HB.Vec3.new(speed, 0, 0)); break;
+						case '83': HB.camera.translate(HB.Vec3.new(0, -speed, 0)); break;
+						case '68': HB.camera.translate(HB.Vec3.new(-speed, 0, 0)); break;
+
+						case '69': HB.camera.translate(HB.Vec3.new(0, 0, 0.1)); break;
+						case '81': HB.camera.translate(HB.Vec3.new(0, 0, -0.1)); break;
+					}
+				});
+
+				const pos = HB.Vec2.new(), size = HB.Vec2.new(5, 5), color = HB.Vec4.new(0, 1, 1, 1);
+				for(let x = 0, r = 0, g = 1; x < HB.canvas.width; x += 6) {
+					color[0] += 0.005, color[1] -= 0.005;
+					for(let y = 0; y < HB.canvas.height; y += 6) {
+						HB.Vec2.set(pos, x, y);
+						HB.batch.drawColoredRect(pos, size, color);
+						// HB.batch.drawTexturedRect(pos, size, HB.textures['oof']);
+					}
+				}
+
+				HB.batch.drawColoredRect(HB.Vec2.new(), HB.Vec2.new(150, 150), HB.Vec4.new(1, 1, 1, 1));
+				HB.batch.drawTexturedRect(HB.Vec2.new(), HB.Vec2.new(150, 150), HB.textures['birb']);
+
+				objects.forEach((object) => {
+					object.update(deltaTime);
+					HB.batch.drawTexturedRect(object.pos, object.size, HB.textures[object.texture]);
+				});
+
+				HB.batch.drawColoredText('well hello there', HB.Vec2.new(200, 100), 2, HB.Vec4.new(1, 1, 0, 1));
+			}
+		</script>
+	</body>
+</html>

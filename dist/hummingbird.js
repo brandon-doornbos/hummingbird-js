@@ -2,7 +2,7 @@ window.HB = (function() {
 	"use strict";
 	return {
 		//#region variables
-		version: "v0.3.20",
+		version: "v0.3.21",
 		noUpdate: false,
 		frames: 0,
 		prevTime: 0,
@@ -92,7 +92,11 @@ window.HB = (function() {
 				if(typeof keyReleased === 'function') keyReleased(event);
 			});
 			window.addEventListener('mousemove', (event) => {
-				HB.mousePos = HB.getMousePos(event);
+				const rect = HB.canvas.getBoundingClientRect();
+				HB.Vec2.set(HB.mousePos,
+					event.clientX-rect.left-document.body.scrollLeft,
+					event.clientY-rect.top-document.body.scrollTop
+				);
 				if(typeof mouseMoved === 'function') mouseMoved(event);
 			});
 			window.addEventListener('mousedown', (event) => {
@@ -837,11 +841,6 @@ window.HB = (function() {
 				case HB.gl.BYTE: return 1;
 			}
 		},
-		// get the mouse position in the form of a Vec2
-		getMousePos: function(e) {
-			const rect = HB.canvas.getBoundingClientRect(), root = document.body;
-			return [e.clientX-rect.left-root.scrollLeft, e.clientY-rect.top-root.scrollTop];
-		},
 		// load a file, give type(from link below) and supply callback that takes 1 i.e. data argument loadFile('path_to.file', (data) => console.log(data));
 		// https://developer.mozilla.org/en-US/docs/Web/API/Body#Methods
 		loadFile: function(path, type, callback) {
@@ -890,16 +889,25 @@ window.HB = (function() {
 			static lerp(start, end, amt) { // linear interpolation
 				return start+amt*(end-start);
 			}
-			static constrain(val, minVal, maxVal) { // constrain a value
-				if(val > maxVal) {
-					return maxVal;
-				} else if(val < minVal) {
-					return minVal;
+			static constrain(value, min, max) { // constrain a value
+				if(value > max) {
+					return max;
+				} else if(value < min) {
+					return min;
 				} else {
-					return val;
+					return value;
 				}
 			}
-			static rectRectCollision(vectorA, sizeA, vectorB, sizeB) {
+			static wrap(value, min, max) { // wrap a value if it is too high or low
+				if(value > max) {
+					return min;
+				} else if(value < min) {
+					return max;
+				} else {
+					return value;
+				}
+			}
+			static rectRectCollision(vectorA, sizeA, vectorB, sizeB) { // check for AABB collision between two rectangles
 				return (Math.abs((vectorA[0]+sizeA[0]/2) - (vectorB[0]+sizeB[0]/2)) * 2 < (sizeA[0] + sizeB[0]))
 						&& (Math.abs((vectorA[1]+sizeA[1]/2) - (vectorB[1]+sizeB[1]/2)) * 2 < (sizeA[1] + sizeB[1]));
 			}
@@ -969,19 +977,9 @@ window.HB = (function() {
 
 			static new(x = 0, y = 0) { return [x, y]; }
 			static fromVec2(vector) { return [vector[0], vector[1]]; }
-			static copy(out, vector) { return out[0] = vector[0], out[1] = vector[1]; }
-
-			static fromAngle(angle, radius = 1) {
-				return HB.Vec2.new(Math.cos(angle) * radius, Math.sin(angle) * radius);
-			}
-
-			static set(out, x, y = undefined) {
-				if(y !== undefined) {
-					out[0] = x, out[1] = y;
-				} else {
-					out[0] = x[0], out[1] = x[1];
-				}
-			}
+			static fromAngle(angle, radius = 1) { return HB.Vec2.new(Math.cos(angle) * radius, Math.sin(angle) * radius); }
+			static copy(out, vector) { out[0] = vector[0], out[1] = vector[1]; }
+			static set(out, x, y) { out[0] = x, out[1] = y; }
 
 			static add(out, x, y = undefined) {
 				if(y !== undefined) {
@@ -993,7 +991,7 @@ window.HB = (function() {
 				}
 			}
 
-			static mult(out, x, y) {
+			static mult(out, x, y = undefined) {
 				if(y === undefined) {
 					if(Array.isArray(x)) {
 						out[0] *= x[0];
@@ -1008,7 +1006,7 @@ window.HB = (function() {
 				}
 			}
 
-			static div(out, x, y) {
+			static div(out, x, y = undefined) {
 				if(y === undefined) {
 					if(Array.isArray(x)) {
 						out[0] /= x[0];

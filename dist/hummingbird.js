@@ -2,8 +2,11 @@ window.HB = (function() {
 	"use strict";
 	return {
 		//#region variables
-		version: "v0.3.21",
+		version: "v0.3.23",
 		noUpdate: false,
+		deltaTime: 0,
+		accumulator: 0,
+		fixedUpdateFrequency: 50,
 		frames: 0,
 		prevTime: 0,
 		mousePos: [0, 0],
@@ -127,11 +130,22 @@ window.HB = (function() {
 		},
 
 		update: function(now) {
-			const deltaTime = now-HB.prevTime;
+			HB.deltaTime = now-HB.prevTime;
 			HB.prevTime = now;
+
 			HB.camera.setMVP();
 			HB.batch.begin();
-			update(deltaTime);
+
+			if(typeof fixedUpdate === 'function') {
+				HB.accumulator += HB.deltaTime;
+				while(HB.accumulator >= 1000/HB.fixedUpdateFrequency) {
+					fixedUpdate();
+					HB.accumulator -= 1000/HB.fixedUpdateFrequency;
+				}
+			}
+
+			update();
+
 			HB.batch.end();
 			HB.frames++;
 			requestAnimationFrame(HB.update);

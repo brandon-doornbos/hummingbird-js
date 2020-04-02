@@ -27,6 +27,7 @@
   "homepage": "https://github.com/SantaClausNL/Hummingbird#readme",
   "dependencies": {},
   "devDependencies": {
-    "babel-minify": "^0.5.1"
+    "babel-minify": "^0.5.1",
+    "rollup": "^2.3.2"
   }
 }

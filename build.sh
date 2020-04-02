@@ -1,19 +1,12 @@
 #!/bin/bash
 
-cd /home/santaclausnl/NAS/STACK/Coding/Hummingbird/
+cd ~/NAS/STACK/Coding/Hummingbird/
 
-rm ./dist/hummingbird.js
-touch ./dist/hummingbird.js
+echo "Building..."
+node node_modules/rollup/dist/bin/rollup src/index.js --file dist/hummingbird.js --format iife --output.name HB
 
-cat ./source.js >> ./dist/hummingbird.js
+echo "Minifying..."
+echo "dist/hummingbird.js → dist/hummingbird.min.js..."
+minify dist/hummingbird.js -o dist/hummingbird.min.js
 
-# echo '"use strict";' >> ./dist/hummingbird.js
-# echo '' >> ./dist/hummingbird.js
-# for file in ./src/*.js
-# do
-# 	cat "$file" >> ./dist/hummingbird.js
-# 	echo '' >> ./dist/hummingbird.js
-# 	echo '' >> ./dist/hummingbird.js
-# done
-
-minify ./dist/hummingbird.js -o ./dist/hummingbird.min.js
+echo "Done!"

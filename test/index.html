@@ -49,13 +49,13 @@
 				constructor(texture) {
 					this.pos = HB.Vec2.new();
 					this.size = HB.Vec2.new(100, 100);
-					this.vel = HB.Vec2.new(HB.Math.random(-150, 150), HB.Math.random(-150, 150));
+					this.vel = HB.Vec2.new(HB.Math.random(-5, 5), HB.Math.random(-5, 5));
 					this.texture = texture;
 				}
 
-				update(deltaTime) {
-					this.pos[0] += (this.vel[0]*(deltaTime/1000));
-					this.pos[1] += (this.vel[1]*(deltaTime/1000));
+				update() {
+					this.pos[0] += this.vel[0];
+					this.pos[1] += this.vel[1];
 
 					if(this.pos[0] > HB.canvas.width-this.size[0]) {
 						this.vel[0] *= -1;
@@ -74,24 +74,10 @@
 				}
 			}
 
-			let angle = 0, cameraSpeed = 500;
+			let angle = 0, cameraSpeed = 10;
 
-			function update(deltaTime) {
+			function update() {
 				HB.renderer.clear(HB.Vec4.new(0, 0, 0, 1));
-
-				const speed = cameraSpeed * (deltaTime/1000);
-				Object.entries(HB.keysPressed).forEach(([key, state]) => {
-					if(state !== true) return;
-					switch(key) {
-						case '87': HB.camera.translate(HB.Vec3.new(0, speed, 0)); break;
-						case '65': HB.camera.translate(HB.Vec3.new(speed, 0, 0)); break;
-						case '83': HB.camera.translate(HB.Vec3.new(0, -speed, 0)); break;
-						case '68': HB.camera.translate(HB.Vec3.new(-speed, 0, 0)); break;
-
-						case '69': HB.camera.translate(HB.Vec3.new(0, 0, 0.1)); break;
-						case '81': HB.camera.translate(HB.Vec3.new(0, 0, -0.1)); break;
-					}
-				});
 
 				const pos = HB.Vec2.new(), size = HB.Vec2.new(5, 5), color = HB.Vec4.new(0, 1, 1, 1);
 				for(let x = 0, r = 0, g = 1; x < HB.canvas.width; x += 6) {
@@ -106,12 +92,42 @@
 				HB.batch.drawColoredRect(HB.Vec2.new(), HB.Vec2.new(150, 150), HB.Vec4.new(1, 1, 1, 1));
 				HB.batch.drawTexturedRect(HB.Vec2.new(), HB.Vec2.new(150, 150), HB.textures['birb']);
 
+				// objects[0].update();
+				// const canvasCenter = objects[0].pos;
+				// const points = [];
+				// // const points = [], canvasCenter = HB.Vec2.new(HB.canvas.width/2, HB.canvas.height/2);
+				// for(let i = 0; i < 360; i += 36) {
+				// 	const point = HB.Vec2.fromAngle(HB.Math.radians(i), 100);
+				// 	HB.Vec2.addVec2(point, canvasCenter);
+				// 	points.push(point);
+				// }
+				// HB.batch.drawColoredPolygon(points, HB.Vec4.colors.yellow);
+
 				objects.forEach((object) => {
-					object.update(deltaTime);
 					HB.batch.drawTexturedRect(object.pos, object.size, HB.textures[object.texture]);
 				});
 
-				HB.batch.drawColoredText('well hello there', HB.Vec2.new(200, 100), 2, HB.Vec4.new(1, 1, 0, 1));
+				HB.batch.drawColoredText('well hello there', HB.Vec2.new(200, 100), 64, 'start-start', HB.Vec4.colors.white);
+			}
+
+			function fixedUpdate() {
+				if(HB.keysPressed[87] === true) HB.camera.translate(HB.Vec3.new(0, cameraSpeed, 0));
+				if(HB.keysPressed[65] === true) HB.camera.translate(HB.Vec3.new(cameraSpeed, 0, 0));
+				if(HB.keysPressed[83] === true) HB.camera.translate(HB.Vec3.new(0, -cameraSpeed, 0));
+				if(HB.keysPressed[68] === true) HB.camera.translate(HB.Vec3.new(-cameraSpeed, 0, 0));
+
+				if(HB.keysPressed[69] === true) HB.camera.translate(HB.Vec3.new(0, 0, 0.1));
+				if(HB.keysPressed[81] === true) HB.camera.translate(HB.Vec3.new(0, 0, -0.1));
+
+				// if(HB.keysPressed[69] === true) HB.Mat4.rotate(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Vec3.new(0, 0, 1), HB.Math.radians(1));
+				// if(HB.keysPressed[81] === true) HB.Mat4.rotate(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Vec3.new(0, 0, 1), HB.Math.radians(-1));
+				//--------------------------------------same-thing----------------------------------------
+				// if(HB.keysPressed[69] === true) HB.Mat4.rotateZ(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Math.radians(1));
+				// if(HB.keysPressed[81] === true) HB.Mat4.rotateZ(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Math.radians(-1));
+
+				objects.forEach((object) => {
+					object.update();
+				});
 			}
 		</script>
 	</body>

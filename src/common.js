@@ -4,7 +4,7 @@ import { batch } from './batch.js';
 import { Texture } from './texture.js';
 import { Math, Vec2, Mat4 } from './math.js';
 
-const version = "v0.3.33";
+const version = "v0.4.0";
 let noUpdate = false;
 let deltaTime = 0;
 let accumulator = 0;

@@ -351,9 +351,7 @@ var HB = (function (exports) {
 			Mat4.orthographic(this.projectionMatrix, 0, exports.canvas.width, 0, exports.canvas.height, -1, 1);
 			// Mat4.perspective(this.projectionMatrix, Math.radians(60));
 			this.viewMatrix = Mat4.new(1);
-			// Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(0, 0, -400));
 			this.modelMatrix = Mat4.new(1);
-			// Mat4.translate(Mat4.new(1), Vec3.new(0, 0, 0));
 		}
 
 		static init() {
@@ -369,10 +367,19 @@ var HB = (function (exports) {
 			}
 			exports.shader.bind();
 			exports.shader.setUniformMatrix('f', 'uMVP', mvp);
-			// shader.setUniformMatrix('f', 'uMVP', this.projectionMatrix);
 		}
 
 		translate(vector3) { Mat4.translate(this.viewMatrix, this.viewMatrix, vector3); }
+		zoom(amount) {
+			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-exports.canvas.center[0], -exports.canvas.center[1]));
+			Mat4.scale(this.viewMatrix, this.viewMatrix, amount);
+			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(exports.canvas.center[0], exports.canvas.center[1]));
+		}
+		rotate(angle) {
+			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-exports.canvas.center[0], -exports.canvas.center[1]));
+			Mat4.rotateZ(this.viewMatrix, this.viewMatrix, angle);
+			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(exports.canvas.center[0], exports.canvas.center[1]));
+		}
 	}
 
 	// gives byte amount of different WebGL types
@@ -1032,7 +1039,7 @@ var HB = (function (exports) {
 		}
 	}
 
-	const version = "v0.3.33";
+	const version = "v0.4.0";
 	exports.noUpdate = false;
 	exports.deltaTime = 0;
 	exports.accumulator = 0;

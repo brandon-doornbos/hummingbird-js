@@ -12,6 +12,7 @@ var HB = (function (exports) {
 			in float aTextureId;
 			in float aTextSize;
 
+			out vec4 vScreenPosition;
 			out vec4 vVertexColor;
 			out vec2 vTexturePosition;
 			out float vTextureId;
@@ -20,7 +21,8 @@ var HB = (function (exports) {
 			uniform mat4 uMVP;
 
 			void main() {
-				gl_Position = uMVP * aVertexPosition;
+				vScreenPosition = uMVP * aVertexPosition;
+				gl_Position = vScreenPosition;
 				vVertexColor = aVertexColor;
 				vTexturePosition = aTexturePosition;
 				vTextureId = aTextureId;
@@ -28,6 +30,7 @@ var HB = (function (exports) {
 			}
 		`, this.fragmentShaderSource = fragmentShaderSource || `#version 300 es
 			precision mediump float;
+			in vec4 vScreenPosition;
 			in vec4 vVertexColor;
 			in vec2 vTexturePosition;
 			in float vTextureId;
@@ -58,7 +61,10 @@ var HB = (function (exports) {
 					case 15: texSample = texture(uTextureIds[15], vTexturePosition); break;
 				}
 				if(vTextSize <= 0.0) {
-					pixelColor = texSample * vVertexColor;
+					// float dist = distance(vec4(0.0, 0.0, 0.0, 1.0), vScreenPosition);
+					// vec4 color = texSample * vVertexColor;
+					// pixelColor = vec4(color.rgb, smoothstep(0.75, 0.5, dist)*color.a);
+					pixelColor = vVertexColor * texSample;
 				} else {
 					float sigDist = max(min(texSample.r, texSample.g), min(max(texSample.r, texSample.g), texSample.b)) - 0.5;
 					float alpha = clamp(sigDist/fwidth(sigDist) + 0.4, 0.0, 1.0);
@@ -126,6 +132,8 @@ var HB = (function (exports) {
 		}
 	}
 
+	// import { canvas } from './common.js';
+
 	class HBMath{
 		constructor() {
 			new Vec2();
@@ -138,6 +146,9 @@ var HB = (function (exports) {
 		}
 		static degrees(radians) { // convert radians to degrees
 			return radians*(180/Math.PI);
+		}
+		static dist(x1, y1, x2, y2) { // gets distance between 2 x+y pairs
+			return Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
 		}
 		static map(value, valLow, valHigh, resLow, resHigh) { // map a number to another range
 			return resLow + (resHigh - resLow) * (value - valLow) / (valHigh - valLow);
@@ -178,6 +189,11 @@ var HB = (function (exports) {
 		static rectRectCollision(vectorA, sizeA, vectorB, sizeB) { // check for AABB collision between two rectangles
 			return (Math.abs((vectorA[0]+sizeA[0]/2) - (vectorB[0]+sizeB[0]/2)) * 2 < (sizeA[0] + sizeB[0]))
 					&& (Math.abs((vectorA[1]+sizeA[1]/2) - (vectorB[1]+sizeB[1]/2)) * 2 < (sizeA[1] + sizeB[1]));
+		}
+		static rectCircleCollision(rectPos, rectSize, circleCenter, circleRadius) { // check for collision between a rectangle and a circle
+			const dx = circleCenter[0]-Math.max(rectPos[0], Math.min(circleCenter[0], rectPos[0]+rectSize[0]));
+			const dy = circleCenter[1]-Math.max(rectPos[1], Math.min(circleCenter[1], rectPos[1]+rectSize[1]));
+			return (dx*dx + dy*dy) < circleRadius*circleRadius;
 		}
 	}
 
@@ -238,7 +254,7 @@ var HB = (function (exports) {
 
 		static collidesRect(vector, rectPos, rectSize) {
 			return (
-					 vector[0] < rectPos[0]+rectSize[0]
+				   vector[0] < rectPos[0]+rectSize[0]
 				&& vector[0] > rectPos[0]
 				&& vector[1] < rectPos[1]+rectSize[1]
 				&& vector[1] > rectPos[1]
@@ -272,6 +288,7 @@ var HB = (function (exports) {
 		}
 
 		static new(x = 0, y = 0, z = 0, w = 0) { return [x, y, z, w]; }
+		static set(out, x, y, z, w) { out[0] = x, out[1] = y, out[2] = z, out[3] = w; }
 
 		static multVec4(vectorA, vectorB) { return [vectorA[0] * vectorB[0], vectorA[1] * vectorB[1], vectorA[2] * vectorB[2], vectorA[3] * vectorB[3]]; }
 
@@ -288,6 +305,15 @@ var HB = (function (exports) {
 	class Mat4{
 		static new(identity = 0) { return [identity, 0, 0, 0, 0, identity, 0, 0, 0, 0, identity, 0, 0, 0, 0, identity]; }
 
+		static transpose(out) {
+			const temp = out.slice();
+
+			out[0 ] = temp[0], out[1 ] = temp[4], out[2 ] = temp[8 ], out[3 ] = temp[12];
+			out[4 ] = temp[1], out[5 ] = temp[5], out[6 ] = temp[9 ], out[7 ] = temp[13];
+			out[8 ] = temp[2], out[9 ] = temp[6], out[10] = temp[10], out[11] = temp[14];
+			out[12] = temp[3], out[13] = temp[7], out[14] = temp[11], out[15] = temp[15];
+		}
+
 		static orthographic(out, left, right, top, bottom, near = -1, far = 1) {
 			const rl = right-left, tb = top-bottom, fn = far-near;
 
@@ -297,8 +323,8 @@ var HB = (function (exports) {
 			out[12] =    0, out[13] =    0, out[14] =     0, out[15] =                1;
 		}
 
-		// static perspective(out, FoV, aspect, near = 0.01, far = 1000) {
-		// 	const f = Math.tan(Math.PI * 0.5 - 0.5 * FoV);
+		// static perspective(out, FoV = 60, aspect = canvas.width/canvas.height, near = 0.01, far = 1000) {
+		// 	const f = Math.tan(Math.PI * 0.5 - 0.5 * HBMath.radians(FoV));
 		// 	const invRange = 1.0 / (near - far);
 
 		// 	out[0] = f/aspect, out[4] = 0, out[ 8] =                   0, out[12] =  0;
@@ -347,11 +373,13 @@ var HB = (function (exports) {
 		constructor() {
 			exports.gl.viewport(0, 0, exports.canvas.width, exports.canvas.height);
 
-			this.projectionMatrix = Mat4.new(1);
+			this.MVP = Mat4.new();
+			this.projectionMatrix = Mat4.new();
 			Mat4.orthographic(this.projectionMatrix, 0, exports.canvas.width, 0, exports.canvas.height, -1, 1);
-			// Mat4.perspective(this.projectionMatrix, Math.radians(60));
+			// Mat4.perspective(this.projectionMatrix);
+
 			this.viewMatrix = Mat4.new(1);
-			this.modelMatrix = Mat4.new(1);
+			// this.modelMatrix = Mat4.new(1);
 		}
 
 		static init() {
@@ -360,19 +388,17 @@ var HB = (function (exports) {
 
 		setMVP(mvp = undefined) {
 			if(mvp === undefined) {
-				const modelView = Mat4.new(1);
-				Mat4.multMat4(modelView, this.modelMatrix, this.viewMatrix);
-				mvp = Mat4.new(1);
-				Mat4.multMat4(mvp, modelView, this.projectionMatrix);
-			}
-			exports.shader.bind();
-			exports.shader.setUniformMatrix('f', 'uMVP', mvp);
+				// const modelView = Mat4.new(1);
+				// Mat4.multMat4(modelView, this.modelMatrix, this.viewMatrix);
+				Mat4.multMat4(this.MVP, this.viewMatrix, this.projectionMatrix);
+				exports.shader.setUniformMatrix('f', 'uMVP', this.MVP);
+			} else exports.shader.setUniformMatrix('f', 'uMVP', mvp);
 		}
 
 		translate(vector3) { Mat4.translate(this.viewMatrix, this.viewMatrix, vector3); }
 		zoom(amount) {
 			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-exports.canvas.center[0], -exports.canvas.center[1]));
-			Mat4.scale(this.viewMatrix, this.viewMatrix, amount);
+			Mat4.scale(this.viewMatrix, this.viewMatrix, 1+amount);
 			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(exports.canvas.center[0], exports.canvas.center[1]));
 		}
 		rotate(angle) {
@@ -550,8 +576,33 @@ var HB = (function (exports) {
 				if(typeof HBupdate === 'function' && exports.noUpdate === false) requestAnimationFrame(HBupdate);
 			});
 			const webp = new Image();
-			webp.onload = webp.onerror = () => exports.font = new Texture('Hummingbird_Font-Atlas', "https://projects.santaclausnl.ga/Hummingbird/assets/arial."+(webp.height === 2 ? 'webp' : 'png'), null);
+			webp.onload = webp.onerror = () => exports.font = new Texture('Hummingbird_Font-Atlas', "https://projects.santaclausnl.ga/Hummingbird/assets/arial."+(webp.height === 2 ? 'webp' : 'png'));
 			webp.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+
+			const circleSize = 1000;
+			const circle = new Uint8Array(circleSize*circleSize*4);
+			for(let x = 0; x < circleSize; x++) {
+				for(let y = 0; y < circleSize; y++) {
+					const index = (x*circleSize+y)*4;
+
+					if(HBMath.dist(x, y, circleSize/2, circleSize/2) < circleSize/2) {
+						circle[index  ] = 255;
+						circle[index+1] = 255;
+						circle[index+2] = 255;
+						circle[index+3] = 255;
+					} else {
+						circle[index  ] = 0;
+						circle[index+1] = 0;
+						circle[index+2] = 0;
+						circle[index+3] = 0;
+					}
+				}
+			}
+			new Texture('Hummingbird_Circle');
+			textures['Hummingbird_Circle'].bind();
+			textures['Hummingbird_Circle'].setTextureParameters(exports.gl.LINEAR, exports.gl.CLAMP_TO_EDGE);
+			exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA8, circleSize, circleSize, 0, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, circle);
+			textures['Hummingbird_Circle'].onLoadCallback();
 
 			// const textureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
 			const textureSamplers = [];
@@ -588,7 +639,6 @@ var HB = (function (exports) {
 				this.setTextureParameters(exports.gl.LINEAR, exports.gl.CLAMP_TO_EDGE);
 				exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA8, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, image);
 				this.onLoadCallback();
-				// this.unbind();
 			};
 			image.src = path;
 		}
@@ -612,8 +662,8 @@ var HB = (function (exports) {
 	}
 
 	exports.batch = undefined;
-	const maxVertexCount = 2000;
-	const maxIndexCount = 3000;
+	const maxVertexCount = 4000;
+	const maxIndexCount = 6000;
 
 	class Batch{
 		constructor() {
@@ -637,56 +687,57 @@ var HB = (function (exports) {
 			this.textureCache = {};
 		}
 
-		// drawColoredPolygon(points, color) {
-		// 	const triangles = Math.floor(points.length/3);
-		// 	for(let i = 0; i < triangles*3; i += 3) drawColoredTriangle(i);
-		// 	if(points.length%3 > 0) drawColoredTriangle(points.length-3);
+		drawColoredPoint(pos, size = 1, color) {
+			this.drawColoredRect([pos[0]-size/4, pos[1]-size/4], [size/2, size/2], color);
+		}
 
-		// 	function drawColoredTriangle(startIndex) {
-		// 		if((batch.vertexCount + 3) >= maxVertexCount || (batch.indexCount + 3) >= maxIndexCount) batch.flush();
+		drawColoredPolygon(points, color, center = 0) {
+			for(let i = 0; i < points.length-1; i++) {
+				if(i === center) continue;
+				if((this.vertexCount + 3) >= maxVertexCount || (this.indexCount + 3) >= maxIndexCount) this.flush();
 
-		// 		const start = batch.vertexCount*vertexStride;
-		// 		vertices[start   ] = points[startIndex][0];
-		// 		vertices[start+1 ] = points[startIndex][1];
-		// 		vertices[start+2 ] = 0;
-		// 		vertices[start+3 ] = color[0];
-		// 		vertices[start+4 ] = color[1];
-		// 		vertices[start+5 ] = color[2];
-		// 		vertices[start+6 ] = color[3];
-		// 		vertices[start+7 ] = 0;
-		// 		vertices[start+8 ] = 1;
-		// 		vertices[start+9 ] = 0;
-		// 		vertices[start+10] = 0;
-		// 		vertices[start+11] = points[startIndex+1][0];
-		// 		vertices[start+12] = points[startIndex+1][1];
-		// 		vertices[start+13] = 0;
-		// 		vertices[start+14] = color[0];
-		// 		vertices[start+15] = color[1];
-		// 		vertices[start+16] = color[2];
-		// 		vertices[start+17] = color[3];
-		// 		vertices[start+18] = 0.5;
-		// 		vertices[start+19] = 0.5;
-		// 		vertices[start+20] = 0;
-		// 		vertices[start+21] = 0;
-		// 		vertices[start+22] = points[startIndex+2][0];
-		// 		vertices[start+23] = points[startIndex+2][1];
-		// 		vertices[start+24] = 0;
-		// 		vertices[start+25] = color[0];
-		// 		vertices[start+26] = color[1];
-		// 		vertices[start+27] = color[2];
-		// 		vertices[start+28] = color[3];
-		// 		vertices[start+29] = 1;
-		// 		vertices[start+30] = 1;
-		// 		vertices[start+31] = 0;
-		// 		vertices[start+32] = 0;
+				const start = this.vertexCount*exports.vertexStride;
+				exports.vertices[start   ] = points[center][0];
+				exports.vertices[start+1 ] = points[center][1];
+				exports.vertices[start+2 ] = 0;
+				exports.vertices[start+3 ] = color[0];
+				exports.vertices[start+4 ] = color[1];
+				exports.vertices[start+5 ] = color[2];
+				exports.vertices[start+6 ] = color[3];
+				exports.vertices[start+7 ] = 0;
+				exports.vertices[start+8 ] = 1;
+				exports.vertices[start+9 ] = 0;
+				exports.vertices[start+10] = 0;
+				exports.vertices[start+11] = points[i][0];
+				exports.vertices[start+12] = points[i][1];
+				exports.vertices[start+13] = 0;
+				exports.vertices[start+14] = color[0];
+				exports.vertices[start+15] = color[1];
+				exports.vertices[start+16] = color[2];
+				exports.vertices[start+17] = color[3];
+				exports.vertices[start+18] = 0.5;
+				exports.vertices[start+19] = 0.5;
+				exports.vertices[start+20] = 0;
+				exports.vertices[start+21] = 0;
+				exports.vertices[start+22] = points[i+1][0];
+				exports.vertices[start+23] = points[i+1][1];
+				exports.vertices[start+24] = 0;
+				exports.vertices[start+25] = color[0];
+				exports.vertices[start+26] = color[1];
+				exports.vertices[start+27] = color[2];
+				exports.vertices[start+28] = color[3];
+				exports.vertices[start+29] = 1;
+				exports.vertices[start+30] = 1;
+				exports.vertices[start+31] = 0;
+				exports.vertices[start+32] = 0;
 
-		// 		indices[batch.indexCount  ] = batch.vertexCount;
-		// 		indices[batch.indexCount+1] = batch.vertexCount+1;
-		// 		indices[batch.indexCount+2] = batch.vertexCount+2;
+				exports.indices[this.indexCount  ] = this.vertexCount;
+				exports.indices[this.indexCount+1] = this.vertexCount+1;
+				exports.indices[this.indexCount+2] = this.vertexCount+2;
 
-		// 		batch.vertexCount += 3, batch.indexCount += 3;
-		// 	}
-		// }
+				this.vertexCount += 3, this.indexCount += 3;
+			}
+		}
 
 		drawColoredRect(pos, size, color) {
 			if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
@@ -813,6 +864,143 @@ var HB = (function (exports) {
 			this.vertexCount += 4, this.indexCount += 6;
 		}
 
+		drawColoredRectWithRotation(pos, size, angle, color) {
+			if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
+
+			angle = HB.Math.radians(angle);
+			const cosX = size[0]*-0.5*Math.cos(angle), cosY = size[1]*-0.5*Math.cos(angle);
+			const cosX1 = size[0]*0.5*Math.cos(angle), cosY1 = size[1]*0.5*Math.cos(angle);
+			const sinX = size[0]*-0.5*Math.sin(angle), sinY = size[1]*-0.5*Math.sin(angle);
+			const sinX1 = size[0]*0.5*Math.sin(angle), sinY1 = size[1]*0.5*Math.sin(angle);
+
+			const start = this.vertexCount*exports.vertexStride;
+			exports.vertices[start   ] = cosX-sinY+pos[0]+size[0]/2;
+			exports.vertices[start+1 ] = sinX+cosY+pos[1]+size[1]/2;
+			exports.vertices[start+2 ] = 0;
+			exports.vertices[start+3 ] = color[0];
+			exports.vertices[start+4 ] = color[1];
+			exports.vertices[start+5 ] = color[2];
+			exports.vertices[start+6 ] = color[3];
+			exports.vertices[start+7 ] = 0;
+			exports.vertices[start+8 ] = 0;
+			exports.vertices[start+9 ] = 0;
+			exports.vertices[start+10] = 0;
+			exports.vertices[start+11] = cosX1-sinY+pos[0]+size[0]/2;
+			exports.vertices[start+12] = sinX1+cosY+pos[1]+size[1]/2;
+			exports.vertices[start+13] = 0;
+			exports.vertices[start+14] = color[0];
+			exports.vertices[start+15] = color[1];
+			exports.vertices[start+16] = color[2];
+			exports.vertices[start+17] = color[3];
+			exports.vertices[start+18] = 1;
+			exports.vertices[start+19] = 0;
+			exports.vertices[start+20] = 0;
+			exports.vertices[start+21] = 0;
+			exports.vertices[start+22] = cosX1-sinY1+pos[0]+size[0]/2;
+			exports.vertices[start+23] = sinX1+cosY1+pos[1]+size[1]/2;
+			exports.vertices[start+24] = 0;
+			exports.vertices[start+25] = color[0];
+			exports.vertices[start+26] = color[1];
+			exports.vertices[start+27] = color[2];
+			exports.vertices[start+28] = color[3];
+			exports.vertices[start+29] = 1;
+			exports.vertices[start+30] = 1;
+			exports.vertices[start+31] = 0;
+			exports.vertices[start+32] = 0;
+			exports.vertices[start+33] = cosX-sinY1+pos[0]+size[0]/2;
+			exports.vertices[start+34] = sinX+cosY1+pos[1]+size[1]/2;
+			exports.vertices[start+35] = 0;
+			exports.vertices[start+36] = color[0];
+			exports.vertices[start+37] = color[1];
+			exports.vertices[start+38] = color[2];
+			exports.vertices[start+39] = color[3];
+			exports.vertices[start+40] = 0;
+			exports.vertices[start+41] = 1;
+			exports.vertices[start+42] = 0;
+			exports.vertices[start+43] = 0;
+
+			exports.indices[this.indexCount  ] = this.vertexCount;
+			exports.indices[this.indexCount+1] = this.vertexCount+1;
+			exports.indices[this.indexCount+2] = this.vertexCount+2;
+			exports.indices[this.indexCount+3] = this.vertexCount+2;
+			exports.indices[this.indexCount+4] = this.vertexCount+3;
+			exports.indices[this.indexCount+5] = this.vertexCount;
+
+			this.vertexCount += 4, this.indexCount += 6;
+		}
+
+		drawTexturedRectWithRotation(pos, size, angle, texture) {
+			if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
+
+			let textureIndex = this.textureCache[texture.name];
+			if(textureIndex === undefined) {
+				if((this.textureIndex + 1) >= 16) this.flush();
+				this.textureCache[texture.name] = textureIndex = this.textureIndex;
+				texture.bind(this.textureIndex++);
+			}
+
+			angle = HB.Math.radians(angle);
+			const cosX = size[0]*-0.5*Math.cos(angle), cosY = size[1]*-0.5*Math.cos(angle);
+			const cosX1 = size[0]*0.5*Math.cos(angle), cosY1 = size[1]*0.5*Math.cos(angle);
+			const sinX = size[0]*-0.5*Math.sin(angle), sinY = size[1]*-0.5*Math.sin(angle);
+			const sinX1 = size[0]*0.5*Math.sin(angle), sinY1 = size[1]*0.5*Math.sin(angle);
+
+			const start = this.vertexCount*exports.vertexStride;
+			exports.vertices[start   ] = cosX-sinY+pos[0]+size[0]/2;
+			exports.vertices[start+1 ] = sinX+cosY+pos[1]+size[1]/2;
+			exports.vertices[start+2 ] = 0;
+			exports.vertices[start+3 ] = 1;
+			exports.vertices[start+4 ] = 1;
+			exports.vertices[start+5 ] = 1;
+			exports.vertices[start+6 ] = 1;
+			exports.vertices[start+7 ] = 0;
+			exports.vertices[start+8 ] = 0;
+			exports.vertices[start+9 ] = textureIndex;
+			exports.vertices[start+10] = 0;
+			exports.vertices[start+11] = cosX1-sinY+pos[0]+size[0]/2;
+			exports.vertices[start+12] = sinX1+cosY+pos[1]+size[1]/2;
+			exports.vertices[start+13] = 0;
+			exports.vertices[start+14] = 1;
+			exports.vertices[start+15] = 1;
+			exports.vertices[start+16] = 1;
+			exports.vertices[start+17] = 1;
+			exports.vertices[start+18] = 1;
+			exports.vertices[start+19] = 0;
+			exports.vertices[start+20] = textureIndex;
+			exports.vertices[start+21] = 0;
+			exports.vertices[start+22] = cosX1-sinY1+pos[0]+size[0]/2;
+			exports.vertices[start+23] = sinX1+cosY1+pos[1]+size[1]/2;
+			exports.vertices[start+24] = 0;
+			exports.vertices[start+25] = 1;
+			exports.vertices[start+26] = 1;
+			exports.vertices[start+27] = 1;
+			exports.vertices[start+28] = 1;
+			exports.vertices[start+29] = 1;
+			exports.vertices[start+30] = 1;
+			exports.vertices[start+31] = textureIndex;
+			exports.vertices[start+32] = 0;
+			exports.vertices[start+33] = cosX-sinY1+pos[0]+size[0]/2;
+			exports.vertices[start+34] = sinX+cosY1+pos[1]+size[1]/2;
+			exports.vertices[start+35] = 0;
+			exports.vertices[start+36] = 1;
+			exports.vertices[start+37] = 1;
+			exports.vertices[start+38] = 1;
+			exports.vertices[start+39] = 1;
+			exports.vertices[start+40] = 0;
+			exports.vertices[start+41] = 1;
+			exports.vertices[start+42] = textureIndex;
+			exports.vertices[start+43] = 0;
+
+			exports.indices[this.indexCount  ] = this.vertexCount;
+			exports.indices[this.indexCount+1] = this.vertexCount+1;
+			exports.indices[this.indexCount+2] = this.vertexCount+2;
+			exports.indices[this.indexCount+3] = this.vertexCount+2;
+			exports.indices[this.indexCount+4] = this.vertexCount+3;
+			exports.indices[this.indexCount+5] = this.vertexCount;
+
+			this.vertexCount += 4, this.indexCount += 6;
+		}
+
 		drawColoredLine(vectorA, vectorB, thickness, color) {
 			if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
 
@@ -876,6 +1064,72 @@ var HB = (function (exports) {
 			this.vertexCount += 4, this.indexCount += 6;
 		}
 
+		drawColoredEllipse(pos, size, color) {
+			if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
+
+			let textureIndex = this.textureCache['Hummingbird_Circle'];
+			if(textureIndex === undefined) {
+				if((this.textureIndex + 1) >= 16) this.flush();
+				this.textureCache['Hummingbird_Circle'] = textureIndex = this.textureIndex;
+				textures['Hummingbird_Circle'].bind(this.textureIndex++);
+			}
+
+			const start = this.vertexCount*exports.vertexStride;
+			exports.vertices[start   ] = pos[0];
+			exports.vertices[start+1 ] = pos[1];
+			exports.vertices[start+2 ] = 0;
+			exports.vertices[start+3 ] = color[0];
+			exports.vertices[start+4 ] = color[1];
+			exports.vertices[start+5 ] = color[2];
+			exports.vertices[start+6 ] = color[3];
+			exports.vertices[start+7 ] = 0;
+			exports.vertices[start+8 ] = 0;
+			exports.vertices[start+9 ] = textureIndex;
+			exports.vertices[start+10] = 0;
+			exports.vertices[start+11] = pos[0]+size[0];
+			exports.vertices[start+12] = pos[1];
+			exports.vertices[start+13] = 0;
+			exports.vertices[start+14] = color[0];
+			exports.vertices[start+15] = color[1];
+			exports.vertices[start+16] = color[2];
+			exports.vertices[start+17] = color[3];
+			exports.vertices[start+18] = 1;
+			exports.vertices[start+19] = 0;
+			exports.vertices[start+20] = textureIndex;
+			exports.vertices[start+21] = 0;
+			exports.vertices[start+22] = pos[0]+size[0];
+			exports.vertices[start+23] = pos[1]+size[1];
+			exports.vertices[start+24] = 0;
+			exports.vertices[start+25] = color[0];
+			exports.vertices[start+26] = color[1];
+			exports.vertices[start+27] = color[2];
+			exports.vertices[start+28] = color[3];
+			exports.vertices[start+29] = 1;
+			exports.vertices[start+30] = 1;
+			exports.vertices[start+31] = textureIndex;
+			exports.vertices[start+32] = 0;
+			exports.vertices[start+33] = pos[0];
+			exports.vertices[start+34] = pos[1]+size[1];
+			exports.vertices[start+35] = 0;
+			exports.vertices[start+36] = color[0];
+			exports.vertices[start+37] = color[1];
+			exports.vertices[start+38] = color[2];
+			exports.vertices[start+39] = color[3];
+			exports.vertices[start+40] = 0;
+			exports.vertices[start+41] = 1;
+			exports.vertices[start+42] = textureIndex;
+			exports.vertices[start+43] = 0;
+
+			exports.indices[this.indexCount  ] = this.vertexCount;
+			exports.indices[this.indexCount+1] = this.vertexCount+1;
+			exports.indices[this.indexCount+2] = this.vertexCount+2;
+			exports.indices[this.indexCount+3] = this.vertexCount+2;
+			exports.indices[this.indexCount+4] = this.vertexCount+3;
+			exports.indices[this.indexCount+5] = this.vertexCount;
+
+			this.vertexCount += 4, this.indexCount += 6;
+		}
+
 		drawColoredText(string, pos, size = 12, align = 'start-start', color) {
 			let textureIndex = this.textureCache[exports.font.name];
 			if(textureIndex === undefined) {
@@ -890,11 +1144,11 @@ var HB = (function (exports) {
 			const height = exports.fontData.info.size*size;
 
 			let prevGlyphId;
-			for(const char of string) {
-				for(const glyph of Object.values(exports.fontData.chars)) {
+			for(let char of string) {
+				for(let glyph of exports.fontData.chars) {
 					if(glyph.char === char) {
 						if(prevGlyphId !== undefined) {
-							for(const kerning of Object.values(exports.fontData.kernings)) {
+							for(let kerning of exports.fontData.kernings) {
 								if(kerning[0] === prevGlyphId && kerning[1] === glyph.id) {
 									width += kerning.amt*size;
 									kernings[glyph.id] = kerning;
@@ -923,10 +1177,10 @@ var HB = (function (exports) {
 				case 'end': offsety = -height; break;
 			}
 
-			glyphs.forEach((glyph) => {
+			for(let glyph of glyphs) {
 				if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
 
-				if(kernings[glyph.id] !== undefined) pos[0] += kernings[glyph.id].amt*size;
+				if(kernings[glyph.id] !== undefined) offsetx += kernings[glyph.id].amt*size;
 
 				const start = this.vertexCount*exports.vertexStride;
 				exports.vertices[start   ] = pos[0]+glyph.xoff*size+offsetx;
@@ -983,8 +1237,8 @@ var HB = (function (exports) {
 
 				this.vertexCount += 4, this.indexCount += 6;
 
-				pos[0] += glyph.xadv*size;
-			});
+				offsetx += glyph.xadv*size;
+			}
 		}
 
 		flush() {
@@ -1039,7 +1293,7 @@ var HB = (function (exports) {
 		}
 	}
 
-	const version = "v0.4.0";
+	const version = "v0.5.0";
 	exports.noUpdate = false;
 	exports.deltaTime = 0;
 	exports.accumulator = 0;
@@ -1094,6 +1348,7 @@ var HB = (function (exports) {
 			exports.canvas.size = Vec2.new(exports.canvas.width, exports.canvas.height);
 			exports.canvas.center = Vec2.new(exports.canvas.width/2, exports.canvas.height/2);
 			exports.canvas.id = (options["id"] === undefined) ? "HummingbirdCanvas" : options["id"];
+			exports.canvas.setAttribute('alt', 'Hummingbird canvas element.');
 
 			Renderer.init();
 		}

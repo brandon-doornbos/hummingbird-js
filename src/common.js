@@ -4,7 +4,7 @@ import { batch } from './batch.js';
 import { Texture } from './texture.js';
 import { Math, Vec2, Mat4 } from './math.js';
 
-const version = "v0.4.0";
+const version = "v0.5.0";
 let noUpdate = false;
 let deltaTime = 0;
 let accumulator = 0;
@@ -59,6 +59,7 @@ function init(width, height, options) {
 		canvas.size = Vec2.new(canvas.width, canvas.height);
 		canvas.center = Vec2.new(canvas.width/2, canvas.height/2);
 		canvas.id = (options["id"] === undefined) ? "HummingbirdCanvas" : options["id"];
+		canvas.setAttribute('alt', 'Hummingbird canvas element.');
 
 		Renderer.init();
 	}

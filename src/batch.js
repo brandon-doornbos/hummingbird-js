@@ -1,11 +1,11 @@
 import { renderer } from './renderer.js';
 import { vertexStride, vertexBuffer, vertices, indexBuffer, indices } from './buffer.js';
-import { font, fontData } from './texture.js';
+import { textures, font, fontData } from './texture.js';
 import { Vec2 } from './math.js';
 
 let batch = undefined;
-const maxVertexCount = 2000;
-const maxIndexCount = 3000;
+const maxVertexCount = 4000;
+const maxIndexCount = 6000;
 
 class Batch{
 	constructor() {
@@ -29,56 +29,57 @@ class Batch{
 		this.textureCache = {};
 	}
 
-	// drawColoredPolygon(points, color) {
-	// 	const triangles = Math.floor(points.length/3);
-	// 	for(let i = 0; i < triangles*3; i += 3) drawColoredTriangle(i);
-	// 	if(points.length%3 > 0) drawColoredTriangle(points.length-3);
+	drawColoredPoint(pos, size = 1, color) {
+		this.drawColoredRect([pos[0]-size/4, pos[1]-size/4], [size/2, size/2], color);
+	}
 
-	// 	function drawColoredTriangle(startIndex) {
-	// 		if((batch.vertexCount + 3) >= maxVertexCount || (batch.indexCount + 3) >= maxIndexCount) batch.flush();
+	drawColoredPolygon(points, color, center = 0) {
+		for(let i = 0; i < points.length-1; i++) {
+			if(i === center) continue;
+			if((this.vertexCount + 3) >= maxVertexCount || (this.indexCount + 3) >= maxIndexCount) this.flush();
 
-	// 		const start = batch.vertexCount*vertexStride;
-	// 		vertices[start   ] = points[startIndex][0];
-	// 		vertices[start+1 ] = points[startIndex][1];
-	// 		vertices[start+2 ] = 0;
-	// 		vertices[start+3 ] = color[0];
-	// 		vertices[start+4 ] = color[1];
-	// 		vertices[start+5 ] = color[2];
-	// 		vertices[start+6 ] = color[3];
-	// 		vertices[start+7 ] = 0;
-	// 		vertices[start+8 ] = 1;
-	// 		vertices[start+9 ] = 0;
-	// 		vertices[start+10] = 0;
-	// 		vertices[start+11] = points[startIndex+1][0];
-	// 		vertices[start+12] = points[startIndex+1][1];
-	// 		vertices[start+13] = 0;
-	// 		vertices[start+14] = color[0];
-	// 		vertices[start+15] = color[1];
-	// 		vertices[start+16] = color[2];
-	// 		vertices[start+17] = color[3];
-	// 		vertices[start+18] = 0.5;
-	// 		vertices[start+19] = 0.5;
-	// 		vertices[start+20] = 0;
-	// 		vertices[start+21] = 0;
-	// 		vertices[start+22] = points[startIndex+2][0];
-	// 		vertices[start+23] = points[startIndex+2][1];
-	// 		vertices[start+24] = 0;
-	// 		vertices[start+25] = color[0];
-	// 		vertices[start+26] = color[1];
-	// 		vertices[start+27] = color[2];
-	// 		vertices[start+28] = color[3];
-	// 		vertices[start+29] = 1;
-	// 		vertices[start+30] = 1;
-	// 		vertices[start+31] = 0;
-	// 		vertices[start+32] = 0;
+			const start = this.vertexCount*vertexStride;
+			vertices[start   ] = points[center][0];
+			vertices[start+1 ] = points[center][1];
+			vertices[start+2 ] = 0;
+			vertices[start+3 ] = color[0];
+			vertices[start+4 ] = color[1];
+			vertices[start+5 ] = color[2];
+			vertices[start+6 ] = color[3];
+			vertices[start+7 ] = 0;
+			vertices[start+8 ] = 1;
+			vertices[start+9 ] = 0;
+			vertices[start+10] = 0;
+			vertices[start+11] = points[i][0];
+			vertices[start+12] = points[i][1];
+			vertices[start+13] = 0;
+			vertices[start+14] = color[0];
+			vertices[start+15] = color[1];
+			vertices[start+16] = color[2];
+			vertices[start+17] = color[3];
+			vertices[start+18] = 0.5;
+			vertices[start+19] = 0.5;
+			vertices[start+20] = 0;
+			vertices[start+21] = 0;
+			vertices[start+22] = points[i+1][0];
+			vertices[start+23] = points[i+1][1];
+			vertices[start+24] = 0;
+			vertices[start+25] = color[0];
+			vertices[start+26] = color[1];
+			vertices[start+27] = color[2];
+			vertices[start+28] = color[3];
+			vertices[start+29] = 1;
+			vertices[start+30] = 1;
+			vertices[start+31] = 0;
+			vertices[start+32] = 0;
 
-	// 		indices[batch.indexCount  ] = batch.vertexCount;
-	// 		indices[batch.indexCount+1] = batch.vertexCount+1;
-	// 		indices[batch.indexCount+2] = batch.vertexCount+2;
+			indices[this.indexCount  ] = this.vertexCount;
+			indices[this.indexCount+1] = this.vertexCount+1;
+			indices[this.indexCount+2] = this.vertexCount+2;
 
-	// 		batch.vertexCount += 3, batch.indexCount += 3;
-	// 	}
-	// }
+			this.vertexCount += 3, this.indexCount += 3;
+		}
+	}
 
 	drawColoredRect(pos, size, color) {
 		if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
@@ -205,6 +206,143 @@ class Batch{
 		this.vertexCount += 4, this.indexCount += 6;
 	}
 
+	drawColoredRectWithRotation(pos, size, angle, color) {
+		if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
+
+		angle = HB.Math.radians(angle);
+		const cosX = size[0]*-0.5*Math.cos(angle), cosY = size[1]*-0.5*Math.cos(angle);
+		const cosX1 = size[0]*0.5*Math.cos(angle), cosY1 = size[1]*0.5*Math.cos(angle);
+		const sinX = size[0]*-0.5*Math.sin(angle), sinY = size[1]*-0.5*Math.sin(angle);
+		const sinX1 = size[0]*0.5*Math.sin(angle), sinY1 = size[1]*0.5*Math.sin(angle);
+
+		const start = this.vertexCount*vertexStride;
+		vertices[start   ] = cosX-sinY+pos[0]+size[0]/2;
+		vertices[start+1 ] = sinX+cosY+pos[1]+size[1]/2;
+		vertices[start+2 ] = 0;
+		vertices[start+3 ] = color[0];
+		vertices[start+4 ] = color[1];
+		vertices[start+5 ] = color[2];
+		vertices[start+6 ] = color[3];
+		vertices[start+7 ] = 0;
+		vertices[start+8 ] = 0;
+		vertices[start+9 ] = 0;
+		vertices[start+10] = 0;
+		vertices[start+11] = cosX1-sinY+pos[0]+size[0]/2;
+		vertices[start+12] = sinX1+cosY+pos[1]+size[1]/2;
+		vertices[start+13] = 0;
+		vertices[start+14] = color[0];
+		vertices[start+15] = color[1];
+		vertices[start+16] = color[2];
+		vertices[start+17] = color[3];
+		vertices[start+18] = 1;
+		vertices[start+19] = 0;
+		vertices[start+20] = 0;
+		vertices[start+21] = 0;
+		vertices[start+22] = cosX1-sinY1+pos[0]+size[0]/2;
+		vertices[start+23] = sinX1+cosY1+pos[1]+size[1]/2;
+		vertices[start+24] = 0;
+		vertices[start+25] = color[0];
+		vertices[start+26] = color[1];
+		vertices[start+27] = color[2];
+		vertices[start+28] = color[3];
+		vertices[start+29] = 1;
+		vertices[start+30] = 1;
+		vertices[start+31] = 0;
+		vertices[start+32] = 0;
+		vertices[start+33] = cosX-sinY1+pos[0]+size[0]/2;
+		vertices[start+34] = sinX+cosY1+pos[1]+size[1]/2;
+		vertices[start+35] = 0;
+		vertices[start+36] = color[0];
+		vertices[start+37] = color[1];
+		vertices[start+38] = color[2];
+		vertices[start+39] = color[3];
+		vertices[start+40] = 0;
+		vertices[start+41] = 1;
+		vertices[start+42] = 0;
+		vertices[start+43] = 0;
+
+		indices[this.indexCount  ] = this.vertexCount;
+		indices[this.indexCount+1] = this.vertexCount+1;
+		indices[this.indexCount+2] = this.vertexCount+2;
+		indices[this.indexCount+3] = this.vertexCount+2;
+		indices[this.indexCount+4] = this.vertexCount+3;
+		indices[this.indexCount+5] = this.vertexCount;
+
+		this.vertexCount += 4, this.indexCount += 6;
+	}
+
+	drawTexturedRectWithRotation(pos, size, angle, texture) {
+		if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
+
+		let textureIndex = this.textureCache[texture.name];
+		if(textureIndex === undefined) {
+			if((this.textureIndex + 1) >= 16) this.flush();
+			this.textureCache[texture.name] = textureIndex = this.textureIndex;
+			texture.bind(this.textureIndex++);
+		}
+
+		angle = HB.Math.radians(angle);
+		const cosX = size[0]*-0.5*Math.cos(angle), cosY = size[1]*-0.5*Math.cos(angle);
+		const cosX1 = size[0]*0.5*Math.cos(angle), cosY1 = size[1]*0.5*Math.cos(angle);
+		const sinX = size[0]*-0.5*Math.sin(angle), sinY = size[1]*-0.5*Math.sin(angle);
+		const sinX1 = size[0]*0.5*Math.sin(angle), sinY1 = size[1]*0.5*Math.sin(angle);
+
+		const start = this.vertexCount*vertexStride;
+		vertices[start   ] = cosX-sinY+pos[0]+size[0]/2;
+		vertices[start+1 ] = sinX+cosY+pos[1]+size[1]/2;
+		vertices[start+2 ] = 0;
+		vertices[start+3 ] = 1;
+		vertices[start+4 ] = 1;
+		vertices[start+5 ] = 1;
+		vertices[start+6 ] = 1;
+		vertices[start+7 ] = 0;
+		vertices[start+8 ] = 0;
+		vertices[start+9 ] = textureIndex;
+		vertices[start+10] = 0;
+		vertices[start+11] = cosX1-sinY+pos[0]+size[0]/2;
+		vertices[start+12] = sinX1+cosY+pos[1]+size[1]/2;
+		vertices[start+13] = 0;
+		vertices[start+14] = 1;
+		vertices[start+15] = 1;
+		vertices[start+16] = 1;
+		vertices[start+17] = 1;
+		vertices[start+18] = 1;
+		vertices[start+19] = 0;
+		vertices[start+20] = textureIndex;
+		vertices[start+21] = 0;
+		vertices[start+22] = cosX1-sinY1+pos[0]+size[0]/2;
+		vertices[start+23] = sinX1+cosY1+pos[1]+size[1]/2;
+		vertices[start+24] = 0;
+		vertices[start+25] = 1;
+		vertices[start+26] = 1;
+		vertices[start+27] = 1;
+		vertices[start+28] = 1;
+		vertices[start+29] = 1;
+		vertices[start+30] = 1;
+		vertices[start+31] = textureIndex;
+		vertices[start+32] = 0;
+		vertices[start+33] = cosX-sinY1+pos[0]+size[0]/2;
+		vertices[start+34] = sinX+cosY1+pos[1]+size[1]/2;
+		vertices[start+35] = 0;
+		vertices[start+36] = 1;
+		vertices[start+37] = 1;
+		vertices[start+38] = 1;
+		vertices[start+39] = 1;
+		vertices[start+40] = 0;
+		vertices[start+41] = 1;
+		vertices[start+42] = textureIndex;
+		vertices[start+43] = 0;
+
+		indices[this.indexCount  ] = this.vertexCount;
+		indices[this.indexCount+1] = this.vertexCount+1;
+		indices[this.indexCount+2] = this.vertexCount+2;
+		indices[this.indexCount+3] = this.vertexCount+2;
+		indices[this.indexCount+4] = this.vertexCount+3;
+		indices[this.indexCount+5] = this.vertexCount;
+
+		this.vertexCount += 4, this.indexCount += 6;
+	}
+
 	drawColoredLine(vectorA, vectorB, thickness, color) {
 		if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
 
@@ -268,6 +406,72 @@ class Batch{
 		this.vertexCount += 4, this.indexCount += 6;
 	}
 
+	drawColoredEllipse(pos, size, color) {
+		if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
+
+		let textureIndex = this.textureCache['Hummingbird_Circle'];
+		if(textureIndex === undefined) {
+			if((this.textureIndex + 1) >= 16) this.flush();
+			this.textureCache['Hummingbird_Circle'] = textureIndex = this.textureIndex;
+			textures['Hummingbird_Circle'].bind(this.textureIndex++);
+		}
+
+		const start = this.vertexCount*vertexStride;
+		vertices[start   ] = pos[0];
+		vertices[start+1 ] = pos[1];
+		vertices[start+2 ] = 0;
+		vertices[start+3 ] = color[0];
+		vertices[start+4 ] = color[1];
+		vertices[start+5 ] = color[2];
+		vertices[start+6 ] = color[3];
+		vertices[start+7 ] = 0;
+		vertices[start+8 ] = 0;
+		vertices[start+9 ] = textureIndex;
+		vertices[start+10] = 0;
+		vertices[start+11] = pos[0]+size[0];
+		vertices[start+12] = pos[1];
+		vertices[start+13] = 0;
+		vertices[start+14] = color[0];
+		vertices[start+15] = color[1];
+		vertices[start+16] = color[2];
+		vertices[start+17] = color[3];
+		vertices[start+18] = 1;
+		vertices[start+19] = 0;
+		vertices[start+20] = textureIndex;
+		vertices[start+21] = 0;
+		vertices[start+22] = pos[0]+size[0];
+		vertices[start+23] = pos[1]+size[1];
+		vertices[start+24] = 0;
+		vertices[start+25] = color[0];
+		vertices[start+26] = color[1];
+		vertices[start+27] = color[2];
+		vertices[start+28] = color[3];
+		vertices[start+29] = 1;
+		vertices[start+30] = 1;
+		vertices[start+31] = textureIndex;
+		vertices[start+32] = 0;
+		vertices[start+33] = pos[0];
+		vertices[start+34] = pos[1]+size[1];
+		vertices[start+35] = 0;
+		vertices[start+36] = color[0];
+		vertices[start+37] = color[1];
+		vertices[start+38] = color[2];
+		vertices[start+39] = color[3];
+		vertices[start+40] = 0;
+		vertices[start+41] = 1;
+		vertices[start+42] = textureIndex;
+		vertices[start+43] = 0;
+
+		indices[this.indexCount  ] = this.vertexCount;
+		indices[this.indexCount+1] = this.vertexCount+1;
+		indices[this.indexCount+2] = this.vertexCount+2;
+		indices[this.indexCount+3] = this.vertexCount+2;
+		indices[this.indexCount+4] = this.vertexCount+3;
+		indices[this.indexCount+5] = this.vertexCount;
+
+		this.vertexCount += 4, this.indexCount += 6;
+	}
+
 	drawColoredText(string, pos, size = 12, align = 'start-start', color) {
 		let textureIndex = this.textureCache[font.name];
 		if(textureIndex === undefined) {
@@ -282,11 +486,11 @@ class Batch{
 		const height = fontData.info.size*size;
 
 		let prevGlyphId;
-		for(const char of string) {
-			for(const glyph of Object.values(fontData.chars)) {
+		for(let char of string) {
+			for(let glyph of fontData.chars) {
 				if(glyph.char === char) {
 					if(prevGlyphId !== undefined) {
-						for(const kerning of Object.values(fontData.kernings)) {
+						for(let kerning of fontData.kernings) {
 							if(kerning[0] === prevGlyphId && kerning[1] === glyph.id) {
 								width += kerning.amt*size;
 								kernings[glyph.id] = kerning;
@@ -315,10 +519,10 @@ class Batch{
 			case 'end': offsety = -height; break;
 		}
 
-		glyphs.forEach((glyph) => {
+		for(let glyph of glyphs) {
 			if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
 
-			if(kernings[glyph.id] !== undefined) pos[0] += kernings[glyph.id].amt*size;
+			if(kernings[glyph.id] !== undefined) offsetx += kernings[glyph.id].amt*size;
 
 			const start = this.vertexCount*vertexStride;
 			vertices[start   ] = pos[0]+glyph.xoff*size+offsetx;
@@ -375,8 +579,8 @@ class Batch{
 
 			this.vertexCount += 4, this.indexCount += 6;
 
-			pos[0] += glyph.xadv*size;
-		});
+			offsetx += glyph.xadv*size;
+		}
 	}
 
 	flush() {

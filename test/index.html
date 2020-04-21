@@ -19,7 +19,7 @@
 	</head>
 	<body>
 		<script>
-			let objects;
+			let objects, polygon;
 
 			function setup() {
 				HB.init(1280, 720);
@@ -42,7 +42,11 @@
 					new Bouncer('cat2'),
 					new Bouncer('cat3'),
 					new Bouncer('cat4'),
+					// new Bouncer('Hummingbird_Circle'),
 				];
+
+				polygon = new Bouncer(HB.Vec4.colors.yellow);
+				polygon.size = HB.Vec2.new(200, 200);
 			}
 
 			class Bouncer{
@@ -74,10 +78,10 @@
 				}
 			}
 
-			let angle = 0, cameraSpeed = 10;
+			let angle = 0, cameraSpeed = 20;
 
 			function update() {
-				HB.renderer.clear(HB.Vec4.new(0, 0, 0, 1));
+				HB.renderer.clear(HB.Vec4.colors.black);
 
 				const pos = HB.Vec2.new(), size = HB.Vec2.new(5, 5), color = HB.Vec4.new(0, 1, 1, 1);
 				for(let x = 0, r = 0, g = 1; x < HB.canvas.width; x += 6) {
@@ -89,23 +93,37 @@
 					}
 				}
 
-				HB.batch.drawColoredRect(HB.Vec2.new(), HB.Vec2.new(150, 150), HB.Vec4.new(1, 1, 1, 1));
+				HB.batch.drawColoredRect(HB.Vec2.new(), HB.Vec2.new(150, 150), HB.Vec4.colors.white);
 				HB.batch.drawTexturedRect(HB.Vec2.new(), HB.Vec2.new(150, 150), HB.textures['birb']);
 
-				// objects[0].update();
-				// const canvasCenter = objects[0].pos;
-				// const points = [];
-				// // const points = [], canvasCenter = HB.Vec2.new(HB.canvas.width/2, HB.canvas.height/2);
-				// for(let i = 0; i < 360; i += 36) {
-				// 	const point = HB.Vec2.fromAngle(HB.Math.radians(i), 100);
-				// 	HB.Vec2.addVec2(point, canvasCenter);
-				// 	points.push(point);
-				// }
-				// HB.batch.drawColoredPolygon(points, HB.Vec4.colors.yellow);
+				// const points = [
+				// 	[100, 100],
+				// 	[150, 100],
+				// 	[150, 150],
+				// 	[100, 150],
+				// 	[125, 125]
+				// ]; // concave
+				// points = [
+				// 	[150, 100],
+				// 	[200, 200],
+				// 	[100, 200],
+				// ]; // triangle
+				const points = [];
+				for(let i = 0; i < 360; i += 36) {
+					const point = HB.Vec2.fromAngle(HB.Math.radians(i), polygon.size[0]/2);
+					HB.Vec2.addVec2(point, polygon.pos);
+					HB.Vec2.add(point, polygon.size[0]/2, polygon.size[1]/2);
+					points.push(point);
+				}
+				HB.batch.drawColoredPolygon(points, HB.Vec4.colors.yellow);
 
 				objects.forEach((object) => {
 					HB.batch.drawTexturedRect(object.pos, object.size, HB.textures[object.texture]);
 				});
+
+				HB.batch.drawColoredPoint(HB.mousePos, 10, HB.Vec4.colors.yellow);
+
+				HB.batch.drawColoredEllipse(HB.mousePos, HB.Vec2.new(100, 100), HB.Vec4.colors.green);
 
 				HB.batch.drawColoredText('well hello there', HB.Vec2.new(200, 100), 64, 'start-start', HB.Vec4.colors.white);
 			}
@@ -116,6 +134,9 @@
 				if(HB.keysPressed[83] === true) HB.camera.translate(HB.Vec3.new(0, -cameraSpeed, 0));
 				if(HB.keysPressed[68] === true) HB.camera.translate(HB.Vec3.new(-cameraSpeed, 0, 0));
 
+				// if(HB.keysPressed[69] === true) HB.camera.zoom(0.05);
+				// if(HB.keysPressed[81] === true) HB.camera.zoom(-0.05);
+
 				if(HB.keysPressed[69] === true) HB.camera.translate(HB.Vec3.new(0, 0, 0.1));
 				if(HB.keysPressed[81] === true) HB.camera.translate(HB.Vec3.new(0, 0, -0.1));
 
@@ -124,6 +145,8 @@
 				//--------------------------------------same-thing----------------------------------------
 				// if(HB.keysPressed[69] === true) HB.Mat4.rotateZ(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Math.radians(1));
 				// if(HB.keysPressed[81] === true) HB.Mat4.rotateZ(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Math.radians(-1));
+
+				polygon.update();
 
 				objects.forEach((object) => {
 					object.update();

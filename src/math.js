@@ -1,3 +1,5 @@
+// import { canvas } from './common.js';
+
 class HBMath{
 	constructor() {
 		new Vec2();
@@ -10,6 +12,9 @@ class HBMath{
 	}
 	static degrees(radians) { // convert radians to degrees
 		return radians*(180/Math.PI);
+	}
+	static dist(x1, y1, x2, y2) { // gets distance between 2 x+y pairs
+		return Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
 	}
 	static map(value, valLow, valHigh, resLow, resHigh) { // map a number to another range
 		return resLow + (resHigh - resLow) * (value - valLow) / (valHigh - valLow);
@@ -50,6 +55,11 @@ class HBMath{
 	static rectRectCollision(vectorA, sizeA, vectorB, sizeB) { // check for AABB collision between two rectangles
 		return (Math.abs((vectorA[0]+sizeA[0]/2) - (vectorB[0]+sizeB[0]/2)) * 2 < (sizeA[0] + sizeB[0]))
 				&& (Math.abs((vectorA[1]+sizeA[1]/2) - (vectorB[1]+sizeB[1]/2)) * 2 < (sizeA[1] + sizeB[1]));
+	}
+	static rectCircleCollision(rectPos, rectSize, circleCenter, circleRadius) { // check for collision between a rectangle and a circle
+		const dx = circleCenter[0]-Math.max(rectPos[0], Math.min(circleCenter[0], rectPos[0]+rectSize[0]));
+		const dy = circleCenter[1]-Math.max(rectPos[1], Math.min(circleCenter[1], rectPos[1]+rectSize[1]));
+		return (dx*dx + dy*dy) < circleRadius*circleRadius;
 	}
 }
 
@@ -110,7 +120,7 @@ class Vec2{
 
 	static collidesRect(vector, rectPos, rectSize) {
 		return (
-				 vector[0] < rectPos[0]+rectSize[0]
+			   vector[0] < rectPos[0]+rectSize[0]
 			&& vector[0] > rectPos[0]
 			&& vector[1] < rectPos[1]+rectSize[1]
 			&& vector[1] > rectPos[1]
@@ -144,6 +154,7 @@ class Vec4{
 	}
 
 	static new(x = 0, y = 0, z = 0, w = 0) { return [x, y, z, w]; }
+	static set(out, x, y, z, w) { out[0] = x, out[1] = y, out[2] = z, out[3] = w; }
 
 	static multVec4(vectorA, vectorB) { return [vectorA[0] * vectorB[0], vectorA[1] * vectorB[1], vectorA[2] * vectorB[2], vectorA[3] * vectorB[3]]; }
 
@@ -160,6 +171,15 @@ class Vec4{
 class Mat4{
 	static new(identity = 0) { return [identity, 0, 0, 0, 0, identity, 0, 0, 0, 0, identity, 0, 0, 0, 0, identity]; }
 
+	static transpose(out) {
+		const temp = out.slice();
+
+		out[0 ] = temp[0], out[1 ] = temp[4], out[2 ] = temp[8 ], out[3 ] = temp[12];
+		out[4 ] = temp[1], out[5 ] = temp[5], out[6 ] = temp[9 ], out[7 ] = temp[13];
+		out[8 ] = temp[2], out[9 ] = temp[6], out[10] = temp[10], out[11] = temp[14];
+		out[12] = temp[3], out[13] = temp[7], out[14] = temp[11], out[15] = temp[15];
+	}
+
 	static orthographic(out, left, right, top, bottom, near = -1, far = 1) {
 		const rl = right-left, tb = top-bottom, fn = far-near;
 
@@ -169,8 +189,8 @@ class Mat4{
 		out[12] =    0, out[13] =    0, out[14] =     0, out[15] =                1;
 	}
 
-	// static perspective(out, FoV, aspect, near = 0.01, far = 1000) {
-	// 	const f = Math.tan(Math.PI * 0.5 - 0.5 * FoV);
+	// static perspective(out, FoV = 60, aspect = canvas.width/canvas.height, near = 0.01, far = 1000) {
+	// 	const f = Math.tan(Math.PI * 0.5 - 0.5 * HBMath.radians(FoV));
 	// 	const invRange = 1.0 / (near - far);
 
 	// 	out[0] = f/aspect, out[4] = 0, out[ 8] =                   0, out[12] =  0;

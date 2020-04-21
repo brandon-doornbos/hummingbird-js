@@ -1,6 +1,7 @@
 import { gl, noUpdate, update } from './common.js';
 import { shader } from './shader.js';
 import { loadFile } from './utility.js';
+import { Math } from './math.js';
 
 const textures = {};
 let fontData = undefined;
@@ -30,8 +31,33 @@ class Texture{
 			if(typeof update === 'function' && noUpdate === false) requestAnimationFrame(update);
 		});
 		const webp = new Image();
-		webp.onload = webp.onerror = () => font = new Texture('Hummingbird_Font-Atlas', "https://projects.santaclausnl.ga/Hummingbird/assets/arial."+(webp.height === 2 ? 'webp' : 'png'), null);
+		webp.onload = webp.onerror = () => font = new Texture('Hummingbird_Font-Atlas', "https://projects.santaclausnl.ga/Hummingbird/assets/arial."+(webp.height === 2 ? 'webp' : 'png'));
 		webp.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+
+		const circleSize = 1000;
+		const circle = new Uint8Array(circleSize*circleSize*4);
+		for(let x = 0; x < circleSize; x++) {
+			for(let y = 0; y < circleSize; y++) {
+				const index = (x*circleSize+y)*4;
+
+				if(Math.dist(x, y, circleSize/2, circleSize/2) < circleSize/2) {
+					circle[index  ] = 255;
+					circle[index+1] = 255;
+					circle[index+2] = 255;
+					circle[index+3] = 255;
+				} else {
+					circle[index  ] = 0;
+					circle[index+1] = 0;
+					circle[index+2] = 0;
+					circle[index+3] = 0;
+				}
+			}
+		}
+		new Texture('Hummingbird_Circle');
+		textures['Hummingbird_Circle'].bind();
+		textures['Hummingbird_Circle'].setTextureParameters(gl.LINEAR, gl.CLAMP_TO_EDGE);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, circleSize, circleSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, circle);
+		textures['Hummingbird_Circle'].onLoadCallback();
 
 		// const textureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
 		const textureSamplers = [];
@@ -68,7 +94,6 @@ class Texture{
 			this.setTextureParameters(gl.LINEAR, gl.CLAMP_TO_EDGE);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, image);
 			this.onLoadCallback();
-			// this.unbind();
 		}
 		image.src = path;
 	}

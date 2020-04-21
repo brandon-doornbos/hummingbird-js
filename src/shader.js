@@ -11,6 +11,7 @@ class Shader{
 			in float aTextureId;
 			in float aTextSize;
 
+			out vec4 vScreenPosition;
 			out vec4 vVertexColor;
 			out vec2 vTexturePosition;
 			out float vTextureId;
@@ -19,7 +20,8 @@ class Shader{
 			uniform mat4 uMVP;
 
 			void main() {
-				gl_Position = uMVP * aVertexPosition;
+				vScreenPosition = uMVP * aVertexPosition;
+				gl_Position = vScreenPosition;
 				vVertexColor = aVertexColor;
 				vTexturePosition = aTexturePosition;
 				vTextureId = aTextureId;
@@ -27,6 +29,7 @@ class Shader{
 			}
 		`, this.fragmentShaderSource = fragmentShaderSource || `#version 300 es
 			precision mediump float;
+			in vec4 vScreenPosition;
 			in vec4 vVertexColor;
 			in vec2 vTexturePosition;
 			in float vTextureId;
@@ -57,7 +60,10 @@ class Shader{
 					case 15: texSample = texture(uTextureIds[15], vTexturePosition); break;
 				}
 				if(vTextSize <= 0.0) {
-					pixelColor = texSample * vVertexColor;
+					// float dist = distance(vec4(0.0, 0.0, 0.0, 1.0), vScreenPosition);
+					// vec4 color = texSample * vVertexColor;
+					// pixelColor = vec4(color.rgb, smoothstep(0.75, 0.5, dist)*color.a);
+					pixelColor = vVertexColor * texSample;
 				} else {
 					float sigDist = max(min(texSample.r, texSample.g), min(max(texSample.r, texSample.g), texSample.b)) - 0.5;
 					float alpha = clamp(sigDist/fwidth(sigDist) + 0.4, 0.0, 1.0);

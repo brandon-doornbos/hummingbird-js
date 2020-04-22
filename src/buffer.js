@@ -88,7 +88,7 @@ class VertexArray{
 
 	static init() {
 		vertexArray = new VertexArray();
-		vertexArray.layout.add('aVertexPosition', gl.FLOAT, 3);
+		vertexArray.layout.add('aVertexPosition', gl.FLOAT, 2);
 		vertexArray.layout.add('aVertexColor', gl.FLOAT, 4);
 		vertexArray.layout.add('aTexturePosition', gl.FLOAT, 2);
 		vertexArray.layout.add('aTextureId', gl.FLOAT, 1);

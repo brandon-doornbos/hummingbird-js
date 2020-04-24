@@ -1,4 +1,5 @@
 import { gl } from './common.js';
+import { Mat4 } from './math.js';
 
 let shader = undefined;
 
@@ -121,7 +122,10 @@ class Shader{
 	}
 	setUniform(type, name, values) { gl['uniform'+values.length+type](this.getUniformLocation(name), values[0], values[1], values[2], values[3]); }
 	setUniformArray(type, name, array, elementAmount = 1) { gl['uniform'+elementAmount+type+'v'](this.getUniformLocation(name), array); }
-	setUniformMatrix(type, name, matrix) { gl['uniformMatrix'+Math.sqrt(matrix.length)+type+'v'](this.getUniformLocation(name), true, matrix); }
+	setUniformMatrix(type, name, matrix) {
+		const glMatrix = Mat4.toArray(matrix);
+		gl['uniformMatrix'+Math.sqrt(glMatrix.length)+type+'v'](this.getUniformLocation(name), true, glMatrix);
+	}
 
 	bind() { gl.useProgram(this.id); }
 	unbind() { gl.useProgram(null); }

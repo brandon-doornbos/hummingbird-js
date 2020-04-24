@@ -32,14 +32,14 @@ class Camera{
 
 	translate(vector3) { Mat4.translate(this.viewMatrix, this.viewMatrix, vector3); }
 	zoom(amount) {
-		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-canvas.center[0], -canvas.center[1]));
+		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-canvas.center.x, -canvas.center.y));
 		Mat4.scale(this.viewMatrix, this.viewMatrix, 1+amount);
-		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(canvas.center[0], canvas.center[1]));
+		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(canvas.center.x, canvas.center.y));
 	}
 	rotate(angle) {
-		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-canvas.center[0], -canvas.center[1]));
+		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-canvas.center.x, -canvas.center.y));
 		Mat4.rotateZ(this.viewMatrix, this.viewMatrix, angle);
-		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(canvas.center[0], canvas.center[1]));
+		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(canvas.center.x, canvas.center.y));
 	}
 }
 

@@ -1,6 +1,261 @@
 var HB = (function (exports) {
 	'use strict';
 
+	// import { canvas } from './common.js';
+
+	class HBMath{
+		constructor() {
+			new Vec2();
+			new Vec3();
+			new Vec4();
+		}
+
+		static radians(degrees) { // convert degrees to radians
+			return degrees*(Math.PI/180);
+		}
+		static degrees(radians) { // convert radians to degrees
+			return radians*(180/Math.PI);
+		}
+		static dist(x1, y1, x2, y2) { // gets distance between 2 x+y pairs
+			return Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+		}
+		static map(value, valLow, valHigh, resLow, resHigh) { // map a number to another range
+			return resLow + (resHigh - resLow) * (value - valLow) / (valHigh - valLow);
+		}
+		static random(low, high) { // a random float between 2 numbers
+			if(high !== undefined) {
+				return Math.random() * (high-low) + low;
+			} else if(low !== undefined) {
+				return Math.random() * low;
+			} else {
+				return Math.random();
+			}
+		}
+		static randomInt(low, high) { // a random integer between 2 numbers
+			return Math.floor(this.random(low, high));
+		}
+		static lerp(start, end, amt) { // linear interpolation
+			return start+amt*(end-start);
+		}
+		static constrain(value, min, max) { // constrain a value
+			if(value > max) {
+				return max;
+			} else if(value < min) {
+				return min;
+			} else {
+				return value;
+			}
+		}
+		static wrap(value, min, max) { // wrap a value if it is too high or low
+			if(value > max) {
+				return min;
+			} else if(value < min) {
+				return max;
+			} else {
+				return value;
+			}
+		}
+		static rectRectCollision(vectorA, sizeA, vectorB, sizeB) { // check for AABB collision between two rectangles
+			return (Math.abs((vectorA.x+sizeA.x/2) - (vectorB.x+sizeB.x/2)) * 2 < (sizeA.x + sizeB.x))
+					&& (Math.abs((vectorA.y+sizeA.y/2) - (vectorB.y+sizeB.y/2)) * 2 < (sizeA.y + sizeB.y));
+		}
+		static rectCircleCollision(rectPos, rectSize, circleCenter, circleRadius) { // check for collision between a rectangle and a circle
+			const dx = circleCenter.x-Math.max(rectPos.x, Math.min(circleCenter.x, rectPos.x+rectSize.x));
+			const dy = circleCenter.y-Math.max(rectPos.y, Math.min(circleCenter.y, rectPos.y+rectSize.y));
+			return (dx*dx + dy*dy) < circleRadius*circleRadius;
+		}
+	}
+
+	// Perlin Noise class, create 1 instance and get values via noise.value(x); function
+	class Noise{
+		constructor(amp_ = 1, scl_ = 0.05) {
+			this.vertices = 256, this.amp = amp_, this.scl = scl_, this.r = [];
+			for(let i = 0; i < this.vertices; i++) this.r.push(Math.random());
+		}
+
+		value(x) {
+			const sclX = x*this.scl, floorX = Math.floor(sclX), t = sclX-floorX;
+			const xMin = floorX & this.vertices-1, xMax = (xMin + 1) & this.vertices-1;
+			return HBMath.lerp(this.r[xMin], this.r[xMax], t*t*(3-2*t)) * this.amp;
+		}
+	}
+
+	class Vec2{
+		constructor() {
+			Vec2.zero = {x: 0, y: 0};
+			Vec2.one = {x: 1, y: 1};
+		}
+
+		static new(x = 0, y = 0) { return { x: x, y: y }; }
+		static fromVec2(vector) { return { x: vector.x, y: vector.y }; }
+		static fromAngle(angle, radius = 1) { return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius }; }
+		static copy(out, vector) { out.x = vector.x, out.y = vector.y; }
+		static set(out, x, y) { out.x = x, out.y = y; }
+
+		static add(out, x, y) { out.x += x, out.y += y; }
+		static addVec2(out, vector) { out.x += vector.x, out.y += vector.y; }
+		static addScalar(out, scalar) { out.x += scalar, out.y += scalar; }
+
+		static subtract(out, x, y) { out.x -= x, out.y -= y; }
+		static subtractVec2(out, vector) { out.x -= vector.x, out.y -= vector.y; }
+		static subtractScalar(out, scalar) { out.x -= scalar, out.y -= scalar; }
+
+		static multiply(out, x, y) { out.x *= x, out.y *= y; }
+		static multiplyVec2(out, vector) { out.x *= vector.x, out.y *= vector.y; }
+		static multiplyScalar(out, scalar) { out.x *= scalar, out.y *= scalar; }
+
+		static divide(out, x, y) { out.x /= x, out.y /= y; }
+		static divideVec2(out, vector) { out.x /= vector.x, out.y /= vector.y; }
+		static divideScalar(out, scalar) { out.x /= scalar, out.y /= scalar; }
+
+		static constrain(out, lowX, hiX, lowY, hiY) {
+			out.x = HBMath.constrain(out.x, lowX, hiX);
+			out.y = HBMath.constrain(out.y, lowY, hiY);
+		}
+
+		static angleBetweenVec2(vectorA, vectorB) {
+			return Math.atan2(vectorB.y - vectorA.y, vectorB.x - vectorA.x);
+		}
+
+		static distBetweenVec2(vectorA, vectorB) {
+			return Math.sqrt((vectorB.x-vectorA.x)*(vectorB.x-vectorA.x) + (vectorB.y-vectorA.y)*(vectorB.y-vectorA.y));
+		}
+
+		static collidesRect(vector, rectPos, rectSize) {
+			return (
+				   vector.x < rectPos.x+rectSize.x
+				&& vector.x > rectPos.x
+				&& vector.y < rectPos.y+rectSize.y
+				&& vector.y > rectPos.y
+			);
+		}
+	}
+
+	class Vec3{
+		constructor() {
+			Vec3.zero = { x: 0, y: 0, z: 0 };
+			Vec3.one = { x: 1, y: 1, z: 1 };
+		}
+
+		static new(x = 0, y = 0, z = 0) { return { x: x, y: y, z: z }; }
+	}
+
+	class Vec4{
+		constructor() {
+			Vec4.zero = { x: 0, y: 0, z: 0, w: 0 };
+			Vec4.one = { x: 1, y: 1, z: 1, w: 1 };
+
+			Vec4.colors = {};
+			Vec4.colors['white'] = { x: 1, y: 1, z: 1, w: 1 };
+			Vec4.colors['black'] = { x: 0, y: 0, z: 0, w: 1 };
+			Vec4.colors['red'] = { x: 1, y: 0, z: 0, w: 1 };
+			Vec4.colors['green'] = { x: 0, y: 1, z: 0, w: 1 };
+			Vec4.colors['blue'] = { x: 0, y: 0, z: 1, w: 1 };
+			Vec4.colors['yellow'] = { x: 1, y: 1, z: 0, w: 1 };
+			Vec4.colors['cyan'] = { x: 0, y: 1, z: 1, w: 1 };
+			Vec4.colors['magenta'] = { x: 1, y: 0, z: 1, w: 1 };
+		}
+
+		static new(x = 0, y = 0, z = 0, w = 0) { return { x: x, y: y, z: z, w: w }; }
+		static set(out, x, y, z, w) { out.x = x, out.y = y, out.z = z, out.w = w; }
+
+		static multVec4(out, vectorA, vectorB) {
+			out.x = vectorA.x * vectorB.x;
+			out.y = vectorA.y * vectorB.y;
+			out.z = vectorA.z * vectorB.z;
+			out.w = vectorA.w * vectorB.w;
+		}
+
+		static multMat4(out, vector, matrix) {
+			out.x = (vector.x * matrix.aa) + (vector.y * matrix.ba) + (vector.z * matrix.ca) + (vector.w * matrix.da);
+			out.y = (vector.x * matrix.ab) + (vector.y * matrix.bb) + (vector.z * matrix.cb) + (vector.w * matrix.db);
+			out.z = (vector.x * matrix.ac) + (vector.y * matrix.bc) + (vector.z * matrix.cc) + (vector.w * matrix.dc);
+			out.w = (vector.x * matrix.ad) + (vector.y * matrix.bd) + (vector.z * matrix.cd) + (vector.w * matrix.dd);
+		}
+	}
+
+	class Mat4{
+		static new(identity = 0) { return {aa: identity, ab: 0, ac: 0, ad: 0, ba: 0, bb: identity, bc: 0, bd: 0, ca: 0, cb: 0, cc: identity, cd: 0, da: 0, db: 0, dc: 0, dd: identity}; }
+
+		static transpose(out) {
+			const temp = out;
+
+			out.aa = temp.aa, out.ab = temp.ba, out.ac = temp.ca, out.ad = temp.da;
+			out.ba = temp.ab, out.bb = temp.bb, out.bc = temp.cb, out.bd = temp.db;
+			out.ca = temp.ac, out.cb = temp.bc, out.cc = temp.cc, out.cd = temp.dc;
+			out.da = temp.ad, out.db = temp.bd, out.dc = temp.cd, out.dd = temp.dd;
+		}
+
+		static toArray(matrix) {
+			return [
+				matrix.aa, matrix.ab, matrix.ac, matrix.ad,
+				matrix.ba, matrix.bb, matrix.bc, matrix.bd,
+				matrix.ca, matrix.cb, matrix.cc, matrix.cd,
+				matrix.da, matrix.db, matrix.dc, matrix.dd,
+			];
+		}
+
+		static orthographic(out, left, right, top, bottom, near = -1, far = 1) {
+			const rl = right-left, tb = top-bottom, fn = far-near;
+
+			out.aa = 2/rl, out.ab =    0, out.ac =     0, out.ad = -(right+left)/rl;
+			out.ba =    0, out.bb = 2/tb, out.bc =     0, out.bd = -(top+bottom)/tb;
+			out.ca =    0, out.cb =    0, out.cc = -2/fn, out.cd =   -(far+near)/fn;
+			out.da =    0, out.db =    0, out.dc =     0, out.dd =                1;
+		}
+
+		// static perspective(out, FoV = 60, aspect = canvas.width/canvas.height, near = 0.01, far = 1000) {
+		// 	const f = Math.tan(Math.PI * 0.5 - 0.5 * HBMath.radians(FoV));
+		// 	const invRange = 1.0 / (near - far);
+
+		// 	out[0] = f/aspect, out[4] = 0, out[ 8] =                   0, out[12] =  0;
+		// 	out[1] =        0, out[5] = f, out[ 9] =                   0, out[13] =  0;
+		// 	out[2] =        0, out[6] = 0, out[10] = (near+far)*invRange, out[14] = -1;
+		// 	out[3] =        0, out[7] = 0, out[11] = near*far*invRange*2, out[15] =  0;
+		// }
+
+		static multMat4(out, matrixA, matrixB) {
+			out.aa = (matrixB.aa * matrixA.aa) + (matrixB.ab * matrixA.ba) + (matrixB.ac * matrixA.ca) + (matrixB.ad * matrixA.da);
+			out.ab = (matrixB.aa * matrixA.ab) + (matrixB.ab * matrixA.bb) + (matrixB.ac * matrixA.cb) + (matrixB.ad * matrixA.db);
+			out.ac = (matrixB.aa * matrixA.ac) + (matrixB.ab * matrixA.bc) + (matrixB.ac * matrixA.cc) + (matrixB.ad * matrixA.dc);
+			out.ad = (matrixB.aa * matrixA.ad) + (matrixB.ab * matrixA.bd) + (matrixB.ac * matrixA.cd) + (matrixB.ad * matrixA.dd);
+
+			out.ba = (matrixB.ba * matrixA.aa) + (matrixB.bb * matrixA.ba) + (matrixB.bc * matrixA.ca) + (matrixB.bd * matrixA.da);
+			out.bb = (matrixB.ba * matrixA.ab) + (matrixB.bb * matrixA.bb) + (matrixB.bc * matrixA.cb) + (matrixB.bd * matrixA.db);
+			out.bc = (matrixB.ba * matrixA.ac) + (matrixB.bb * matrixA.bc) + (matrixB.bc * matrixA.cc) + (matrixB.bd * matrixA.dc);
+			out.bd = (matrixB.ba * matrixA.ad) + (matrixB.bb * matrixA.bd) + (matrixB.bc * matrixA.cd) + (matrixB.bd * matrixA.dd);
+
+			out.ca = (matrixB.ca * matrixA.aa) + (matrixB.cb * matrixA.ba) + (matrixB.cc * matrixA.ca) + (matrixB.cd * matrixA.da);
+			out.cb = (matrixB.ca * matrixA.ab) + (matrixB.cb * matrixA.bb) + (matrixB.cc * matrixA.cb) + (matrixB.cd * matrixA.db);
+			out.cc = (matrixB.ca * matrixA.ac) + (matrixB.cb * matrixA.bc) + (matrixB.cc * matrixA.cc) + (matrixB.cd * matrixA.dc);
+			out.cd = (matrixB.ca * matrixA.ad) + (matrixB.cb * matrixA.bd) + (matrixB.cc * matrixA.cd) + (matrixB.cd * matrixA.dd);
+
+			out.da = (matrixB.da * matrixA.aa) + (matrixB.db * matrixA.ba) + (matrixB.dc * matrixA.ca) + (matrixB.dd * matrixA.da);
+			out.db = (matrixB.da * matrixA.ab) + (matrixB.db * matrixA.bb) + (matrixB.dc * matrixA.cb) + (matrixB.dd * matrixA.db);
+			out.dc = (matrixB.da * matrixA.ac) + (matrixB.db * matrixA.bc) + (matrixB.dc * matrixA.cc) + (matrixB.dd * matrixA.dc);
+			out.dd = (matrixB.da * matrixA.ad) + (matrixB.db * matrixA.bd) + (matrixB.dc * matrixA.cd) + (matrixB.dd * matrixA.dd);
+		}
+
+		static scale(out, matrix, scale) { this.multMat4(out, matrix, {aa: scale, ab: 0, ac: 0, ad: 0, ba: 0, bb: scale, bc: 0, bd: 0, ca: 0, cb: 0, cc: scale, cd: 0, da: 0, db: 0, dc: 0, dd: 1}); }
+		static translate(out, matrix, vector3) { this.multMat4(out, matrix, {aa: 1, ab: 0, ac: 0, ad: vector3.x, ba: 0, bb: 1, bc: 0, bd: vector3.y, ca: 0, cb: 0, cc: 1, cd: vector3.z, da: 0, db: 0, dc: 0, dd: 1}); }
+		static rotate(out, matrix, up, angle) {
+			const sinAngle = Math.sin(angle/2);
+			const x = up.x * sinAngle, y = up.y * sinAngle, z = up.z * sinAngle, w = Math.cos(angle/2);
+
+			const x2 = x + x, y2 = y + y, z2 = z + z;
+
+			const xx = x * x2;
+			const yx = y * x2, yy = y * y2;
+			const zx = z * x2, zy = z * y2, zz = z * z2;
+			const wx = w * x2, wy = w * y2, wz = w * z2;
+
+			this.multMat4(out, matrix, {aa: 1-yy-zz, ab: yx+wz, ac: zx-wy, ad: 0, ba: yx-wz, bb: 1-xx-zz, bc: zy+wx, bd: 0, ca: zx+wy, cb: zy+wx, cc: 1-xx-yy, cd: 0, da: 0, db: 0, dc: 0, dd: 1});
+		}
+		static rotateX(out, matrix, angle) { this.multMat4(out, matrix, {aa: 1, ab: 0, ac: 0, ad: 0, ba: 0, bb: Math.cos(-angle), bc: Math.sin(angle), bd: 0, ca: 0, cb: Math.sin(-angle), cc: Math.cos(-angle), cd: 0, da: 0, db: 0, dc: 0, dd: 1}); }
+		static rotateY(out, matrix, angle) { this.multMat4(out, matrix, {aa: Math.cos(-angle), ab: 0, ac: Math.sin(-angle), ad: 0, ba: 0, bb: 1, bc: 0, bd: 0, ca: Math.sin(angle), cb: 0, cc: Math.cos(-angle), cd: 0, da: 0, db: 0, dc: 0, dd: 1}); }
+		static rotateZ(out, matrix, angle) { this.multMat4(out, matrix, {aa: Math.cos(-angle), ab: Math.sin(angle), ac: 0, ad: 0, ba: Math.sin(-angle), bb: Math.cos(-angle), bc: 0, bd: 0, ca: 0, cb: 0, cc: 1, cd: 0, da: 0, db: 0, dc: 0, dd: 1}); }
+	}
+
 	exports.shader = undefined;
 
 	class Shader{
@@ -122,7 +377,10 @@ var HB = (function (exports) {
 		}
 		setUniform(type, name, values) { exports.gl['uniform'+values.length+type](this.getUniformLocation(name), values[0], values[1], values[2], values[3]); }
 		setUniformArray(type, name, array, elementAmount = 1) { exports.gl['uniform'+elementAmount+type+'v'](this.getUniformLocation(name), array); }
-		setUniformMatrix(type, name, matrix) { exports.gl['uniformMatrix'+Math.sqrt(matrix.length)+type+'v'](this.getUniformLocation(name), true, matrix); }
+		setUniformMatrix(type, name, matrix) {
+			const glMatrix = Mat4.toArray(matrix);
+			exports.gl['uniformMatrix'+Math.sqrt(glMatrix.length)+type+'v'](this.getUniformLocation(name), true, glMatrix);
+		}
 
 		bind() { exports.gl.useProgram(this.id); }
 		unbind() { exports.gl.useProgram(null); }
@@ -130,241 +388,6 @@ var HB = (function (exports) {
 			this.unbind();
 			exports.gl.deleteProgram(this.id);
 		}
-	}
-
-	// import { canvas } from './common.js';
-
-	class HBMath{
-		constructor() {
-			new Vec2();
-			new Vec3();
-			new Vec4();
-		}
-
-		static radians(degrees) { // convert degrees to radians
-			return degrees*(Math.PI/180);
-		}
-		static degrees(radians) { // convert radians to degrees
-			return radians*(180/Math.PI);
-		}
-		static dist(x1, y1, x2, y2) { // gets distance between 2 x+y pairs
-			return Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
-		}
-		static map(value, valLow, valHigh, resLow, resHigh) { // map a number to another range
-			return resLow + (resHigh - resLow) * (value - valLow) / (valHigh - valLow);
-		}
-		static random(low, high) { // a random float between 2 numbers
-			if(high !== undefined) {
-				return Math.random() * (high-low) + low;
-			} else if(low !== undefined) {
-				return Math.random() * low;
-			} else {
-				return Math.random();
-			}
-		}
-		static randomInt(low, high) { // a random integer between 2 numbers
-			return Math.floor(this.random(low, high));
-		}
-		static lerp(start, end, amt) { // linear interpolation
-			return start+amt*(end-start);
-		}
-		static constrain(value, min, max) { // constrain a value
-			if(value > max) {
-				return max;
-			} else if(value < min) {
-				return min;
-			} else {
-				return value;
-			}
-		}
-		static wrap(value, min, max) { // wrap a value if it is too high or low
-			if(value > max) {
-				return min;
-			} else if(value < min) {
-				return max;
-			} else {
-				return value;
-			}
-		}
-		static rectRectCollision(vectorA, sizeA, vectorB, sizeB) { // check for AABB collision between two rectangles
-			return (Math.abs((vectorA[0]+sizeA[0]/2) - (vectorB[0]+sizeB[0]/2)) * 2 < (sizeA[0] + sizeB[0]))
-					&& (Math.abs((vectorA[1]+sizeA[1]/2) - (vectorB[1]+sizeB[1]/2)) * 2 < (sizeA[1] + sizeB[1]));
-		}
-		static rectCircleCollision(rectPos, rectSize, circleCenter, circleRadius) { // check for collision between a rectangle and a circle
-			const dx = circleCenter[0]-Math.max(rectPos[0], Math.min(circleCenter[0], rectPos[0]+rectSize[0]));
-			const dy = circleCenter[1]-Math.max(rectPos[1], Math.min(circleCenter[1], rectPos[1]+rectSize[1]));
-			return (dx*dx + dy*dy) < circleRadius*circleRadius;
-		}
-	}
-
-	// Perlin Noise class, create 1 instance and get values via noise.value(x); function
-	class Noise{
-		constructor(amp_ = 1, scl_ = 0.05) {
-			this.vertices = 256, this.amp = amp_, this.scl = scl_, this.r = [];
-			for(let i = 0; i < this.vertices; i++) this.r.push(Math.random());
-		}
-
-		value(x) {
-			const sclX = x*this.scl, floorX = Math.floor(sclX), t = sclX-floorX;
-			const xMin = floorX & this.vertices-1, xMax = (xMin + 1) & this.vertices-1;
-			return HBMath.lerp(this.r[xMin], this.r[xMax], t*t*(3-2*t)) * this.amp;
-		}
-	}
-
-	class Vec2{
-		constructor() {
-			Vec2.zero = [0, 0];
-			Vec2.one = [1, 1];
-		}
-
-		static new(x = 0, y = 0) { return [x, y]; }
-		static fromVec2(vector) { return [vector[0], vector[1]]; }
-		static fromAngle(angle, radius = 1) { return this.new(Math.cos(angle) * radius, Math.sin(angle) * radius); }
-		static copy(out, vector) { out[0] = vector[0], out[1] = vector[1]; }
-		static set(out, x, y) { out[0] = x, out[1] = y; }
-
-		static add(out, x, y) { out[0] += x, out[1] += y; }
-		static addVec2(out, vector) { out[0] += vector[0], out[1] += vector[1]; }
-		static addScalar(out, scalar) { out[0] += scalar, out[1] += scalar; }
-
-		static subtract(out, x, y) { out[0] -= x, out[1] -= y; }
-		static subtractVec2(out, vector) { out[0] -= vector[0], out[1] -= vector[1]; }
-		static subtractScalar(out, scalar) { out[0] -= scalar, out[1] -= scalar; }
-
-		static multiply(out, x, y) { out[0] *= x, out[1] *= y; }
-		static multiplyVec2(out, vector) { out[0] *= vector[0], out[1] *= vector[1]; }
-		static multiplyScalar(out, scalar) { out[0] *= scalar, out[1] *= scalar; }
-
-		static divide(out, x, y) { out[0] /= x, out[1] /= y; }
-		static divideVec2(out, vector) { out[0] /= vector[0], out[1] /= vector[1]; }
-		static divideScalar(out, scalar) { out[0] /= scalar, out[1] /= scalar; }
-
-		static constrain(out, lowX, hiX, lowY, hiY) {
-			out[0] = HBMath.constrain(out[0], lowX, hiX);
-			out[1] = HBMath.constrain(out[1], lowY, hiY);
-		}
-
-		static angleBetweenVec2(vectorA, vectorB) {
-			return Math.atan2(vectorB[1] - vectorA[1], vectorB[0] - vectorA[0]);
-		}
-
-		static distBetweenVec2(vectorA, vectorB) {
-			return Math.sqrt((vectorB[0]-vectorA[0])*(vectorB[0]-vectorA[0]) + (vectorB[1]-vectorA[1])*(vectorB[1]-vectorA[1]));
-		}
-
-		static collidesRect(vector, rectPos, rectSize) {
-			return (
-				   vector[0] < rectPos[0]+rectSize[0]
-				&& vector[0] > rectPos[0]
-				&& vector[1] < rectPos[1]+rectSize[1]
-				&& vector[1] > rectPos[1]
-			);
-		}
-	}
-
-	class Vec3{
-		constructor() {
-			Vec3.zero = [0, 0, 0];
-			Vec3.one = [1, 1, 1];
-		}
-
-		static new(x = 0, y = 0, z = 0) { return [x, y, z]; }
-	}
-
-	class Vec4{
-		constructor() {
-			Vec4.zero = [0, 0, 0, 0];
-			Vec4.one = [1, 1, 1, 1];
-
-			Vec4.colors = {};
-			Vec4.colors['white'] = [1, 1, 1, 1];
-			Vec4.colors['black'] = [0, 0, 0, 1];
-			Vec4.colors['red'] = [1, 0, 0, 1];
-			Vec4.colors['green'] = [0, 1, 0, 1];
-			Vec4.colors['blue'] = [0, 0, 1, 1];
-			Vec4.colors['yellow'] = [1, 1, 0, 1];
-			Vec4.colors['cyan'] = [0, 1, 1, 1];
-			Vec4.colors['magenta'] = [1, 0, 1, 1];
-		}
-
-		static new(x = 0, y = 0, z = 0, w = 0) { return [x, y, z, w]; }
-		static set(out, x, y, z, w) { out[0] = x, out[1] = y, out[2] = z, out[3] = w; }
-
-		static multVec4(vectorA, vectorB) { return [vectorA[0] * vectorB[0], vectorA[1] * vectorB[1], vectorA[2] * vectorB[2], vectorA[3] * vectorB[3]]; }
-
-		static multMat4(vector, matrix) {
-			return [
-				(vector[0] * matrix[ 0]) + (vector[1] * matrix[ 4]) + (vector[2] * matrix[ 8]) + (vector[3] * matrix[12]),
-				(vector[0] * matrix[ 1]) + (vector[1] * matrix[ 5]) + (vector[2] * matrix[ 9]) + (vector[3] * matrix[13]),
-				(vector[0] * matrix[ 2]) + (vector[1] * matrix[ 6]) + (vector[2] * matrix[10]) + (vector[3] * matrix[14]),
-				(vector[0] * matrix[ 3]) + (vector[1] * matrix[ 7]) + (vector[2] * matrix[11]) + (vector[3] * matrix[15])
-			];
-		}
-	}
-
-	class Mat4{
-		static new(identity = 0) { return [identity, 0, 0, 0, 0, identity, 0, 0, 0, 0, identity, 0, 0, 0, 0, identity]; }
-
-		static transpose(out) {
-			const temp = out.slice();
-
-			out[0 ] = temp[0], out[1 ] = temp[4], out[2 ] = temp[8 ], out[3 ] = temp[12];
-			out[4 ] = temp[1], out[5 ] = temp[5], out[6 ] = temp[9 ], out[7 ] = temp[13];
-			out[8 ] = temp[2], out[9 ] = temp[6], out[10] = temp[10], out[11] = temp[14];
-			out[12] = temp[3], out[13] = temp[7], out[14] = temp[11], out[15] = temp[15];
-		}
-
-		static orthographic(out, left, right, top, bottom, near = -1, far = 1) {
-			const rl = right-left, tb = top-bottom, fn = far-near;
-
-			out[0 ] = 2/rl, out[1 ] =    0, out[2 ] =     0, out[3 ] = -(right+left)/rl;
-			out[4 ] =    0, out[5 ] = 2/tb, out[6 ] =     0, out[7 ] = -(top+bottom)/tb;
-			out[8 ] =    0, out[9 ] =    0, out[10] = -2/fn, out[11] =   -(far+near)/fn;
-			out[12] =    0, out[13] =    0, out[14] =     0, out[15] =                1;
-		}
-
-		// static perspective(out, FoV = 60, aspect = canvas.width/canvas.height, near = 0.01, far = 1000) {
-		// 	const f = Math.tan(Math.PI * 0.5 - 0.5 * HBMath.radians(FoV));
-		// 	const invRange = 1.0 / (near - far);
-
-		// 	out[0] = f/aspect, out[4] = 0, out[ 8] =                   0, out[12] =  0;
-		// 	out[1] =        0, out[5] = f, out[ 9] =                   0, out[13] =  0;
-		// 	out[2] =        0, out[6] = 0, out[10] = (near+far)*invRange, out[14] = -1;
-		// 	out[3] =        0, out[7] = 0, out[11] = near*far*invRange*2, out[15] =  0;
-		// }
-
-		static multMat4(out, matrixA, matrixB) {
-			const row0 = Vec4.multMat4([matrixB[ 0], matrixB[ 1], matrixB[ 2], matrixB[ 3]], matrixA);
-			const row1 = Vec4.multMat4([matrixB[ 4], matrixB[ 5], matrixB[ 6], matrixB[ 7]], matrixA);
-			const row2 = Vec4.multMat4([matrixB[ 8], matrixB[ 9], matrixB[10], matrixB[11]], matrixA);
-			const row3 = Vec4.multMat4([matrixB[12], matrixB[13], matrixB[14], matrixB[15]], matrixA);
-
-			out[0 ] = row0[0], out[1 ] = row0[1], out[2 ] = row0[2], out[3 ] = row0[3];
-			out[4 ] = row1[0], out[5 ] = row1[1], out[6 ] = row1[2], out[7 ] = row1[3];
-			out[8 ] = row2[0], out[9 ] = row2[1], out[10] = row2[2], out[11] = row2[3];
-			out[12] = row3[0], out[13] = row3[1], out[14] = row3[2], out[15] = row3[3];
-		}
-
-		static scale(out, matrix, scale) { this.multMat4(out, matrix, [scale, 0, 0, 0, 0, scale, 0, 0, 0, 0, scale, 0, 0, 0, 0, 1]); }
-		static translate(out, matrix, vector3) { this.multMat4(out, matrix, [1, 0, 0, vector3[0], 0, 1, 0, vector3[1], 0, 0, 1, vector3[2], 0, 0, 0, 1]); }
-		static rotate(out, matrix, up, angle) {
-			const x = up[0] * Math.sin(angle/2);
-			const y = up[1] * Math.sin(angle/2);
-			const z = up[2] * Math.sin(angle/2);
-			const w = Math.cos(angle/2);
-
-			const x2 = x + x, y2 = y + y, z2 = z + z;
-
-			const xx = x * x2;
-			const yx = y * x2, yy = y * y2;
-			const zx = z * x2, zy = z * y2, zz = z * z2;
-			const wx = w * x2, wy = w * y2, wz = w * z2;
-
-			this.multMat4(out, matrix, [1-yy-zz, yx+wz, zx-wy, 0, yx-wz, 1-xx-zz, zy+wx, 0, zx+wy, zy+wx, 1-xx-yy, 0, 0, 0, 0, 1]);
-		}
-		static rotateX(out, matrix, angle) { this.multMat4(out, matrix, [1, 0, 0, 0, 0, Math.cos(-angle), Math.sin(angle), 0, 0, Math.sin(-angle), Math.cos(-angle), 0, 0, 0, 0, 1]); }
-		static rotateY(out, matrix, angle) { this.multMat4(out, matrix, [Math.cos(-angle), 0, Math.sin(-angle), 0, 0, 1, 0, 0, Math.sin(angle), 0, Math.cos(-angle), 0, 0, 0, 0, 1]); }
-		static rotateZ(out, matrix, angle) { this.multMat4(out, matrix, [Math.cos(-angle), Math.sin(angle), 0, 0, Math.sin(-angle), Math.cos(-angle), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]); }
 	}
 
 	exports.camera = undefined;
@@ -397,14 +420,14 @@ var HB = (function (exports) {
 
 		translate(vector3) { Mat4.translate(this.viewMatrix, this.viewMatrix, vector3); }
 		zoom(amount) {
-			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-exports.canvas.center[0], -exports.canvas.center[1]));
+			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-exports.canvas.center.x, -exports.canvas.center.y));
 			Mat4.scale(this.viewMatrix, this.viewMatrix, 1+amount);
-			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(exports.canvas.center[0], exports.canvas.center[1]));
+			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(exports.canvas.center.x, exports.canvas.center.y));
 		}
 		rotate(angle) {
-			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-exports.canvas.center[0], -exports.canvas.center[1]));
+			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-exports.canvas.center.x, -exports.canvas.center.y));
 			Mat4.rotateZ(this.viewMatrix, this.viewMatrix, angle);
-			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(exports.canvas.center[0], exports.canvas.center[1]));
+			Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(exports.canvas.center.x, exports.canvas.center.y));
 		}
 	}
 
@@ -417,7 +440,7 @@ var HB = (function (exports) {
 	}
 	// load a file, give type(from link below) and supply callback that takes 1 i.e. data argument loadFile('path_to.file', (data) => console.log(data));
 	// https://developer.mozilla.org/en-US/docs/Web/API/Body#Methods
-	function loadFile(path, type, callback) {
+	function loadFile(path, type = 'text', callback) {
 		let returnValue = {data: "", path};
 
 		const options = {method: 'GET'};
@@ -688,7 +711,7 @@ var HB = (function (exports) {
 		}
 
 		drawColoredPoint(pos, size = 1, color) {
-			this.pushQuad(pos[0]-size/4, pos[1]-size/4, size/2, size/2, 0, color);
+			this.pushQuad(pos.x-size/4, pos.y-size/4, size/2, size/2, 0, color);
 		}
 
 		drawColoredPolygon(points, color, center = 0) {
@@ -697,32 +720,32 @@ var HB = (function (exports) {
 				if((this.vertexCount + 3) >= maxVertexCount || (this.indexCount + 3) >= maxIndexCount) this.flush();
 
 				const start = this.vertexCount*exports.vertexStride;
-				exports.vertices[start   ] = points[center][0];
-				exports.vertices[start+1 ] = points[center][1];
-				exports.vertices[start+2 ] = color[0];
-				exports.vertices[start+3 ] = color[1];
-				exports.vertices[start+4 ] = color[2];
-				exports.vertices[start+5 ] = color[3];
+				exports.vertices[start   ] = points[center].x;
+				exports.vertices[start+1 ] = points[center].y;
+				exports.vertices[start+2 ] = color.x;
+				exports.vertices[start+3 ] = color.y;
+				exports.vertices[start+4 ] = color.z;
+				exports.vertices[start+5 ] = color.w;
 				exports.vertices[start+6 ] = 0;
 				exports.vertices[start+7 ] = 1;
 				exports.vertices[start+8 ] = 0;
 				exports.vertices[start+9 ] = 0;
-				exports.vertices[start+10] = points[i][0];
-				exports.vertices[start+11] = points[i][1];
-				exports.vertices[start+12] = color[0];
-				exports.vertices[start+13] = color[1];
-				exports.vertices[start+14] = color[2];
-				exports.vertices[start+15] = color[3];
+				exports.vertices[start+10] = points[i].x;
+				exports.vertices[start+11] = points[i].y;
+				exports.vertices[start+12] = color.x;
+				exports.vertices[start+13] = color.y;
+				exports.vertices[start+14] = color.z;
+				exports.vertices[start+15] = color.w;
 				exports.vertices[start+16] = 0.5;
 				exports.vertices[start+17] = 0.5;
 				exports.vertices[start+18] = 0;
 				exports.vertices[start+19] = 0;
-				exports.vertices[start+20] = points[i+1][0];
-				exports.vertices[start+21] = points[i+1][1];
-				exports.vertices[start+22] = color[0];
-				exports.vertices[start+23] = color[1];
-				exports.vertices[start+24] = color[2];
-				exports.vertices[start+25] = color[3];
+				exports.vertices[start+20] = points[i+1].x;
+				exports.vertices[start+21] = points[i+1].y;
+				exports.vertices[start+22] = color.x;
+				exports.vertices[start+23] = color.y;
+				exports.vertices[start+24] = color.z;
+				exports.vertices[start+25] = color.w;
 				exports.vertices[start+26] = 1;
 				exports.vertices[start+27] = 1;
 				exports.vertices[start+28] = 0;
@@ -737,11 +760,11 @@ var HB = (function (exports) {
 		}
 
 		drawColoredRect(pos, size, color) {
-			this.pushQuad(pos[0], pos[1], size[0], size[1], 0, color);
+			this.pushQuad(pos.x, pos.y, size.x, size.y, 0, color);
 		}
 
 		drawTexturedRect(pos, size, texture) {
-			this.pushQuad(pos[0], pos[1], size[0], size[1], this.getTextureIndex(texture));
+			this.pushQuad(pos.x, pos.y, size.x, size.y, this.getTextureIndex(texture));
 		}
 
 		drawColoredRectWithRotation(pos, size, angle, color) {
@@ -754,16 +777,16 @@ var HB = (function (exports) {
 
 		drawRectWithRotation(pos, size, angle, texture = 0, color = HB.Vec4.one) {
 			angle = HB.Math.radians(angle);
-			const cosX = size[0]*-0.5*Math.cos(angle), cosY = size[1]*-0.5*Math.cos(angle);
-			const cosX1 = size[0]*0.5*Math.cos(angle), cosY1 = size[1]*0.5*Math.cos(angle);
-			const sinX = size[0]*-0.5*Math.sin(angle), sinY = size[1]*-0.5*Math.sin(angle);
-			const sinX1 = size[0]*0.5*Math.sin(angle), sinY1 = size[1]*0.5*Math.sin(angle);
+			const cosX = size.x*-0.5*Math.cos(angle), cosY = size.y*-0.5*Math.cos(angle);
+			const cosX1 = size.x*0.5*Math.cos(angle), cosY1 = size.y*0.5*Math.cos(angle);
+			const sinX = size.x*-0.5*Math.sin(angle), sinY = size.y*-0.5*Math.sin(angle);
+			const sinX1 = size.x*0.5*Math.sin(angle), sinY1 = size.y*0.5*Math.sin(angle);
 
 			this.pushArbitraryQuad(
-				cosX-sinY+pos[0]+size[0]/2, sinX+cosY+pos[1]+size[1]/2,
-				cosX1-sinY+pos[0]+size[0]/2, sinX1+cosY+pos[1]+size[1]/2,
-				cosX1-sinY1+pos[0]+size[0]/2, sinX1+cosY1+pos[1]+size[1]/2,
-				cosX-sinY1+pos[0]+size[0]/2, sinX+cosY1+pos[1]+size[1]/2,
+				cosX-sinY+pos.x+size.x/2, sinX+cosY+pos.y+size.y/2,
+				cosX1-sinY+pos.x+size.x/2, sinX1+cosY+pos.y+size.y/2,
+				cosX1-sinY1+pos.x+size.x/2, sinX1+cosY1+pos.y+size.y/2,
+				cosX-sinY1+pos.x+size.x/2, sinX+cosY1+pos.y+size.y/2,
 				texture, color
 			);
 		}
@@ -776,16 +799,16 @@ var HB = (function (exports) {
 			const angleB = Vec2.fromAngle(angle0+Math.PI/2, thickness/2);
 
 			this.pushArbitraryQuad(
-				vectorA[0]-angleA[0], vectorA[1]-angleA[1],
-				vectorA[0]+angleA[0], vectorA[1]+angleA[1],
-				vectorB[0]-angleB[0], vectorB[1]-angleB[1],
-				vectorB[0]+angleB[0], vectorB[1]+angleB[1],
+				vectorA.x-angleA.x, vectorA.y-angleA.y,
+				vectorA.x+angleA.x, vectorA.y+angleA.y,
+				vectorB.x-angleB.x, vectorB.y-angleB.y,
+				vectorB.x+angleB.x, vectorB.y+angleB.y,
 				0, color
 			);
 		}
 
 		drawColoredEllipse(pos, size, color) {
-			this.pushQuad(pos[0], pos[1], size[0], size[1], this.getTextureIndex(textures['Hummingbird_Circle']), color);
+			this.pushQuad(pos.x, pos.y, size.x, size.y, this.getTextureIndex(textures['Hummingbird_Circle']), color);
 		}
 
 		drawColoredText(string, pos, size = 12, align = 'start-start', color) {
@@ -833,7 +856,7 @@ var HB = (function (exports) {
 				if(kernings[glyph.id] !== undefined) offsetx += kernings[glyph.id].amt*size;
 
 				this.pushQuad(
-					pos[0]+glyph.xoff*size+offsetx, pos[1]+glyph.yoff*size+offsety,
+					pos.x+glyph.xoff*size+offsetx, pos.y+glyph.yoff*size+offsety,
 					glyph.w*size, glyph.h*size,
 					textureIndex, color, size,
 					glyph.x/exports.fontData.common.scaleW, glyph.y/exports.fontData.common.scaleH,
@@ -862,10 +885,10 @@ var HB = (function (exports) {
 			const start = this.vertexCount*exports.vertexStride;
 			exports.vertices[start   ] = x0;
 			exports.vertices[start+1 ] = y0;
-			exports.vertices[start+2 ] = col[0];
-			exports.vertices[start+3 ] = col[1];
-			exports.vertices[start+4 ] = col[2];
-			exports.vertices[start+5 ] = col[3];
+			exports.vertices[start+2 ] = col.x;
+			exports.vertices[start+3 ] = col.y;
+			exports.vertices[start+4 ] = col.z;
+			exports.vertices[start+5 ] = col.w;
 			exports.vertices[start+6 ] = sx;
 			exports.vertices[start+7 ] = sy;
 			exports.vertices[start+8 ] = tex;
@@ -873,10 +896,10 @@ var HB = (function (exports) {
 
 			exports.vertices[start+10] = x1;
 			exports.vertices[start+11] = y1;
-			exports.vertices[start+12] = col[0];
-			exports.vertices[start+13] = col[1];
-			exports.vertices[start+14] = col[2];
-			exports.vertices[start+15] = col[3];
+			exports.vertices[start+12] = col.x;
+			exports.vertices[start+13] = col.y;
+			exports.vertices[start+14] = col.z;
+			exports.vertices[start+15] = col.w;
 			exports.vertices[start+16] = sx+sw;
 			exports.vertices[start+17] = sy;
 			exports.vertices[start+18] = tex;
@@ -884,10 +907,10 @@ var HB = (function (exports) {
 
 			exports.vertices[start+20] = x2;
 			exports.vertices[start+21] = y2;
-			exports.vertices[start+22] = col[0];
-			exports.vertices[start+23] = col[1];
-			exports.vertices[start+24] = col[2];
-			exports.vertices[start+25] = col[3];
+			exports.vertices[start+22] = col.x;
+			exports.vertices[start+23] = col.y;
+			exports.vertices[start+24] = col.z;
+			exports.vertices[start+25] = col.w;
 			exports.vertices[start+26] = sx+sw;
 			exports.vertices[start+27] = sy+sh;
 			exports.vertices[start+28] = tex;
@@ -895,10 +918,10 @@ var HB = (function (exports) {
 
 			exports.vertices[start+30] = x3;
 			exports.vertices[start+31] = y3;
-			exports.vertices[start+32] = col[0];
-			exports.vertices[start+33] = col[1];
-			exports.vertices[start+34] = col[2];
-			exports.vertices[start+35] = col[3];
+			exports.vertices[start+32] = col.x;
+			exports.vertices[start+33] = col.y;
+			exports.vertices[start+34] = col.z;
+			exports.vertices[start+35] = col.w;
 			exports.vertices[start+36] = sx;
 			exports.vertices[start+37] = sy+sh;
 			exports.vertices[start+38] = tex;
@@ -956,7 +979,7 @@ var HB = (function (exports) {
 		}
 
 		clear(color) {
-			exports.gl.clearColor(color[0], color[1], color[2], color[3]);
+			exports.gl.clearColor(color.x, color.y, color.z, color.w);
 			exports.gl.clear(exports.gl.COLOR_BUFFER_BIT);
 		}
 
@@ -976,14 +999,14 @@ var HB = (function (exports) {
 		}
 	}
 
-	const version = "v0.5.0";
+	const version = "v0.5.5";
 	exports.noUpdate = false;
 	exports.deltaTime = 0;
 	exports.accumulator = 0;
 	let fixedUpdateFrequency = 50;
 	exports.frames = 0;
 	exports.prevTime = 0;
-	const mousePos = [0, 0];
+	const mousePos = {x: 0, y: 0};
 	exports.mouseIsPressed = false;
 	const keysPressed = {};
 	exports.canvas = undefined;
@@ -1003,7 +1026,7 @@ var HB = (function (exports) {
 		Texture.init(loading);
 	}
 
-	function init(width, height, options) {
+	function init(width = 100, height = 100, options) {
 		if(options === undefined) options = {};
 		if(options["noUpdate"] === true) exports.noUpdate = true;
 		if(options["canvas"] === undefined) {
@@ -1027,7 +1050,7 @@ var HB = (function (exports) {
 			p.innerText = 'WebGL2 is not supported on your browser or machine.';
 			if(options["parent"] === undefined) document.body.appendChild(p); else options["parent"].appendChild(p);
 		} else {
-			exports.canvas.width = width || 100, exports.canvas.height = height || 100;
+			exports.canvas.width = width, exports.canvas.height = height;
 			exports.canvas.size = Vec2.new(exports.canvas.width, exports.canvas.height);
 			exports.canvas.center = Vec2.new(exports.canvas.width/2, exports.canvas.height/2);
 			exports.canvas.id = (options["id"] === undefined) ? "HummingbirdCanvas" : options["id"];
@@ -1072,8 +1095,8 @@ var HB = (function (exports) {
 		// });
 	}
 
-	function resizeCanvas(width, height) {
-		exports.canvas.width = width || 100, exports.canvas.height = height || 100;
+	function resizeCanvas(width = 100, height = 100) {
+		exports.canvas.width = width, exports.canvas.height = height;
 		Vec2.set(exports.canvas.size, exports.canvas.width, exports.canvas.height);
 		Vec2.set(exports.canvas.center, exports.canvas.width/2, exports.canvas.height/2);
 		exports.gl.viewport(0, 0, exports.canvas.width, exports.canvas.height);

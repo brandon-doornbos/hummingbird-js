@@ -58,22 +58,21 @@
 				}
 
 				update() {
-					this.pos[0] += this.vel[0];
-					this.pos[1] += this.vel[1];
+					HB.Vec2.addVec2(this.pos, this.vel);
 
-					if(this.pos[0] > HB.canvas.width-this.size[0]) {
-						this.vel[0] *= -1;
-						this.pos[0] = HB.canvas.width-this.size[0];
-					} else if(this.pos[0] < 0) {
-						this.vel[0] *= -1;
-						this.pos[0] = 0;
+					if(this.pos.x > HB.canvas.width-this.size.x) {
+						this.vel.x *= -1;
+						this.pos.x = HB.canvas.width-this.size.x;
+					} else if(this.pos.x < 0) {
+						this.vel.x *= -1;
+						this.pos.x = 0;
 					}
-					if(this.pos[1] > HB.canvas.height-this.size[1]) {
-						this.vel[1] *= -1;
-						this.pos[1] = HB.canvas.height-this.size[1];
-					} else if(this.pos[1] < 0) {
-						this.vel[1] *= -1;
-						this.pos[1] = 0;
+					if(this.pos.y > HB.canvas.height-this.size.y) {
+						this.vel.y *= -1;
+						this.pos.y = HB.canvas.height-this.size.y;
+					} else if(this.pos.y < 0) {
+						this.vel.y *= -1;
+						this.pos.y = 0;
 					}
 				}
 			}
@@ -85,7 +84,7 @@
 
 				const pos = HB.Vec2.new(), size = HB.Vec2.new(5, 5), color = HB.Vec4.new(0, 1, 1, 1);
 				for(let x = 0, r = 0, g = 1; x < HB.canvas.width; x += 6) {
-					color[0] += 0.005, color[1] -= 0.005;
+					color.x += 0.005, color.y -= 0.005;
 					for(let y = 0; y < HB.canvas.height; y += 6) {
 						HB.Vec2.set(pos, x, y);
 						HB.batch.drawColoredRect(pos, size, color);
@@ -110,9 +109,9 @@
 				// ]; // triangle
 				const points = [];
 				for(let i = 0; i < 360; i += 36) {
-					const point = HB.Vec2.fromAngle(HB.Math.radians(i), polygon.size[0]/2);
+					const point = HB.Vec2.fromAngle(HB.Math.radians(i), polygon.size.x/2);
 					HB.Vec2.addVec2(point, polygon.pos);
-					HB.Vec2.add(point, polygon.size[0]/2, polygon.size[1]/2);
+					HB.Vec2.add(point, polygon.size.x/2, polygon.size.y/2);
 					points.push(point);
 				}
 				HB.batch.drawColoredPolygon(points, HB.Vec4.colors.yellow);

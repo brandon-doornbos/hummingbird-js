@@ -29,7 +29,7 @@ class Renderer{
 	}
 
 	clear(color) {
-		gl.clearColor(color[0], color[1], color[2], color[3]);
+		gl.clearColor(color.x, color.y, color.z, color.w);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 	}
 

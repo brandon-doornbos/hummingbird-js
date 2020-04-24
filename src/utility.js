@@ -9,7 +9,7 @@ function bytes(type) {
 }
 // load a file, give type(from link below) and supply callback that takes 1 i.e. data argument loadFile('path_to.file', (data) => console.log(data));
 // https://developer.mozilla.org/en-US/docs/Web/API/Body#Methods
-function loadFile(path, type, callback) {
+function loadFile(path, type = 'text', callback) {
 	let returnValue = {data: "", path};
 
 	const options = {method: 'GET'};

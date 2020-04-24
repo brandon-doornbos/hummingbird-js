@@ -4,14 +4,14 @@ import { batch } from './batch.js';
 import { Texture } from './texture.js';
 import { Math, Vec2, Mat4 } from './math.js';
 
-const version = "v0.5.0";
+const version = "v0.5.5";
 let noUpdate = false;
 let deltaTime = 0;
 let accumulator = 0;
 let fixedUpdateFrequency = 50;
 let frames = 0;
 let prevTime = 0;
-const mousePos = [0, 0];
+const mousePos = {x: 0, y: 0};
 let mouseIsPressed = false;
 const keysPressed = {};
 let canvas = undefined;
@@ -31,7 +31,7 @@ function HBsetup() {
 	Texture.init(loading);
 }
 
-function init(width, height, options) {
+function init(width = 100, height = 100, options) {
 	if(options === undefined) options = {};
 	if(options["noUpdate"] === true) noUpdate = true;
 	if(options["canvas"] === undefined) {
@@ -55,7 +55,7 @@ function init(width, height, options) {
 		p.innerText = 'WebGL2 is not supported on your browser or machine.';
 		if(options["parent"] === undefined) document.body.appendChild(p); else options["parent"].appendChild(p);
 	} else {
-		canvas.width = width || 100, canvas.height = height || 100;
+		canvas.width = width, canvas.height = height;
 		canvas.size = Vec2.new(canvas.width, canvas.height);
 		canvas.center = Vec2.new(canvas.width/2, canvas.height/2);
 		canvas.id = (options["id"] === undefined) ? "HummingbirdCanvas" : options["id"];
@@ -100,8 +100,8 @@ function init(width, height, options) {
 	// });
 }
 
-function resizeCanvas(width, height) {
-	canvas.width = width || 100, canvas.height = height || 100;
+function resizeCanvas(width = 100, height = 100) {
+	canvas.width = width, canvas.height = height;
 	Vec2.set(canvas.size, canvas.width, canvas.height);
 	Vec2.set(canvas.center, canvas.width/2, canvas.height/2);
 	gl.viewport(0, 0, canvas.width, canvas.height);

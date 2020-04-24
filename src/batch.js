@@ -30,7 +30,7 @@ class Batch{
 	}
 
 	drawColoredPoint(pos, size = 1, color) {
-		this.pushQuad(pos[0]-size/4, pos[1]-size/4, size/2, size/2, 0, color);
+		this.pushQuad(pos.x-size/4, pos.y-size/4, size/2, size/2, 0, color);
 	}
 
 	drawColoredPolygon(points, color, center = 0) {
@@ -39,32 +39,32 @@ class Batch{
 			if((this.vertexCount + 3) >= maxVertexCount || (this.indexCount + 3) >= maxIndexCount) this.flush();
 
 			const start = this.vertexCount*vertexStride;
-			vertices[start   ] = points[center][0];
-			vertices[start+1 ] = points[center][1];
-			vertices[start+2 ] = color[0];
-			vertices[start+3 ] = color[1];
-			vertices[start+4 ] = color[2];
-			vertices[start+5 ] = color[3];
+			vertices[start   ] = points[center].x;
+			vertices[start+1 ] = points[center].y;
+			vertices[start+2 ] = color.x;
+			vertices[start+3 ] = color.y;
+			vertices[start+4 ] = color.z;
+			vertices[start+5 ] = color.w;
 			vertices[start+6 ] = 0;
 			vertices[start+7 ] = 1;
 			vertices[start+8 ] = 0;
 			vertices[start+9 ] = 0;
-			vertices[start+10] = points[i][0];
-			vertices[start+11] = points[i][1];
-			vertices[start+12] = color[0];
-			vertices[start+13] = color[1];
-			vertices[start+14] = color[2];
-			vertices[start+15] = color[3];
+			vertices[start+10] = points[i].x;
+			vertices[start+11] = points[i].y;
+			vertices[start+12] = color.x;
+			vertices[start+13] = color.y;
+			vertices[start+14] = color.z;
+			vertices[start+15] = color.w;
 			vertices[start+16] = 0.5;
 			vertices[start+17] = 0.5;
 			vertices[start+18] = 0;
 			vertices[start+19] = 0;
-			vertices[start+20] = points[i+1][0];
-			vertices[start+21] = points[i+1][1];
-			vertices[start+22] = color[0];
-			vertices[start+23] = color[1];
-			vertices[start+24] = color[2];
-			vertices[start+25] = color[3];
+			vertices[start+20] = points[i+1].x;
+			vertices[start+21] = points[i+1].y;
+			vertices[start+22] = color.x;
+			vertices[start+23] = color.y;
+			vertices[start+24] = color.z;
+			vertices[start+25] = color.w;
 			vertices[start+26] = 1;
 			vertices[start+27] = 1;
 			vertices[start+28] = 0;
@@ -79,11 +79,11 @@ class Batch{
 	}
 
 	drawColoredRect(pos, size, color) {
-		this.pushQuad(pos[0], pos[1], size[0], size[1], 0, color);
+		this.pushQuad(pos.x, pos.y, size.x, size.y, 0, color);
 	}
 
 	drawTexturedRect(pos, size, texture) {
-		this.pushQuad(pos[0], pos[1], size[0], size[1], this.getTextureIndex(texture));
+		this.pushQuad(pos.x, pos.y, size.x, size.y, this.getTextureIndex(texture));
 	}
 
 	drawColoredRectWithRotation(pos, size, angle, color) {
@@ -96,16 +96,16 @@ class Batch{
 
 	drawRectWithRotation(pos, size, angle, texture = 0, color = HB.Vec4.one) {
 		angle = HB.Math.radians(angle);
-		const cosX = size[0]*-0.5*Math.cos(angle), cosY = size[1]*-0.5*Math.cos(angle);
-		const cosX1 = size[0]*0.5*Math.cos(angle), cosY1 = size[1]*0.5*Math.cos(angle);
-		const sinX = size[0]*-0.5*Math.sin(angle), sinY = size[1]*-0.5*Math.sin(angle);
-		const sinX1 = size[0]*0.5*Math.sin(angle), sinY1 = size[1]*0.5*Math.sin(angle);
+		const cosX = size.x*-0.5*Math.cos(angle), cosY = size.y*-0.5*Math.cos(angle);
+		const cosX1 = size.x*0.5*Math.cos(angle), cosY1 = size.y*0.5*Math.cos(angle);
+		const sinX = size.x*-0.5*Math.sin(angle), sinY = size.y*-0.5*Math.sin(angle);
+		const sinX1 = size.x*0.5*Math.sin(angle), sinY1 = size.y*0.5*Math.sin(angle);
 
 		this.pushArbitraryQuad(
-			cosX-sinY+pos[0]+size[0]/2, sinX+cosY+pos[1]+size[1]/2,
-			cosX1-sinY+pos[0]+size[0]/2, sinX1+cosY+pos[1]+size[1]/2,
-			cosX1-sinY1+pos[0]+size[0]/2, sinX1+cosY1+pos[1]+size[1]/2,
-			cosX-sinY1+pos[0]+size[0]/2, sinX+cosY1+pos[1]+size[1]/2,
+			cosX-sinY+pos.x+size.x/2, sinX+cosY+pos.y+size.y/2,
+			cosX1-sinY+pos.x+size.x/2, sinX1+cosY+pos.y+size.y/2,
+			cosX1-sinY1+pos.x+size.x/2, sinX1+cosY1+pos.y+size.y/2,
+			cosX-sinY1+pos.x+size.x/2, sinX+cosY1+pos.y+size.y/2,
 			texture, color
 		);
 	}
@@ -118,16 +118,16 @@ class Batch{
 		const angleB = Vec2.fromAngle(angle0+Math.PI/2, thickness/2);
 
 		this.pushArbitraryQuad(
-			vectorA[0]-angleA[0], vectorA[1]-angleA[1],
-			vectorA[0]+angleA[0], vectorA[1]+angleA[1],
-			vectorB[0]-angleB[0], vectorB[1]-angleB[1],
-			vectorB[0]+angleB[0], vectorB[1]+angleB[1],
+			vectorA.x-angleA.x, vectorA.y-angleA.y,
+			vectorA.x+angleA.x, vectorA.y+angleA.y,
+			vectorB.x-angleB.x, vectorB.y-angleB.y,
+			vectorB.x+angleB.x, vectorB.y+angleB.y,
 			0, color
 		);
 	}
 
 	drawColoredEllipse(pos, size, color) {
-		this.pushQuad(pos[0], pos[1], size[0], size[1], this.getTextureIndex(textures['Hummingbird_Circle']), color);
+		this.pushQuad(pos.x, pos.y, size.x, size.y, this.getTextureIndex(textures['Hummingbird_Circle']), color);
 	}
 
 	drawColoredText(string, pos, size = 12, align = 'start-start', color) {
@@ -175,7 +175,7 @@ class Batch{
 			if(kernings[glyph.id] !== undefined) offsetx += kernings[glyph.id].amt*size;
 
 			this.pushQuad(
-				pos[0]+glyph.xoff*size+offsetx, pos[1]+glyph.yoff*size+offsety,
+				pos.x+glyph.xoff*size+offsetx, pos.y+glyph.yoff*size+offsety,
 				glyph.w*size, glyph.h*size,
 				textureIndex, color, size,
 				glyph.x/fontData.common.scaleW, glyph.y/fontData.common.scaleH,
@@ -204,10 +204,10 @@ class Batch{
 		const start = this.vertexCount*vertexStride;
 		vertices[start   ] = x0;
 		vertices[start+1 ] = y0;
-		vertices[start+2 ] = col[0];
-		vertices[start+3 ] = col[1];
-		vertices[start+4 ] = col[2];
-		vertices[start+5 ] = col[3];
+		vertices[start+2 ] = col.x;
+		vertices[start+3 ] = col.y;
+		vertices[start+4 ] = col.z;
+		vertices[start+5 ] = col.w;
 		vertices[start+6 ] = sx;
 		vertices[start+7 ] = sy;
 		vertices[start+8 ] = tex;
@@ -215,10 +215,10 @@ class Batch{
 
 		vertices[start+10] = x1;
 		vertices[start+11] = y1;
-		vertices[start+12] = col[0];
-		vertices[start+13] = col[1];
-		vertices[start+14] = col[2];
-		vertices[start+15] = col[3];
+		vertices[start+12] = col.x;
+		vertices[start+13] = col.y;
+		vertices[start+14] = col.z;
+		vertices[start+15] = col.w;
 		vertices[start+16] = sx+sw;
 		vertices[start+17] = sy;
 		vertices[start+18] = tex;
@@ -226,10 +226,10 @@ class Batch{
 
 		vertices[start+20] = x2;
 		vertices[start+21] = y2;
-		vertices[start+22] = col[0];
-		vertices[start+23] = col[1];
-		vertices[start+24] = col[2];
-		vertices[start+25] = col[3];
+		vertices[start+22] = col.x;
+		vertices[start+23] = col.y;
+		vertices[start+24] = col.z;
+		vertices[start+25] = col.w;
 		vertices[start+26] = sx+sw;
 		vertices[start+27] = sy+sh;
 		vertices[start+28] = tex;
@@ -237,10 +237,10 @@ class Batch{
 
 		vertices[start+30] = x3;
 		vertices[start+31] = y3;
-		vertices[start+32] = col[0];
-		vertices[start+33] = col[1];
-		vertices[start+34] = col[2];
-		vertices[start+35] = col[3];
+		vertices[start+32] = col.x;
+		vertices[start+33] = col.y;
+		vertices[start+34] = col.z;
+		vertices[start+35] = col.w;
 		vertices[start+36] = sx;
 		vertices[start+37] = sy+sh;
 		vertices[start+38] = tex;

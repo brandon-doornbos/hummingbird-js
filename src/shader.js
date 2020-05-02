@@ -5,18 +5,18 @@ let shader = undefined;
 
 class Shader{
 	constructor(vertexShaderSource, fragmentShaderSource) {
-		this.vertexShaderSource = vertexShaderSource || `#version 300 es
-			in vec4 aVertexPosition;
-			in vec4 aVertexColor;
-			in vec2 aTexturePosition;
-			in float aTextureId;
-			in float aTextSize;
+		this.vertexShaderSource = vertexShaderSource || `
+			attribute vec4 aVertexPosition;
+			attribute vec4 aVertexColor;
+			attribute vec2 aTexturePosition;
+			attribute float aTextureId;
+			attribute float aTextSize;
 
-			out vec4 vScreenPosition;
-			out vec4 vVertexColor;
-			out vec2 vTexturePosition;
-			out float vTextureId;
-			out float vTextSize;
+			varying vec4 vScreenPosition;
+			varying vec4 vVertexColor;
+			varying vec2 vTexturePosition;
+			varying float vTextureId;
+			varying float vTextSize;
 
 			uniform mat4 uMVP;
 
@@ -28,47 +28,35 @@ class Shader{
 				vTextureId = aTextureId;
 				vTextSize = aTextSize;
 			}
-		`, this.fragmentShaderSource = fragmentShaderSource || `#version 300 es
+		`, this.fragmentShaderSource = fragmentShaderSource || `
+			#extension GL_OES_standard_derivatives : enable
+
 			precision mediump float;
-			in vec4 vScreenPosition;
-			in vec4 vVertexColor;
-			in vec2 vTexturePosition;
-			in float vTextureId;
-			in float vTextSize;
+			varying vec4 vScreenPosition;
+			varying vec4 vVertexColor;
+			varying vec2 vTexturePosition;
+			varying float vTextureId;
+			varying float vTextSize;
 
 			uniform sampler2D uTextureIds[16];
 
-			out vec4 pixelColor;
-
 			void main() {
 				vec4 texSample;
-				switch(int(vTextureId)) {
-					case 0: texSample = texture(uTextureIds[0], vTexturePosition); break;
-					case 1: texSample = texture(uTextureIds[1], vTexturePosition); break;
-					case 2: texSample = texture(uTextureIds[2], vTexturePosition); break;
-					case 3: texSample = texture(uTextureIds[3], vTexturePosition); break;
-					case 4: texSample = texture(uTextureIds[4], vTexturePosition); break;
-					case 5: texSample = texture(uTextureIds[5], vTexturePosition); break;
-					case 6: texSample = texture(uTextureIds[6], vTexturePosition); break;
-					case 7: texSample = texture(uTextureIds[7], vTexturePosition); break;
-					case 8: texSample = texture(uTextureIds[8], vTexturePosition); break;
-					case 9: texSample = texture(uTextureIds[9], vTexturePosition); break;
-					case 10: texSample = texture(uTextureIds[10], vTexturePosition); break;
-					case 11: texSample = texture(uTextureIds[11], vTexturePosition); break;
-					case 12: texSample = texture(uTextureIds[12], vTexturePosition); break;
-					case 13: texSample = texture(uTextureIds[13], vTexturePosition); break;
-					case 14: texSample = texture(uTextureIds[14], vTexturePosition); break;
-					case 15: texSample = texture(uTextureIds[15], vTexturePosition); break;
+				int textureId = int(vTextureId);
+				for(int i = 0; i < 16; i++) {
+					if(i == textureId) {
+						texSample = texture2D(uTextureIds[i], vTexturePosition); break;
+					}
 				}
 				if(vTextSize <= 0.0) {
 					// float dist = distance(vec4(0.0, 0.0, 0.0, 1.0), vScreenPosition);
 					// vec4 color = texSample * vVertexColor;
 					// pixelColor = vec4(color.rgb, smoothstep(0.75, 0.5, dist)*color.a);
-					pixelColor = vVertexColor * texSample;
+					gl_FragColor = vVertexColor * texSample;
 				} else {
 					float sigDist = max(min(texSample.r, texSample.g), min(max(texSample.r, texSample.g), texSample.b)) - 0.5;
 					float alpha = clamp(sigDist/fwidth(sigDist) + 0.4, 0.0, 1.0);
-					pixelColor = vec4(vVertexColor.rgb, alpha * vVertexColor.a);
+					gl_FragColor = vec4(vVertexColor.rgb, alpha * vVertexColor.a);
 				}
 			}
 		`;
@@ -79,6 +67,7 @@ class Shader{
 	}
 
 	static init() {
+		gl.getExtension('OES_standard_derivatives');
 		shader = new Shader();
 	}
 
@@ -124,7 +113,7 @@ class Shader{
 	setUniformArray(type, name, array, elementAmount = 1) { gl['uniform'+elementAmount+type+'v'](this.getUniformLocation(name), array); }
 	setUniformMatrix(type, name, matrix) {
 		const glMatrix = Mat4.toArray(matrix);
-		gl['uniformMatrix'+Math.sqrt(glMatrix.length)+type+'v'](this.getUniformLocation(name), true, glMatrix);
+		gl['uniformMatrix'+Math.sqrt(glMatrix.length)+type+'v'](this.getUniformLocation(name), false, glMatrix);
 	}
 
 	bind() { gl.useProgram(this.id); }

@@ -37,7 +37,7 @@ class Renderer{
 		shader.bind();
 		vertexArray.bind();
 
-		gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_INT, 0);
+		gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, 0);
 	}
 
 	delete() {

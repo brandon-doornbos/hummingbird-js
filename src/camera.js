@@ -26,8 +26,12 @@ class Camera{
 			// const modelView = Mat4.new(1);
 			// Mat4.multMat4(modelView, this.modelMatrix, this.viewMatrix);
 			Mat4.multMat4(this.MVP, this.viewMatrix, this.projectionMatrix);
+			Mat4.transpose(this.MVP, this.MVP);
 			shader.setUniformMatrix('f', 'uMVP', this.MVP);
-		} else shader.setUniformMatrix('f', 'uMVP', mvp);
+		} else {
+			Mat4.transpose(mvp, mvp);
+			shader.setUniformMatrix('f', 'uMVP', mvp);
+		}
 	}
 
 	translate(vector3) { Mat4.translate(this.viewMatrix, this.viewMatrix, vector3); }

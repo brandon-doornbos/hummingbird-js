@@ -1,7 +1,7 @@
 {
   "name": "hummingbird",
   "version": "0.0.1",
-  "description": "A game engine for JavaScript running on WebGL2.",
+  "description": "A game engine for JavaScript running on WebGL.",
   "main": "src/index.js",
   "scripts": {
     "build": "bash build.sh"

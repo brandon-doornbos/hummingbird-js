@@ -127,7 +127,7 @@ class Batch{
 	}
 
 	drawColoredEllipse(pos, size, color) {
-		this.pushQuad(pos.x, pos.y, size.x, size.y, this.getTextureIndex(textures['Hummingbird_Circle']), color);
+		this.pushQuad(pos.x, pos.y, size.x, size.y, this.getTextureIndex(textures.Hummingbird_Circle), color);
 	}
 
 	drawColoredText(string, pos, size = 12, align = 'start-start', color) {
@@ -179,7 +179,7 @@ class Batch{
 				glyph.w*size, glyph.h*size,
 				textureIndex, color, size,
 				glyph.x/fontData.common.scaleW, glyph.y/fontData.common.scaleH,
-				glyph.w/fontData.common.scaleW, glyph.h/fontData.common.scaleH,
+				glyph.w/fontData.common.scaleW, glyph.h/fontData.common.scaleH
 			);
 
 			offsetx += glyph.xadv*size;

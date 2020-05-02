@@ -3,13 +3,13 @@ var HB = (function (exports) {
 
 	// import { canvas } from './common.js';
 
-	class HBMath{
-		constructor() {
-			new Vec2();
-			new Vec3();
-			new Vec4();
-		}
+	function initMathObjects() {
+		Vec2.init();
+		Vec3.init();
+		Vec4.init();
+	}
 
+	class HBMath{
 		static radians(degrees) { // convert degrees to radians
 			return degrees*(Math.PI/180);
 		}
@@ -56,8 +56,11 @@ var HB = (function (exports) {
 			}
 		}
 		static rectRectCollision(vectorA, sizeA, vectorB, sizeB) { // check for AABB collision between two rectangles
-			return (Math.abs((vectorA.x+sizeA.x/2) - (vectorB.x+sizeB.x/2)) * 2 < (sizeA.x + sizeB.x))
-					&& (Math.abs((vectorA.y+sizeA.y/2) - (vectorB.y+sizeB.y/2)) * 2 < (sizeA.y + sizeB.y));
+			return (
+				Math.abs((vectorA.x+sizeA.x/2)-(vectorB.x+sizeB.x/2))*2 < (sizeA.x+sizeB.x)
+			) && (
+				Math.abs((vectorA.y+sizeA.y/2)-(vectorB.y+sizeB.y/2))*2 < (sizeA.y+sizeB.y)
+			);
 		}
 		static rectCircleCollision(rectPos, rectSize, circleCenter, circleRadius) { // check for collision between a rectangle and a circle
 			const dx = circleCenter.x-Math.max(rectPos.x, Math.min(circleCenter.x, rectPos.x+rectSize.x));
@@ -81,7 +84,7 @@ var HB = (function (exports) {
 	}
 
 	class Vec2{
-		constructor() {
+		static init() {
 			Vec2.zero = {x: 0, y: 0};
 			Vec2.one = {x: 1, y: 1};
 		}
@@ -122,17 +125,20 @@ var HB = (function (exports) {
 		}
 
 		static collidesRect(vector, rectPos, rectSize) {
-			return (
-				   vector.x < rectPos.x+rectSize.x
-				&& vector.x > rectPos.x
-				&& vector.y < rectPos.y+rectSize.y
-				&& vector.y > rectPos.y
-			);
+			return ((
+				vector.x < rectPos.x+rectSize.x
+			) && (
+				vector.x > rectPos.x
+			) && (
+				vector.y < rectPos.y+rectSize.y
+			) && (
+				vector.y > rectPos.y
+			));
 		}
 	}
 
 	class Vec3{
-		constructor() {
+		static init() {
 			Vec3.zero = { x: 0, y: 0, z: 0 };
 			Vec3.one = { x: 1, y: 1, z: 1 };
 		}
@@ -141,19 +147,19 @@ var HB = (function (exports) {
 	}
 
 	class Vec4{
-		constructor() {
+		static init() {
 			Vec4.zero = { x: 0, y: 0, z: 0, w: 0 };
 			Vec4.one = { x: 1, y: 1, z: 1, w: 1 };
 
 			Vec4.colors = {};
-			Vec4.colors['white'] = { x: 1, y: 1, z: 1, w: 1 };
-			Vec4.colors['black'] = { x: 0, y: 0, z: 0, w: 1 };
-			Vec4.colors['red'] = { x: 1, y: 0, z: 0, w: 1 };
-			Vec4.colors['green'] = { x: 0, y: 1, z: 0, w: 1 };
-			Vec4.colors['blue'] = { x: 0, y: 0, z: 1, w: 1 };
-			Vec4.colors['yellow'] = { x: 1, y: 1, z: 0, w: 1 };
-			Vec4.colors['cyan'] = { x: 0, y: 1, z: 1, w: 1 };
-			Vec4.colors['magenta'] = { x: 1, y: 0, z: 1, w: 1 };
+			Vec4.colors.white = { x: 1, y: 1, z: 1, w: 1 };
+			Vec4.colors.black = { x: 0, y: 0, z: 0, w: 1 };
+			Vec4.colors.red = { x: 1, y: 0, z: 0, w: 1 };
+			Vec4.colors.green = { x: 0, y: 1, z: 0, w: 1 };
+			Vec4.colors.blue = { x: 0, y: 0, z: 1, w: 1 };
+			Vec4.colors.yellow = { x: 1, y: 1, z: 0, w: 1 };
+			Vec4.colors.cyan = { x: 0, y: 1, z: 1, w: 1 };
+			Vec4.colors.magenta = { x: 1, y: 0, z: 1, w: 1 };
 		}
 
 		static new(x = 0, y = 0, z = 0, w = 0) { return { x: x, y: y, z: z, w: w }; }
@@ -171,27 +177,53 @@ var HB = (function (exports) {
 			out.y = (vector.x * matrix.ab) + (vector.y * matrix.bb) + (vector.z * matrix.cb) + (vector.w * matrix.db);
 			out.z = (vector.x * matrix.ac) + (vector.y * matrix.bc) + (vector.z * matrix.cc) + (vector.w * matrix.dc);
 			out.w = (vector.x * matrix.ad) + (vector.y * matrix.bd) + (vector.z * matrix.cd) + (vector.w * matrix.dd);
+
+			return out;
 		}
 	}
 
 	class Mat4{
-		static new(identity = 0) { return {aa: identity, ab: 0, ac: 0, ad: 0, ba: 0, bb: identity, bc: 0, bd: 0, ca: 0, cb: 0, cc: identity, cd: 0, da: 0, db: 0, dc: 0, dd: identity}; }
+		static new(identity = 0) {
+			return {
+				aa: identity, ab: 0, ac: 0, ad: 0,
+				ba: 0, bb: identity, bc: 0, bd: 0,
+				ca: 0, cb: 0, cc: identity, cd: 0,
+				da: 0, db: 0, dc: 0, dd: identity
+			};
+		}
+		static copy(out, matrix) {
+			out.aa = matrix.aa, out.ab = matrix.ab, out.ac = matrix.ac, out.ad = matrix.ad;
+			out.ba = matrix.ba, out.bb = matrix.bb, out.bc = matrix.bc, out.bd = matrix.bd;
+			out.ca = matrix.ca, out.cb = matrix.cb, out.cc = matrix.cc, out.cd = matrix.cd;
+			out.da = matrix.da, out.db = matrix.db, out.dc = matrix.dc, out.dd = matrix.dd;
 
-		static transpose(out) {
-			const temp = out;
+			return out;
+		}
+		static fromMat4(matrix) {
+			return {
+				aa: matrix.aa, ab: matrix.ab, ac: matrix.ac, ad: matrix.ad,
+				ba: matrix.ba, bb: matrix.bb, bc: matrix.bc, bd: matrix.bd,
+				ca: matrix.ca, cb: matrix.cb, cc: matrix.cc, cd: matrix.cd,
+				da: matrix.da, db: matrix.db, dc: matrix.dc, dd: matrix.dd
+			};
+		}
+
+		static transpose(out, matrix) {
+			const temp = this.fromMat4(matrix);
 
 			out.aa = temp.aa, out.ab = temp.ba, out.ac = temp.ca, out.ad = temp.da;
 			out.ba = temp.ab, out.bb = temp.bb, out.bc = temp.cb, out.bd = temp.db;
 			out.ca = temp.ac, out.cb = temp.bc, out.cc = temp.cc, out.cd = temp.dc;
 			out.da = temp.ad, out.db = temp.bd, out.dc = temp.cd, out.dd = temp.dd;
-		}
 
+			return out;
+		}
 		static toArray(matrix) {
 			return [
 				matrix.aa, matrix.ab, matrix.ac, matrix.ad,
 				matrix.ba, matrix.bb, matrix.bc, matrix.bd,
 				matrix.ca, matrix.cb, matrix.cc, matrix.cd,
-				matrix.da, matrix.db, matrix.dc, matrix.dd,
+				matrix.da, matrix.db, matrix.dc, matrix.dd
 			];
 		}
 
@@ -202,6 +234,8 @@ var HB = (function (exports) {
 			out.ba =    0, out.bb = 2/tb, out.bc =     0, out.bd = -(top+bottom)/tb;
 			out.ca =    0, out.cb =    0, out.cc = -2/fn, out.cd =   -(far+near)/fn;
 			out.da =    0, out.db =    0, out.dc =     0, out.dd =                1;
+
+			return out;
 		}
 
 		// static perspective(out, FoV = 60, aspect = canvas.width/canvas.height, near = 0.01, far = 1000) {
@@ -234,10 +268,26 @@ var HB = (function (exports) {
 			out.db = (matrixB.da * matrixA.ab) + (matrixB.db * matrixA.bb) + (matrixB.dc * matrixA.cb) + (matrixB.dd * matrixA.db);
 			out.dc = (matrixB.da * matrixA.ac) + (matrixB.db * matrixA.bc) + (matrixB.dc * matrixA.cc) + (matrixB.dd * matrixA.dc);
 			out.dd = (matrixB.da * matrixA.ad) + (matrixB.db * matrixA.bd) + (matrixB.dc * matrixA.cd) + (matrixB.dd * matrixA.dd);
+
+			return out;
 		}
 
-		static scale(out, matrix, scale) { this.multMat4(out, matrix, {aa: scale, ab: 0, ac: 0, ad: 0, ba: 0, bb: scale, bc: 0, bd: 0, ca: 0, cb: 0, cc: scale, cd: 0, da: 0, db: 0, dc: 0, dd: 1}); }
-		static translate(out, matrix, vector3) { this.multMat4(out, matrix, {aa: 1, ab: 0, ac: 0, ad: vector3.x, ba: 0, bb: 1, bc: 0, bd: vector3.y, ca: 0, cb: 0, cc: 1, cd: vector3.z, da: 0, db: 0, dc: 0, dd: 1}); }
+		static scale(out, matrix, scale) {
+			return this.multMat4(out, matrix, {
+				aa: scale, ab: 0, ac: 0, ad: 0,
+				ba: 0, bb: scale, bc: 0, bd: 0,
+				ca: 0, cb: 0, cc: scale, cd: 0,
+				da: 0, db: 0, dc: 0, dd: 1
+			});
+		}
+		static translate(out, matrix, vector3) {
+			return this.multMat4(out, matrix, {
+				aa: 1, ab: 0, ac: 0, ad: vector3.x,
+				ba: 0, bb: 1, bc: 0, bd: vector3.y,
+				ca: 0, cb: 0, cc: 1, cd: vector3.z,
+				da: 0, db: 0, dc: 0, dd: 1
+			});
+		}
 		static rotate(out, matrix, up, angle) {
 			const sinAngle = Math.sin(angle/2);
 			const x = up.x * sinAngle, y = up.y * sinAngle, z = up.z * sinAngle, w = Math.cos(angle/2);
@@ -249,29 +299,55 @@ var HB = (function (exports) {
 			const zx = z * x2, zy = z * y2, zz = z * z2;
 			const wx = w * x2, wy = w * y2, wz = w * z2;
 
-			this.multMat4(out, matrix, {aa: 1-yy-zz, ab: yx+wz, ac: zx-wy, ad: 0, ba: yx-wz, bb: 1-xx-zz, bc: zy+wx, bd: 0, ca: zx+wy, cb: zy+wx, cc: 1-xx-yy, cd: 0, da: 0, db: 0, dc: 0, dd: 1});
+			return this.multMat4(out, matrix, {
+				aa: 1-yy-zz, ab: yx+wz, ac: zx-wy, ad: 0,
+				ba: yx-wz, bb: 1-xx-zz, bc: zy+wx, bd: 0,
+				ca: zx+wy, cb: zy+wx, cc: 1-xx-yy, cd: 0,
+				da: 0, db: 0, dc: 0, dd: 1
+			});
 		}
-		static rotateX(out, matrix, angle) { this.multMat4(out, matrix, {aa: 1, ab: 0, ac: 0, ad: 0, ba: 0, bb: Math.cos(-angle), bc: Math.sin(angle), bd: 0, ca: 0, cb: Math.sin(-angle), cc: Math.cos(-angle), cd: 0, da: 0, db: 0, dc: 0, dd: 1}); }
-		static rotateY(out, matrix, angle) { this.multMat4(out, matrix, {aa: Math.cos(-angle), ab: 0, ac: Math.sin(-angle), ad: 0, ba: 0, bb: 1, bc: 0, bd: 0, ca: Math.sin(angle), cb: 0, cc: Math.cos(-angle), cd: 0, da: 0, db: 0, dc: 0, dd: 1}); }
-		static rotateZ(out, matrix, angle) { this.multMat4(out, matrix, {aa: Math.cos(-angle), ab: Math.sin(angle), ac: 0, ad: 0, ba: Math.sin(-angle), bb: Math.cos(-angle), bc: 0, bd: 0, ca: 0, cb: 0, cc: 1, cd: 0, da: 0, db: 0, dc: 0, dd: 1}); }
+		static rotateX(out, matrix, angle) {
+			return this.multMat4(out, matrix, {
+				aa: 1, ab: 0, ac: 0, ad: 0,
+				ba: 0, bb: Math.cos(-angle), bc: Math.sin(angle), bd: 0,
+				ca: 0, cb: Math.sin(-angle), cc: Math.cos(-angle), cd: 0,
+				da: 0, db: 0, dc: 0, dd: 1
+			});
+		}
+		static rotateY(out, matrix, angle) {
+			return this.multMat4(out, matrix, {
+				aa: Math.cos(-angle), ab: 0, ac: Math.sin(-angle), ad: 0,
+				ba: 0, bb: 1, bc: 0, bd: 0,
+				ca: Math.sin(angle), cb: 0, cc: Math.cos(-angle), cd: 0,
+				da: 0, db: 0, dc: 0, dd: 1
+			});
+		}
+		static rotateZ(out, matrix, angle) {
+			return this.multMat4(out, matrix, {
+				aa: Math.cos(-angle), ab: Math.sin(angle), ac: 0, ad: 0,
+				ba: Math.sin(-angle), bb: Math.cos(-angle), bc: 0, bd: 0,
+				ca: 0, cb: 0, cc: 1, cd: 0,
+				da: 0, db: 0, dc: 0, dd: 1
+			});
+		}
 	}
 
 	exports.shader = undefined;
 
 	class Shader{
 		constructor(vertexShaderSource, fragmentShaderSource) {
-			this.vertexShaderSource = vertexShaderSource || `#version 300 es
-			in vec4 aVertexPosition;
-			in vec4 aVertexColor;
-			in vec2 aTexturePosition;
-			in float aTextureId;
-			in float aTextSize;
+			this.vertexShaderSource = vertexShaderSource || `
+			attribute vec4 aVertexPosition;
+			attribute vec4 aVertexColor;
+			attribute vec2 aTexturePosition;
+			attribute float aTextureId;
+			attribute float aTextSize;
 
-			out vec4 vScreenPosition;
-			out vec4 vVertexColor;
-			out vec2 vTexturePosition;
-			out float vTextureId;
-			out float vTextSize;
+			varying vec4 vScreenPosition;
+			varying vec4 vVertexColor;
+			varying vec2 vTexturePosition;
+			varying float vTextureId;
+			varying float vTextSize;
 
 			uniform mat4 uMVP;
 
@@ -283,47 +359,35 @@ var HB = (function (exports) {
 				vTextureId = aTextureId;
 				vTextSize = aTextSize;
 			}
-		`, this.fragmentShaderSource = fragmentShaderSource || `#version 300 es
+		`, this.fragmentShaderSource = fragmentShaderSource || `
+			#extension GL_OES_standard_derivatives : enable
+
 			precision mediump float;
-			in vec4 vScreenPosition;
-			in vec4 vVertexColor;
-			in vec2 vTexturePosition;
-			in float vTextureId;
-			in float vTextSize;
+			varying vec4 vScreenPosition;
+			varying vec4 vVertexColor;
+			varying vec2 vTexturePosition;
+			varying float vTextureId;
+			varying float vTextSize;
 
 			uniform sampler2D uTextureIds[16];
 
-			out vec4 pixelColor;
-
 			void main() {
 				vec4 texSample;
-				switch(int(vTextureId)) {
-					case 0: texSample = texture(uTextureIds[0], vTexturePosition); break;
-					case 1: texSample = texture(uTextureIds[1], vTexturePosition); break;
-					case 2: texSample = texture(uTextureIds[2], vTexturePosition); break;
-					case 3: texSample = texture(uTextureIds[3], vTexturePosition); break;
-					case 4: texSample = texture(uTextureIds[4], vTexturePosition); break;
-					case 5: texSample = texture(uTextureIds[5], vTexturePosition); break;
-					case 6: texSample = texture(uTextureIds[6], vTexturePosition); break;
-					case 7: texSample = texture(uTextureIds[7], vTexturePosition); break;
-					case 8: texSample = texture(uTextureIds[8], vTexturePosition); break;
-					case 9: texSample = texture(uTextureIds[9], vTexturePosition); break;
-					case 10: texSample = texture(uTextureIds[10], vTexturePosition); break;
-					case 11: texSample = texture(uTextureIds[11], vTexturePosition); break;
-					case 12: texSample = texture(uTextureIds[12], vTexturePosition); break;
-					case 13: texSample = texture(uTextureIds[13], vTexturePosition); break;
-					case 14: texSample = texture(uTextureIds[14], vTexturePosition); break;
-					case 15: texSample = texture(uTextureIds[15], vTexturePosition); break;
+				int textureId = int(vTextureId);
+				for(int i = 0; i < 16; i++) {
+					if(i == textureId) {
+						texSample = texture2D(uTextureIds[i], vTexturePosition); break;
+					}
 				}
 				if(vTextSize <= 0.0) {
 					// float dist = distance(vec4(0.0, 0.0, 0.0, 1.0), vScreenPosition);
 					// vec4 color = texSample * vVertexColor;
 					// pixelColor = vec4(color.rgb, smoothstep(0.75, 0.5, dist)*color.a);
-					pixelColor = vVertexColor * texSample;
+					gl_FragColor = vVertexColor * texSample;
 				} else {
 					float sigDist = max(min(texSample.r, texSample.g), min(max(texSample.r, texSample.g), texSample.b)) - 0.5;
 					float alpha = clamp(sigDist/fwidth(sigDist) + 0.4, 0.0, 1.0);
-					pixelColor = vec4(vVertexColor.rgb, alpha * vVertexColor.a);
+					gl_FragColor = vec4(vVertexColor.rgb, alpha * vVertexColor.a);
 				}
 			}
 		`;
@@ -334,6 +398,7 @@ var HB = (function (exports) {
 		}
 
 		static init() {
+			exports.gl.getExtension('OES_standard_derivatives');
 			exports.shader = new Shader();
 		}
 
@@ -379,7 +444,7 @@ var HB = (function (exports) {
 		setUniformArray(type, name, array, elementAmount = 1) { exports.gl['uniform'+elementAmount+type+'v'](this.getUniformLocation(name), array); }
 		setUniformMatrix(type, name, matrix) {
 			const glMatrix = Mat4.toArray(matrix);
-			exports.gl['uniformMatrix'+Math.sqrt(glMatrix.length)+type+'v'](this.getUniformLocation(name), true, glMatrix);
+			exports.gl['uniformMatrix'+Math.sqrt(glMatrix.length)+type+'v'](this.getUniformLocation(name), false, glMatrix);
 		}
 
 		bind() { exports.gl.useProgram(this.id); }
@@ -414,8 +479,12 @@ var HB = (function (exports) {
 				// const modelView = Mat4.new(1);
 				// Mat4.multMat4(modelView, this.modelMatrix, this.viewMatrix);
 				Mat4.multMat4(this.MVP, this.viewMatrix, this.projectionMatrix);
+				Mat4.transpose(this.MVP, this.MVP);
 				exports.shader.setUniformMatrix('f', 'uMVP', this.MVP);
-			} else exports.shader.setUniformMatrix('f', 'uMVP', mvp);
+			} else {
+				Mat4.transpose(mvp, mvp);
+				exports.shader.setUniformMatrix('f', 'uMVP', mvp);
+			}
 		}
 
 		translate(vector3) { Mat4.translate(this.viewMatrix, this.viewMatrix, vector3); }
@@ -493,7 +562,7 @@ var HB = (function (exports) {
 		}
 
 		static init() {
-			exports.indices = new Uint32Array(maxIndexCount);
+			exports.indices = new Uint16Array(maxIndexCount);
 			exports.indexBuffer = new IndexBuffer(exports.indices);
 		}
 
@@ -510,8 +579,9 @@ var HB = (function (exports) {
 
 	class VertexArray{
 		constructor() {
-			this.id = exports.gl.createVertexArray();
-			exports.gl.bindVertexArray(this.id);
+			this.ext = exports.gl.getExtension('OES_vertex_array_object');
+			this.id = this.ext.createVertexArrayOES();
+			this.bind();
 
 			class Layout{
 				constructor() {
@@ -562,8 +632,8 @@ var HB = (function (exports) {
 			});
 		}
 
-		bind() { exports.gl.bindVertexArray(this.id); };
-		unbind() { exports.gl.bindVertexArray(null); };
+		bind() { this.ext.bindVertexArrayOES(this.id); }
+		unbind() { this.ext.bindVertexArrayOES(null); }
 		delete() {
 			this.unbind();
 			exports.vertexArray.layout.elements.forEach((element) => exports.gl.disableVertexAttribArray(element.index));
@@ -596,7 +666,7 @@ var HB = (function (exports) {
 			loadFile("https://projects.santaclausnl.ga/Hummingbird/assets/arial.json", 'json', (data) => {
 				exports.fontData = data;
 				loadElement.remove();
-				if(typeof HBupdate === 'function' && exports.noUpdate === false) requestAnimationFrame(HBupdate);
+				if(exports.noUpdate === false) requestAnimationFrame(HBupdate);
 			});
 			const webp = new Image();
 			webp.onload = webp.onerror = () => exports.font = new Texture('Hummingbird_Font-Atlas', "https://projects.santaclausnl.ga/Hummingbird/assets/arial."+(webp.height === 2 ? 'webp' : 'png'));
@@ -622,10 +692,10 @@ var HB = (function (exports) {
 				}
 			}
 			new Texture('Hummingbird_Circle');
-			textures['Hummingbird_Circle'].bind();
-			textures['Hummingbird_Circle'].setTextureParameters(exports.gl.LINEAR, exports.gl.CLAMP_TO_EDGE);
-			exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA8, circleSize, circleSize, 0, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, circle);
-			textures['Hummingbird_Circle'].onLoadCallback();
+			textures.Hummingbird_Circle.bind();
+			textures.Hummingbird_Circle.setTextureParameters(exports.gl.LINEAR, exports.gl.CLAMP_TO_EDGE);
+			exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA, circleSize, circleSize, 0, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, circle);
+			textures.Hummingbird_Circle.onLoadCallback();
 
 			// const textureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
 			const textureSamplers = [];
@@ -640,14 +710,14 @@ var HB = (function (exports) {
 				exports.gl.texParameteri(exports.gl.TEXTURE_2D, exports.gl.TEXTURE_MAG_FILTER, exports.gl.NEAREST);
 				exports.gl.texParameteri(exports.gl.TEXTURE_2D, exports.gl.TEXTURE_WRAP_S, exports.gl.REPEAT);
 				exports.gl.texParameteri(exports.gl.TEXTURE_2D, exports.gl.TEXTURE_WRAP_T, exports.gl.REPEAT);
-				exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA8, 1, 1, 0, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
+				exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA, 1, 1, 0, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
 			}
 		}
 
 		setErrorTexture() {
 			const errorTexture = new Uint8Array([255, 255, 255, 255, 191, 191, 191, 255, 191, 191, 191, 255, 255, 255, 255, 255]);
 			this.setTextureParameters(exports.gl.NEAREST, exports.gl.REPEAT);
-			exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA8, 2, 2, 0, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, errorTexture);
+			exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA, 2, 2, 0, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, errorTexture);
 		}
 
 		createTexture(path) {
@@ -660,7 +730,7 @@ var HB = (function (exports) {
 			image.onload = () => {
 				this.bind();
 				this.setTextureParameters(exports.gl.LINEAR, exports.gl.CLAMP_TO_EDGE);
-				exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA8, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, image);
+				exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, image);
 				this.onLoadCallback();
 			};
 			image.src = path;
@@ -808,7 +878,7 @@ var HB = (function (exports) {
 		}
 
 		drawColoredEllipse(pos, size, color) {
-			this.pushQuad(pos.x, pos.y, size.x, size.y, this.getTextureIndex(textures['Hummingbird_Circle']), color);
+			this.pushQuad(pos.x, pos.y, size.x, size.y, this.getTextureIndex(textures.Hummingbird_Circle), color);
 		}
 
 		drawColoredText(string, pos, size = 12, align = 'start-start', color) {
@@ -860,7 +930,7 @@ var HB = (function (exports) {
 					glyph.w*size, glyph.h*size,
 					textureIndex, color, size,
 					glyph.x/exports.fontData.common.scaleW, glyph.y/exports.fontData.common.scaleH,
-					glyph.w/exports.fontData.common.scaleW, glyph.h/exports.fontData.common.scaleH,
+					glyph.w/exports.fontData.common.scaleW, glyph.h/exports.fontData.common.scaleH
 				);
 
 				offsetx += glyph.xadv*size;
@@ -987,7 +1057,7 @@ var HB = (function (exports) {
 			exports.shader.bind();
 			exports.vertexArray.bind();
 
-			exports.gl.drawElements(exports.gl.TRIANGLES, indexCount, exports.gl.UNSIGNED_INT, 0);
+			exports.gl.drawElements(exports.gl.TRIANGLES, indexCount, exports.gl.UNSIGNED_SHORT, 0);
 		}
 
 		delete() {
@@ -999,18 +1069,17 @@ var HB = (function (exports) {
 		}
 	}
 
-	const version = "v0.5.5";
+	const version = "v0.5.11";
 	exports.noUpdate = false;
 	exports.deltaTime = 0;
 	exports.accumulator = 0;
 	let fixedUpdateFrequency = 50;
 	exports.frames = 0;
 	exports.prevTime = 0;
-	const mousePos = {x: 0, y: 0};
+	const mousePos = { x: 0, y: 0 };
 	exports.mouseIsPressed = false;
 	const keysPressed = {};
 	exports.canvas = undefined;
-	//let mode = 'webgl2';
 	exports.gl = undefined;
 
 	function HBsetup() {
@@ -1020,7 +1089,7 @@ var HB = (function (exports) {
 		loading.style = "margin: 0; position: absolute; top: 50%; left: 50%; font-size: 7em; transform: translate(-50%, -50%); font-family: Arial, Helvetica, sans-serif;";
 		document.body.appendChild(loading);
 
-		new HBMath();
+		initMathObjects();
 		if(typeof setup === 'function') setup();
 
 		Texture.init(loading);
@@ -1028,32 +1097,22 @@ var HB = (function (exports) {
 
 	function init(width = 100, height = 100, options) {
 		if(options === undefined) options = {};
-		if(options["noUpdate"] === true) exports.noUpdate = true;
-		if(options["canvas"] === undefined) {
-			exports.canvas = document.createElement("CANVAS"), exports.gl = exports.canvas.getContext('webgl2');
-			if(options["parent"] === undefined) document.body.appendChild(exports.canvas); else options["parent"].appendChild(exports.canvas);
-		} else exports.canvas = options["canvas"], exports.gl = exports.canvas.getContext('webgl2');
-
-		// if(gl === null) {
-		// 	canvas.getContext('experimental-webgl', { preserveDrawingBuffer: true });
-		// 	mode = 'webgl';
-		// }
-
-		// if(gl === null) {
-		// 	canvas.getContext('webgl');
-		// 	mode = 'webgl';
-		// }
+		if(options.noUpdate === true) exports.noUpdate = true;
+		if(options.canvas === undefined) {
+			exports.canvas = document.createElement("CANVAS"), exports.gl = exports.canvas.getContext('webgl');
+			if(options.parent === undefined) document.body.appendChild(exports.canvas); else options.parent.appendChild(exports.canvas);
+		} else exports.canvas = options.canvas, exports.gl = exports.canvas.getContext('webgl');
 
 		if(exports.gl === null) {
 			exports.canvas.parentNode.removeChild(exports.canvas);
 			const p = document.createElement('p');
-			p.innerText = 'WebGL2 is not supported on your browser or machine.';
-			if(options["parent"] === undefined) document.body.appendChild(p); else options["parent"].appendChild(p);
+			p.innerText = 'WebGL is not supported on your browser or machine.';
+			if(options.parent === undefined) document.body.appendChild(p); else options.parent.appendChild(p);
 		} else {
 			exports.canvas.width = width, exports.canvas.height = height;
 			exports.canvas.size = Vec2.new(exports.canvas.width, exports.canvas.height);
 			exports.canvas.center = Vec2.new(exports.canvas.width/2, exports.canvas.height/2);
-			exports.canvas.id = (options["id"] === undefined) ? "HummingbirdCanvas" : options["id"];
+			exports.canvas.id = (options.id === undefined) ? "HummingbirdCanvas" : options.id;
 			exports.canvas.setAttribute('alt', 'Hummingbird canvas element.');
 
 			Renderer.init();
@@ -1113,12 +1172,18 @@ var HB = (function (exports) {
 		if(typeof fixedUpdate === 'function') {
 			exports.accumulator += exports.deltaTime;
 			while(exports.accumulator >= 1000/fixedUpdateFrequency) {
+				if(exports.deltaTime > 1000) {
+					exports.accumulator = 0;
+					exports.deltaTime = 1;
+					fixedUpdate();
+					break;
+				}
 				fixedUpdate();
 				exports.accumulator -= 1000/fixedUpdateFrequency;
 			}
 		}
 
-		update();
+		if(typeof update === 'function') update();
 
 		exports.batch.end();
 		exports.frames++;
@@ -1144,6 +1209,7 @@ var HB = (function (exports) {
 	exports.bytes = bytes;
 	exports.fixedUpdateFrequency = fixedUpdateFrequency;
 	exports.init = init;
+	exports.initMathObjects = initMathObjects;
 	exports.keysPressed = keysPressed;
 	exports.loadFile = loadFile;
 	exports.maxIndexCount = maxIndexCount;

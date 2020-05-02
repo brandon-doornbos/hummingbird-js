@@ -43,7 +43,7 @@ class IndexBuffer{
 	}
 
 	static init() {
-		indices = new Uint32Array(maxIndexCount);
+		indices = new Uint16Array(maxIndexCount);
 		indexBuffer = new IndexBuffer(indices);
 	}
 
@@ -60,8 +60,9 @@ class IndexBuffer{
 
 class VertexArray{
 	constructor() {
-		this.id = gl.createVertexArray();
-		gl.bindVertexArray(this.id);
+		this.ext = gl.getExtension('OES_vertex_array_object');
+		this.id = this.ext.createVertexArrayOES();
+		this.bind();
 
 		class Layout{
 			constructor() {
@@ -112,8 +113,8 @@ class VertexArray{
 		});
 	}
 
-	bind() { gl.bindVertexArray(this.id); };
-	unbind() { gl.bindVertexArray(null); };
+	bind() { this.ext.bindVertexArrayOES(this.id); }
+	unbind() { this.ext.bindVertexArrayOES(null); }
 	delete() {
 		this.unbind();
 		vertexArray.layout.elements.forEach((element) => gl.disableVertexAttribArray(element.index));

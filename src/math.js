@@ -162,13 +162,6 @@ class Vec4{
 	static new(x = 0, y = 0, z = 0, w = 0) { return { x: x, y: y, z: z, w: w }; }
 	static set(out, x, y, z, w) { out.x = x, out.y = y, out.z = z, out.w = w; }
 
-	static multVec4(out, vectorA, vectorB) {
-		out.x = vectorA.x * vectorB.x;
-		out.y = vectorA.y * vectorB.y;
-		out.z = vectorA.z * vectorB.z;
-		out.w = vectorA.w * vectorB.w;
-	}
-
 	static multMat4(out, vector, matrix) {
 		out.x = (vector.x * matrix.aa) + (vector.y * matrix.ba) + (vector.z * matrix.ca) + (vector.w * matrix.da);
 		out.y = (vector.x * matrix.ab) + (vector.y * matrix.bb) + (vector.z * matrix.cb) + (vector.w * matrix.db);
@@ -239,10 +232,10 @@ class Mat4{
 	// 	const f = Math.tan(Math.PI * 0.5 - 0.5 * HBMath.radians(FoV));
 	// 	const invRange = 1.0 / (near - far);
 
-	// 	out[0] = f/aspect, out[4] = 0, out[ 8] =                   0, out[12] =  0;
-	// 	out[1] =        0, out[5] = f, out[ 9] =                   0, out[13] =  0;
-	// 	out[2] =        0, out[6] = 0, out[10] = (near+far)*invRange, out[14] = -1;
-	// 	out[3] =        0, out[7] = 0, out[11] = near*far*invRange*2, out[15] =  0;
+	// 	out.aa = f/aspect, out.ab =    0, out.ac =                   0, out.ad =  0;
+	// 	out.ba =        0, out.bb =    f, out.bc =                   0, out.bd =  0;
+	// 	out.ca =        0, out.cb =    0, out.cc = (near+far)*invRange, out.cd = -1;
+	// 	out.da =        0, out.db =    0, out.dc = near*far*invRange*2, out.dd =  0;
 	// }
 
 	static multMat4(out, matrixA, matrixB) {

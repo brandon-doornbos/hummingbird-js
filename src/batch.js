@@ -132,39 +132,34 @@ class Batch{
 
 	drawColoredText(string, pos, size = 12, align = 'start-start', color) {
 		const glyphs = [], kernings = {};
-		size = size/fontData.info.size;
+		const scalar = size/fontData.info.size;
 		let width = 0;
-		const height = fontData.info.size*size;
+		const height = fontData.common.lineh*scalar;
 
-		let prevGlyphId;
-		for(let char of string) {
-			for(let glyph of fontData.chars) {
-				if(glyph.char === char) {
-					if(prevGlyphId !== undefined) {
-						for(let kerning of fontData.kernings) {
-							if(kerning[0] === prevGlyphId && kerning[1] === glyph.id) {
-								width += kerning.amt*size;
-								kernings[glyph.id] = kerning;
-								break;
-							}
-						}
-					}
-					prevGlyphId = glyph.id;
-					glyphs.push(glyph);
-					width += glyph.xadv*size;
-					break;
+		let prevKerns;
+		for(let i = 0; i < string.length; i++) {
+			const glyph = fontData.chars[string[i]] || fontData.chars['?'];
+			width += glyph.xadv*scalar;
+			glyphs.push(glyph);
+
+			if(prevKerns !== undefined) {
+				const kerning = prevKerns[glyph.id];
+				if(kerning !== undefined) {
+					width += kerning*scalar;
+					kernings[glyph.id] = kerning;
 				}
 			}
+			prevKerns = glyph.kerns;
 		}
 
 		let offsetx = 0, offsety = 0;
-		align = align.split('-');
-		switch(align[0]) {
+		const alignTo = align.split('-');
+		switch(alignTo[0]) {
 			case 'start': break;
 			case 'center': offsetx = -width/2; break;
 			case 'end': offsetx = -width; break;
 		}
-		switch(align[1]) {
+		switch(alignTo[1]) {
 			case 'start': break;
 			case 'center': offsety = -height/2; break;
 			case 'end': offsety = -height; break;
@@ -172,18 +167,21 @@ class Batch{
 
 		let textureIndex = this.getTextureIndex(font);
 		for(let glyph of glyphs) {
-			if(kernings[glyph.id] !== undefined) offsetx += kernings[glyph.id].amt*size;
+			const kerning = kernings[glyph.id];
+			if(kerning !== undefined) offsetx += kerning*scalar;
 
 			this.pushQuad(
-				pos.x+glyph.xoff*size+offsetx, pos.y+glyph.yoff*size+offsety,
-				glyph.w*size, glyph.h*size,
-				textureIndex, color, size,
+				pos.x+glyph.xoff*scalar+offsetx, pos.y+glyph.yoff*scalar+offsety,
+				glyph.w*scalar, glyph.h*scalar,
+				textureIndex, color, scalar,
 				glyph.x/fontData.common.scaleW, glyph.y/fontData.common.scaleH,
 				glyph.w/fontData.common.scaleW, glyph.h/fontData.common.scaleH
 			);
 
-			offsetx += glyph.xadv*size;
+			offsetx += glyph.xadv*scalar;
 		}
+
+		return width;
 	}
 
 	pushQuad(x, y, w, h, tex, col, textSize, sx, sy, sw, sh) {

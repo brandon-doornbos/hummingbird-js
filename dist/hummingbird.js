@@ -165,13 +165,6 @@ var HB = (function (exports) {
 		static new(x = 0, y = 0, z = 0, w = 0) { return { x: x, y: y, z: z, w: w }; }
 		static set(out, x, y, z, w) { out.x = x, out.y = y, out.z = z, out.w = w; }
 
-		static multVec4(out, vectorA, vectorB) {
-			out.x = vectorA.x * vectorB.x;
-			out.y = vectorA.y * vectorB.y;
-			out.z = vectorA.z * vectorB.z;
-			out.w = vectorA.w * vectorB.w;
-		}
-
 		static multMat4(out, vector, matrix) {
 			out.x = (vector.x * matrix.aa) + (vector.y * matrix.ba) + (vector.z * matrix.ca) + (vector.w * matrix.da);
 			out.y = (vector.x * matrix.ab) + (vector.y * matrix.bb) + (vector.z * matrix.cb) + (vector.w * matrix.db);
@@ -242,10 +235,10 @@ var HB = (function (exports) {
 		// 	const f = Math.tan(Math.PI * 0.5 - 0.5 * HBMath.radians(FoV));
 		// 	const invRange = 1.0 / (near - far);
 
-		// 	out[0] = f/aspect, out[4] = 0, out[ 8] =                   0, out[12] =  0;
-		// 	out[1] =        0, out[5] = f, out[ 9] =                   0, out[13] =  0;
-		// 	out[2] =        0, out[6] = 0, out[10] = (near+far)*invRange, out[14] = -1;
-		// 	out[3] =        0, out[7] = 0, out[11] = near*far*invRange*2, out[15] =  0;
+		// 	out.aa = f/aspect, out.ab =    0, out.ac =                   0, out.ad =  0;
+		// 	out.ba =        0, out.bb =    f, out.bc =                   0, out.bd =  0;
+		// 	out.ca =        0, out.cb =    0, out.cc = (near+far)*invRange, out.cd = -1;
+		// 	out.da =        0, out.db =    0, out.dc = near*far*invRange*2, out.dd =  0;
 		// }
 
 		static multMat4(out, matrixA, matrixB) {
@@ -668,9 +661,7 @@ var HB = (function (exports) {
 				loadElement.remove();
 				if(exports.noUpdate === false) requestAnimationFrame(HBupdate);
 			});
-			const webp = new Image();
-			webp.onload = webp.onerror = () => exports.font = new Texture('Hummingbird_Font-Atlas', "https://projects.santaclausnl.ga/Hummingbird/assets/arial."+(webp.height === 2 ? 'webp' : 'png'));
-			webp.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+			exports.font = new Texture('Hummingbird_Font-Atlas', 'https://projects.santaclausnl.ga/Hummingbird/assets/arial.png');
 
 			const circleSize = 1000;
 			const circle = new Uint8Array(circleSize*circleSize*4);
@@ -693,7 +684,7 @@ var HB = (function (exports) {
 			}
 			new Texture('Hummingbird_Circle');
 			textures.Hummingbird_Circle.bind();
-			textures.Hummingbird_Circle.setTextureParameters(exports.gl.LINEAR, exports.gl.CLAMP_TO_EDGE);
+			this.setTextureParameters(exports.gl.LINEAR, exports.gl.CLAMP_TO_EDGE);
 			exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA, circleSize, circleSize, 0, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, circle);
 			textures.Hummingbird_Circle.onLoadCallback();
 
@@ -706,17 +697,14 @@ var HB = (function (exports) {
 				const blankTexture = exports.gl.createTexture();
 				exports.gl.activeTexture(exports.gl.TEXTURE0);
 				exports.gl.bindTexture(exports.gl.TEXTURE_2D, blankTexture);
-				exports.gl.texParameteri(exports.gl.TEXTURE_2D, exports.gl.TEXTURE_MIN_FILTER, exports.gl.NEAREST);
-				exports.gl.texParameteri(exports.gl.TEXTURE_2D, exports.gl.TEXTURE_MAG_FILTER, exports.gl.NEAREST);
-				exports.gl.texParameteri(exports.gl.TEXTURE_2D, exports.gl.TEXTURE_WRAP_S, exports.gl.REPEAT);
-				exports.gl.texParameteri(exports.gl.TEXTURE_2D, exports.gl.TEXTURE_WRAP_T, exports.gl.REPEAT);
+				this.setTextureParameters(exports.gl.NEAREST, exports.gl.REPEAT);
 				exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA, 1, 1, 0, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
 			}
 		}
 
 		setErrorTexture() {
 			const errorTexture = new Uint8Array([255, 255, 255, 255, 191, 191, 191, 255, 191, 191, 191, 255, 255, 255, 255, 255]);
-			this.setTextureParameters(exports.gl.NEAREST, exports.gl.REPEAT);
+			Texture.setTextureParameters(exports.gl.NEAREST, exports.gl.REPEAT);
 			exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA, 2, 2, 0, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, errorTexture);
 		}
 
@@ -729,14 +717,14 @@ var HB = (function (exports) {
 			const image = new Image();
 			image.onload = () => {
 				this.bind();
-				this.setTextureParameters(exports.gl.LINEAR, exports.gl.CLAMP_TO_EDGE);
+				Texture.setTextureParameters(exports.gl.LINEAR, exports.gl.CLAMP_TO_EDGE);
 				exports.gl.texImage2D(exports.gl.TEXTURE_2D, 0, exports.gl.RGBA, exports.gl.RGBA, exports.gl.UNSIGNED_BYTE, image);
 				this.onLoadCallback();
 			};
 			image.src = path;
 		}
 
-		setTextureParameters(filter, wrap) {
+		static setTextureParameters(filter, wrap) {
 			exports.gl.texParameteri(exports.gl.TEXTURE_2D, exports.gl.TEXTURE_MIN_FILTER, filter);
 			exports.gl.texParameteri(exports.gl.TEXTURE_2D, exports.gl.TEXTURE_MAG_FILTER, filter);
 			exports.gl.texParameteri(exports.gl.TEXTURE_2D, exports.gl.TEXTURE_WRAP_S, wrap);
@@ -883,39 +871,34 @@ var HB = (function (exports) {
 
 		drawColoredText(string, pos, size = 12, align = 'start-start', color) {
 			const glyphs = [], kernings = {};
-			size = size/exports.fontData.info.size;
+			const scalar = size/exports.fontData.info.size;
 			let width = 0;
-			const height = exports.fontData.info.size*size;
+			const height = exports.fontData.common.lineh*scalar;
 
-			let prevGlyphId;
-			for(let char of string) {
-				for(let glyph of exports.fontData.chars) {
-					if(glyph.char === char) {
-						if(prevGlyphId !== undefined) {
-							for(let kerning of exports.fontData.kernings) {
-								if(kerning[0] === prevGlyphId && kerning[1] === glyph.id) {
-									width += kerning.amt*size;
-									kernings[glyph.id] = kerning;
-									break;
-								}
-							}
-						}
-						prevGlyphId = glyph.id;
-						glyphs.push(glyph);
-						width += glyph.xadv*size;
-						break;
+			let prevKerns;
+			for(let i = 0; i < string.length; i++) {
+				const glyph = exports.fontData.chars[string[i]] || exports.fontData.chars['?'];
+				width += glyph.xadv*scalar;
+				glyphs.push(glyph);
+
+				if(prevKerns !== undefined) {
+					const kerning = prevKerns[glyph.id];
+					if(kerning !== undefined) {
+						width += kerning*scalar;
+						kernings[glyph.id] = kerning;
 					}
 				}
+				prevKerns = glyph.kerns;
 			}
 
 			let offsetx = 0, offsety = 0;
-			align = align.split('-');
-			switch(align[0]) {
+			const alignTo = align.split('-');
+			switch(alignTo[0]) {
 				case 'start': break;
 				case 'center': offsetx = -width/2; break;
 				case 'end': offsetx = -width; break;
 			}
-			switch(align[1]) {
+			switch(alignTo[1]) {
 				case 'start': break;
 				case 'center': offsety = -height/2; break;
 				case 'end': offsety = -height; break;
@@ -923,18 +906,21 @@ var HB = (function (exports) {
 
 			let textureIndex = this.getTextureIndex(exports.font);
 			for(let glyph of glyphs) {
-				if(kernings[glyph.id] !== undefined) offsetx += kernings[glyph.id].amt*size;
+				const kerning = kernings[glyph.id];
+				if(kerning !== undefined) offsetx += kerning*scalar;
 
 				this.pushQuad(
-					pos.x+glyph.xoff*size+offsetx, pos.y+glyph.yoff*size+offsety,
-					glyph.w*size, glyph.h*size,
-					textureIndex, color, size,
+					pos.x+glyph.xoff*scalar+offsetx, pos.y+glyph.yoff*scalar+offsety,
+					glyph.w*scalar, glyph.h*scalar,
+					textureIndex, color, scalar,
 					glyph.x/exports.fontData.common.scaleW, glyph.y/exports.fontData.common.scaleH,
 					glyph.w/exports.fontData.common.scaleW, glyph.h/exports.fontData.common.scaleH
 				);
 
-				offsetx += glyph.xadv*size;
+				offsetx += glyph.xadv*scalar;
 			}
+
+			return width;
 		}
 
 		pushQuad(x, y, w, h, tex, col, textSize, sx, sy, sw, sh) {
@@ -1069,7 +1055,7 @@ var HB = (function (exports) {
 		}
 	}
 
-	const version = "v0.5.11";
+	const version = "v0.5.15";
 	exports.noUpdate = false;
 	exports.deltaTime = 0;
 	exports.accumulator = 0;

@@ -30,9 +30,7 @@ class Texture{
 			loadElement.remove();
 			if(noUpdate === false) requestAnimationFrame(update);
 		});
-		const webp = new Image();
-		webp.onload = webp.onerror = () => font = new Texture('Hummingbird_Font-Atlas', "https://projects.santaclausnl.ga/Hummingbird/assets/arial."+(webp.height === 2 ? 'webp' : 'png'));
-		webp.src = 'data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAACyAgCdASoCAAIALmk0mk0iIiIiIgBoSygABc6WWgAA/veff/0PP8bA//LwYAAA';
+		font = new Texture('Hummingbird_Font-Atlas', 'https://projects.santaclausnl.ga/Hummingbird/assets/arial.png');
 
 		const circleSize = 1000;
 		const circle = new Uint8Array(circleSize*circleSize*4);
@@ -55,7 +53,7 @@ class Texture{
 		}
 		new Texture('Hummingbird_Circle');
 		textures.Hummingbird_Circle.bind();
-		textures.Hummingbird_Circle.setTextureParameters(gl.LINEAR, gl.CLAMP_TO_EDGE);
+		this.setTextureParameters(gl.LINEAR, gl.CLAMP_TO_EDGE);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, circleSize, circleSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, circle);
 		textures.Hummingbird_Circle.onLoadCallback();
 
@@ -68,17 +66,14 @@ class Texture{
 			const blankTexture = gl.createTexture();
 			gl.activeTexture(gl.TEXTURE0);
 			gl.bindTexture(gl.TEXTURE_2D, blankTexture);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+			this.setTextureParameters(gl.NEAREST, gl.REPEAT);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 255, 255, 255]));
 		}
 	}
 
 	setErrorTexture() {
 		const errorTexture = new Uint8Array([255, 255, 255, 255, 191, 191, 191, 255, 191, 191, 191, 255, 255, 255, 255, 255]);
-		this.setTextureParameters(gl.NEAREST, gl.REPEAT);
+		Texture.setTextureParameters(gl.NEAREST, gl.REPEAT);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, errorTexture);
 	}
 
@@ -91,14 +86,14 @@ class Texture{
 		const image = new Image();
 		image.onload = () => {
 			this.bind();
-			this.setTextureParameters(gl.LINEAR, gl.CLAMP_TO_EDGE);
+			Texture.setTextureParameters(gl.LINEAR, gl.CLAMP_TO_EDGE);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 			this.onLoadCallback();
 		}
 		image.src = path;
 	}
 
-	setTextureParameters(filter, wrap) {
+	static setTextureParameters(filter, wrap) {
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap);

@@ -49,6 +49,7 @@ class Batch{
 			vertices[start+7 ] = 1;
 			vertices[start+8 ] = 0;
 			vertices[start+9 ] = 0;
+
 			vertices[start+10] = points[i].x;
 			vertices[start+11] = points[i].y;
 			vertices[start+12] = color.x;
@@ -59,6 +60,7 @@ class Batch{
 			vertices[start+17] = 0.5;
 			vertices[start+18] = 0;
 			vertices[start+19] = 0;
+
 			vertices[start+20] = points[i+1].x;
 			vertices[start+21] = points[i+1].y;
 			vertices[start+22] = color.x;
@@ -78,23 +80,23 @@ class Batch{
 		}
 	}
 
-	drawColoredRect(pos, size, color) {
+	drawColoredRectangle(pos, size, color) {
 		this.pushQuad(pos.x, pos.y, size.x, size.y, 0, color);
 	}
 
-	drawTexturedRect(pos, size, texture) {
+	drawTexturedRectangle(pos, size, texture) {
 		this.pushQuad(pos.x, pos.y, size.x, size.y, this.getTextureIndex(texture));
 	}
 
-	drawColoredRectWithRotation(pos, size, angle, color) {
-		this.drawRectWithRotation(pos, size, angle, 0, color);
+	drawColoredRectangleWithRotation(pos, size, angle, color) {
+		this.drawRectangleWithRotation(pos, size, angle, 0, color);
 	}
 
-	drawTexturedRectWithRotation(pos, size, angle, texture) {
-		this.drawRectWithRotation(pos, size, angle, this.getTextureIndex(texture));
+	drawTexturedRectangleWithRotation(pos, size, angle, texture) {
+		this.drawRectangleWithRotation(pos, size, angle, this.getTextureIndex(texture));
 	}
 
-	drawRectWithRotation(pos, size, angle, texture = 0, color = HB.Vec4.one) {
+	drawRectangleWithRotation(pos, size, angle, texture = 0, color = HB.Vec4.one) {
 		angle = HB.Math.radians(angle);
 		const cosX = size.x*-0.5*Math.cos(angle), cosY = size.y*-0.5*Math.cos(angle);
 		const cosX1 = size.x*0.5*Math.cos(angle), cosY1 = size.y*0.5*Math.cos(angle);

@@ -7,6 +7,6 @@ node node_modules/rollup/dist/bin/rollup src/index.js --file dist/hummingbird.js
 
 echo "Minifying..."
 echo "dist/hummingbird.js → dist/hummingbird.min.js..."
-minify dist/hummingbird.js -o dist/hummingbird.min.js
+terser dist/hummingbird.js --compress --mangle -o dist/hummingbird.min.js
 
 echo "Done!"

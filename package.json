@@ -27,7 +27,7 @@
   "homepage": "https://github.com/SantaClausNL/Hummingbird#readme",
   "dependencies": {},
   "devDependencies": {
-    "minify": "^5.1.1",
-    "rollup": "^2.7.2"
+    "rollup": "^2.7.2",
+    "terser": "^4.7.0"
   }
 }

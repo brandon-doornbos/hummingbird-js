@@ -28,8 +28,8 @@ class Renderer{
 		renderer = new Renderer();
 	}
 
-	clear(color) {
-		gl.clearColor(color.x, color.y, color.z, color.w);
+	clear(color = undefined) {
+		if(color !== undefined) gl.clearColor(color.x, color.y, color.z, color.w);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 	}
 

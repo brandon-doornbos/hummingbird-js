@@ -1,5 +1,13 @@
-![Alt text](https://github.com/SantaClausNL/Hummingbird/raw/master/assets/logo.png "Hummingbird engine logo.")
 # Welcome
-This is the GitHub repository for the Hummingbird game engine, the engine is being developed solely by me, SantaClausNL.
-The engine came about as a result of the JavaScript Canvas API being very slow (see my framework for that [here](https://github.com/SantaClausNL/Pelican)), so I needed a better option for a reasonably demanding game I'm working on.
-This came in the form of WebGL, all the benefits of the Web, and fast graphics performance.
+This is the GitHub repository for the Hummingbird rendering engine, developed solely by me, SantaClausNL.
+
+JavaScript's Canvas API is great, but also very slow. Therefore I decided to make this, a fast and simple framework for WebGL.
+
+This has been a great learning experience for me, in terms of Git(Hub), OpenGL and general graphics programming.
+
+![Alt text](https://github.com/SantaClausNL/Hummingbird/raw/master/assets/logo.png "Hummingbird engine logo.")
+
+# Links
+* [Trello board](https://trello.com/b/QO8sjFeJ)
+* [Built library](https://projects.santaclausnl.ga/Hummingbird/dist/hummingbird.js)
+* [Minified library](https://projects.santaclausnl.ga/Hummingbird/dist/hummingbird.min.js)

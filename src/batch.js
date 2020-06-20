@@ -9,10 +9,7 @@ const maxIndexCount = 6000;
 
 class Batch{
 	constructor() {
-		this.vertexCount = 0;
-		this.indexCount = 0;
-		this.textureIndex = 1;
-		this.textureCache = {};
+		this.reset();
 	}
 
 	static init() {

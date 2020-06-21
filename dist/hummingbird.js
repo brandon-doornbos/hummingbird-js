@@ -530,7 +530,7 @@ var HB = (function (exports) {
 			exports.gl.bufferData(this.type, data, exports.gl.DYNAMIC_DRAW);
 		}
 
-		static init() {
+		static init(maxVertexCount = 4000) {
 			exports.vertices = new Float32Array(maxVertexCount*exports.vertexStride);
 			exports.vertexBuffer = new VertexBuffer(exports.vertices);
 		}
@@ -554,7 +554,7 @@ var HB = (function (exports) {
 			exports.gl.bufferData(this.type, data, exports.gl.DYNAMIC_DRAW);
 		}
 
-		static init() {
+		static init(maxIndexCount = 6000) {
 			exports.indices = new Uint16Array(maxIndexCount);
 			exports.indexBuffer = new IndexBuffer(exports.indices);
 		}
@@ -599,7 +599,7 @@ var HB = (function (exports) {
 			this.layout = new Layout();
 		}
 
-		static init() {
+		static init(maxVertexCount, maxIndexCount) {
 			exports.vertexArray = new VertexArray();
 			exports.vertexArray.layout.add('aVertexPosition', exports.gl.FLOAT, 2);
 			exports.vertexArray.layout.add('aVertexColor', exports.gl.FLOAT, 4);
@@ -607,10 +607,10 @@ var HB = (function (exports) {
 			exports.vertexArray.layout.add('aTextureId', exports.gl.FLOAT, 1);
 			exports.vertexArray.layout.add('aTextSize', exports.gl.FLOAT, 1);
 
-			VertexBuffer.init();
+			VertexBuffer.init(maxVertexCount);
 			exports.vertexArray.addBuffer(exports.vertexBuffer);
 
-			IndexBuffer.init();
+			IndexBuffer.init(maxIndexCount);
 		}
 
 		addBuffer(vertexBuffer) {
@@ -742,97 +742,78 @@ var HB = (function (exports) {
 		}
 	}
 
-	exports.batch = undefined;
-	const maxVertexCount = 4000;
-	const maxIndexCount = 6000;
+	exports.renderer = undefined;
 
-	class Batch{
+	class Renderer{
 		constructor() {
-			this.vertexCount = 0;
-			this.indexCount = 0;
-			this.textureIndex = 1;
-			this.textureCache = {};
+			exports.gl.blendFunc(exports.gl.SRC_ALPHA, exports.gl.ONE_MINUS_SRC_ALPHA);
+			exports.gl.enable(exports.gl.BLEND);
+			exports.gl.cullFace(exports.gl.FRONT);
+			exports.gl.enable(exports.gl.CULL_FACE);
+
+			Shader.init();
+			exports.shader.bind();
+
+			this.maxVertexCount = 4000;
+			this.maxIndexCount = 6000;
+
+			this.resetBatch();
+
+			VertexArray.init(this.maxVertexCount, this.maxIndexCount);
+
+			Camera.init();
 		}
 
 		static init() {
-			exports.batch = new Batch();
+			exports.renderer = new Renderer();
 		}
 
-		begin() { this.reset(); }
-		end() { this.flush(); }
+		startBatch() { this.resetBatch(); }
+		endBatch() { this.flushBatch(); }
 
-		reset() {
-			this.vertexCount = 0;
-			this.indexCount = 0;
-			this.textureIndex = 1;
-			this.textureCache = {};
+		resetBatch() {
+			this.batchedVertexCount = 0;
+			this.batchedIndexCount = 0;
+			this.batchTextureIndex = 1;
+			this.batchTextureCache = {};
 		}
 
-		drawColoredPoint(pos, size = 1, color) {
-			this.pushQuad(pos.x-size/4, pos.y-size/4, size/2, size/2, 0, color);
+		clear(color = undefined) {
+			if(color !== undefined) exports.gl.clearColor(color.x, color.y, color.z, color.w);
+			exports.gl.clear(exports.gl.COLOR_BUFFER_BIT);
 		}
 
-		drawColoredPolygon(points, color, center = 0) {
+		colorPoint(pos, size = 1, color) {
+			this.drawBatchedQuad(pos.x-size/4, pos.y-size/4, size/2, size/2, 0, color);
+		}
+
+		colorPolygon(points, color, center = 0) {
 			for(let i = 0; i < points.length-1; i++) {
 				if(i === center) continue;
-				if((this.vertexCount + 3) >= maxVertexCount || (this.indexCount + 3) >= maxIndexCount) this.flush();
 
-				const start = this.vertexCount*exports.vertexStride;
-				exports.vertices[start   ] = points[center].x;
-				exports.vertices[start+1 ] = points[center].y;
-				exports.vertices[start+2 ] = color.x;
-				exports.vertices[start+3 ] = color.y;
-				exports.vertices[start+4 ] = color.z;
-				exports.vertices[start+5 ] = color.w;
-				exports.vertices[start+6 ] = 0;
-				exports.vertices[start+7 ] = 1;
-				exports.vertices[start+8 ] = 0;
-				exports.vertices[start+9 ] = 0;
-
-				exports.vertices[start+10] = points[i].x;
-				exports.vertices[start+11] = points[i].y;
-				exports.vertices[start+12] = color.x;
-				exports.vertices[start+13] = color.y;
-				exports.vertices[start+14] = color.z;
-				exports.vertices[start+15] = color.w;
-				exports.vertices[start+16] = 0.5;
-				exports.vertices[start+17] = 0.5;
-				exports.vertices[start+18] = 0;
-				exports.vertices[start+19] = 0;
-
-				exports.vertices[start+20] = points[i+1].x;
-				exports.vertices[start+21] = points[i+1].y;
-				exports.vertices[start+22] = color.x;
-				exports.vertices[start+23] = color.y;
-				exports.vertices[start+24] = color.z;
-				exports.vertices[start+25] = color.w;
-				exports.vertices[start+26] = 1;
-				exports.vertices[start+27] = 1;
-				exports.vertices[start+28] = 0;
-				exports.vertices[start+29] = 0;
-
-				exports.indices[this.indexCount  ] = this.vertexCount;
-				exports.indices[this.indexCount+1] = this.vertexCount+1;
-				exports.indices[this.indexCount+2] = this.vertexCount+2;
-
-				this.vertexCount += 3, this.indexCount += 3;
+				this.drawBatchedTriangle(
+					points[center].x, points[center].y,
+					points[i].x, points[i].y,
+					points[i+1].x, points[i+1].y,
+					color
+				);
 			}
 		}
 
-		drawColoredRectangle(pos, size, color) {
-			this.pushQuad(pos.x, pos.y, size.x, size.y, 0, color);
+		colorRectangle(pos, size, color) {
+			this.drawBatchedQuad(pos.x, pos.y, size.x, size.y, 0, color);
 		}
 
-		drawTexturedRectangle(pos, size, texture) {
-			this.pushQuad(pos.x, pos.y, size.x, size.y, this.getTextureIndex(texture));
+		textureRectangle(pos, size, texture) {
+			this.drawBatchedQuad(pos.x, pos.y, size.x, size.y, this.getBatchTextureIndex(texture));
 		}
 
-		drawColoredRectangleWithRotation(pos, size, angle, color) {
+		rotatedColorRectangle(pos, size, angle, color) {
 			this.drawRectangleWithRotation(pos, size, angle, 0, color);
 		}
 
-		drawTexturedRectangleWithRotation(pos, size, angle, texture) {
-			this.drawRectangleWithRotation(pos, size, angle, this.getTextureIndex(texture));
+		rotatedTextureRectangle(pos, size, angle, texture) {
+			this.drawRectangleWithRotation(pos, size, angle, this.getBatchTextureIndex(texture));
 		}
 
 		drawRectangleWithRotation(pos, size, angle, texture = 0, color = HB.Vec4.one) {
@@ -842,7 +823,7 @@ var HB = (function (exports) {
 			const sinX = size.x*-0.5*Math.sin(angle), sinY = size.y*-0.5*Math.sin(angle);
 			const sinX1 = size.x*0.5*Math.sin(angle), sinY1 = size.y*0.5*Math.sin(angle);
 
-			this.pushArbitraryQuad(
+			this.drawBatchedArbitraryQuad(
 				cosX-sinY+pos.x+size.x/2, sinX+cosY+pos.y+size.y/2,
 				cosX1-sinY+pos.x+size.x/2, sinX1+cosY+pos.y+size.y/2,
 				cosX1-sinY1+pos.x+size.x/2, sinX1+cosY1+pos.y+size.y/2,
@@ -851,14 +832,12 @@ var HB = (function (exports) {
 			);
 		}
 
-		drawColoredLine(vectorA, vectorB, thickness, color) {
-			if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
-
+		colorLine(vectorA, vectorB, thickness, color) {
 			const angle0 = Vec2.angleBetweenVec2(vectorA, vectorB);
 			const angleA = Vec2.fromAngle(angle0-Math.PI/2, thickness/2);
 			const angleB = Vec2.fromAngle(angle0+Math.PI/2, thickness/2);
 
-			this.pushArbitraryQuad(
+			this.drawBatchedArbitraryQuad(
 				vectorA.x-angleA.x, vectorA.y-angleA.y,
 				vectorA.x+angleA.x, vectorA.y+angleA.y,
 				vectorB.x-angleB.x, vectorB.y-angleB.y,
@@ -867,11 +846,11 @@ var HB = (function (exports) {
 			);
 		}
 
-		drawColoredEllipse(pos, size, color) {
-			this.pushQuad(pos.x, pos.y, size.x, size.y, this.getTextureIndex(textures.Hummingbird_Circle), color);
+		colorEllipse(pos, size, color) {
+			this.drawBatchedQuad(pos.x, pos.y, size.x, size.y, this.getBatchTextureIndex(textures.Hummingbird_Circle), color);
 		}
 
-		drawColoredText(string, pos, size = 12, align = 'start-start', color) {
+		colorText(string, pos, size = 12, align = 'start-start', color) {
 			const glyphs = [], kernings = {};
 			const scalar = size/exports.fontData.info.size;
 			let width = 0;
@@ -906,12 +885,12 @@ var HB = (function (exports) {
 				case 'end': offsety = -height; break;
 			}
 
-			let textureIndex = this.getTextureIndex(exports.font);
+			let textureIndex = this.getBatchTextureIndex(exports.font);
 			for(let glyph of glyphs) {
 				const kerning = kernings[glyph.id];
 				if(kerning !== undefined) offsetx += kerning*scalar;
 
-				this.pushQuad(
+				this.drawBatchedQuad(
 					pos.x+glyph.xoff*scalar+offsetx, pos.y+glyph.yoff*scalar+offsety,
 					glyph.w*scalar, glyph.h*scalar,
 					textureIndex, color, scalar,
@@ -925,8 +904,52 @@ var HB = (function (exports) {
 			return width;
 		}
 
-		pushQuad(x, y, w, h, tex, col, textSize, sx, sy, sw, sh) {
-			this.pushArbitraryQuad(
+		drawBatchedTriangle(x1, y1, x2, y2, x3, y3, color) {
+			if((this.batchedVertexCount + 3) >= this.maxVertexCount || (this.batchedIndexCount + 3) >= this.maxIndexCount) this.flushBatch();
+
+			const start = this.batchedVertexCount*exports.vertexStride;
+			exports.vertices[start   ] = x1;
+			exports.vertices[start+1 ] = y1;
+			exports.vertices[start+2 ] = color.x;
+			exports.vertices[start+3 ] = color.y;
+			exports.vertices[start+4 ] = color.z;
+			exports.vertices[start+5 ] = color.w;
+			exports.vertices[start+6 ] = 0;
+			exports.vertices[start+7 ] = 1;
+			exports.vertices[start+8 ] = 0;
+			exports.vertices[start+9 ] = 0;
+
+			exports.vertices[start+10] = x2;
+			exports.vertices[start+11] = y2;
+			exports.vertices[start+12] = color.x;
+			exports.vertices[start+13] = color.y;
+			exports.vertices[start+14] = color.z;
+			exports.vertices[start+15] = color.w;
+			exports.vertices[start+16] = 0.5;
+			exports.vertices[start+17] = 0.5;
+			exports.vertices[start+18] = 0;
+			exports.vertices[start+19] = 0;
+
+			exports.vertices[start+20] = x3;
+			exports.vertices[start+21] = y3;
+			exports.vertices[start+22] = color.x;
+			exports.vertices[start+23] = color.y;
+			exports.vertices[start+24] = color.z;
+			exports.vertices[start+25] = color.w;
+			exports.vertices[start+26] = 1;
+			exports.vertices[start+27] = 1;
+			exports.vertices[start+28] = 0;
+			exports.vertices[start+29] = 0;
+
+			exports.indices[this.batchedIndexCount  ] = this.batchedVertexCount;
+			exports.indices[this.batchedIndexCount+1] = this.batchedVertexCount+1;
+			exports.indices[this.batchedIndexCount+2] = this.batchedVertexCount+2;
+
+			this.batchedVertexCount += 3, this.batchedIndexCount += 3;
+		}
+
+		drawBatchedQuad(x, y, w, h, tex, col, textSize, sx, sy, sw, sh) {
+			this.drawBatchedArbitraryQuad(
 				x, y,
 				x+w, y,
 				x+w, y+h,
@@ -937,10 +960,10 @@ var HB = (function (exports) {
 			);
 		}
 
-		pushArbitraryQuad(x0, y0, x1, y1, x2, y2, x3, y3, tex = 0, col = HB.Vec4.one, textSize = 0, sx = 0, sy = 0, sw = 1, sh = 1) {
-			if((this.vertexCount + 4) >= maxVertexCount || (this.indexCount + 6) >= maxIndexCount) this.flush();
+		drawBatchedArbitraryQuad(x0, y0, x1, y1, x2, y2, x3, y3, tex = 0, col = HB.Vec4.one, textSize = 0, sx = 0, sy = 0, sw = 1, sh = 1) {
+			if((this.batchedVertexCount + 4) >= this.maxVertexCount || (this.batchedIndexCount + 6) >= this.maxIndexCount) this.flushBatch();
 
-			const start = this.vertexCount*exports.vertexStride;
+			const start = this.batchedVertexCount*exports.vertexStride;
 			exports.vertices[start   ] = x0;
 			exports.vertices[start+1 ] = y0;
 			exports.vertices[start+2 ] = col.x;
@@ -985,63 +1008,34 @@ var HB = (function (exports) {
 			exports.vertices[start+38] = tex;
 			exports.vertices[start+39] = textSize;
 
-			exports.indices[this.indexCount  ] = this.vertexCount;
-			exports.indices[this.indexCount+1] = this.vertexCount+1;
-			exports.indices[this.indexCount+2] = this.vertexCount+2;
-			exports.indices[this.indexCount+3] = this.vertexCount+2;
-			exports.indices[this.indexCount+4] = this.vertexCount+3;
-			exports.indices[this.indexCount+5] = this.vertexCount;
+			exports.indices[this.batchedIndexCount  ] = this.batchedVertexCount;
+			exports.indices[this.batchedIndexCount+1] = this.batchedVertexCount+1;
+			exports.indices[this.batchedIndexCount+2] = this.batchedVertexCount+2;
+			exports.indices[this.batchedIndexCount+3] = this.batchedVertexCount+2;
+			exports.indices[this.batchedIndexCount+4] = this.batchedVertexCount+3;
+			exports.indices[this.batchedIndexCount+5] = this.batchedVertexCount;
 
-			this.vertexCount += 4, this.indexCount += 6;
+			this.batchedVertexCount += 4, this.batchedIndexCount += 6;
 		}
 
-		getTextureIndex(texture) {
-			let textureIndex = this.textureCache[texture.name];
+		getBatchTextureIndex(texture) {
+			let textureIndex = this.batchTextureCache[texture.name];
 			if(textureIndex === undefined) {
-				if((this.textureIndex + 1) >= 16) this.flush();
-				this.textureCache[texture.name] = textureIndex = this.textureIndex;
-				texture.bind(this.textureIndex++);
+				if((this.batchTextureIndex + 1) >= 16) this.flushBatch();
+				this.batchTextureCache[texture.name] = textureIndex = this.batchTextureIndex;
+				texture.bind(this.batchTextureIndex++);
 			}
 			return textureIndex;
 		}
 
-		flush() {
-			exports.vertexBuffer.partialWrite(exports.vertices, this.vertexCount*exports.vertexStride);
-			exports.indexBuffer.partialWrite(exports.indices, this.indexCount);
-			exports.renderer.draw(this.indexCount);
-			this.reset();
-		}
-	}
-
-	exports.renderer = undefined;
-
-	class Renderer{
-		constructor() {
-			exports.gl.blendFunc(exports.gl.SRC_ALPHA, exports.gl.ONE_MINUS_SRC_ALPHA);
-			exports.gl.enable(exports.gl.BLEND);
-			exports.gl.cullFace(exports.gl.FRONT);
-			exports.gl.enable(exports.gl.CULL_FACE);
-
-			Shader.init();
-			exports.shader.bind();
-
-			Batch.init();
-
-			VertexArray.init();
-
-			Camera.init();
+		flushBatch() {
+			exports.vertexBuffer.partialWrite(exports.vertices, this.batchedVertexCount*exports.vertexStride);
+			exports.indexBuffer.partialWrite(exports.indices, this.batchedIndexCount);
+			this.drawIndexedTriangles(this.batchedIndexCount);
+			this.resetBatch();
 		}
 
-		static init() {
-			exports.renderer = new Renderer();
-		}
-
-		clear(color = undefined) {
-			if(color !== undefined) exports.gl.clearColor(color.x, color.y, color.z, color.w);
-			exports.gl.clear(exports.gl.COLOR_BUFFER_BIT);
-		}
-
-		draw(indexCount) {
+		drawIndexedTriangles(indexCount) {
 			exports.shader.bind();
 			exports.vertexArray.bind();
 
@@ -1057,7 +1051,7 @@ var HB = (function (exports) {
 		}
 	}
 
-	const version = "v0.5.17";
+	const version = "v0.5.19";
 	exports.noUpdate = false;
 	exports.deltaTime = 0;
 	exports.accumulator = 0;
@@ -1155,7 +1149,7 @@ var HB = (function (exports) {
 		exports.prevTime = now;
 
 		exports.camera.setMVP();
-		exports.batch.begin();
+		exports.renderer.startBatch();
 
 		if(typeof fixedUpdate === 'function') {
 			exports.accumulator += exports.deltaTime;
@@ -1173,14 +1167,13 @@ var HB = (function (exports) {
 
 		if(typeof update === 'function') update();
 
-		exports.batch.end();
+		exports.renderer.endBatch();
 		exports.frames++;
 		requestAnimationFrame(HBupdate);
 	}
 
 	window.addEventListener("load", HBsetup);
 
-	exports.Batch = Batch;
 	exports.Camera = Camera;
 	exports.IndexBuffer = IndexBuffer;
 	exports.Mat4 = Mat4;
@@ -1200,8 +1193,6 @@ var HB = (function (exports) {
 	exports.initMathObjects = initMathObjects;
 	exports.keysPressed = keysPressed;
 	exports.loadFile = loadFile;
-	exports.maxIndexCount = maxIndexCount;
-	exports.maxVertexCount = maxVertexCount;
 	exports.mousePos = mousePos;
 	exports.resizeCanvas = resizeCanvas;
 	exports.setup = HBsetup;

@@ -4,7 +4,7 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Hummingbird, by SantaClausNL</title>
-		<script src="https://projects.santaclausnl.ga/Hummingbird/dist/hummingbird.min.js"></script>
+		<script src="https://projects.santaclausnl.ga/Hummingbird/dist/hummingbird.js"></script>
 		<style>
 			html{ background-color: gray; }
 			#HummingbirdCanvas{
@@ -87,13 +87,18 @@
 					color.x += 0.005, color.y -= 0.005;
 					for(let y = 0; y < HB.canvas.height; y += 6) {
 						HB.Vec2.set(pos, x, y);
-						HB.batch.drawColoredRectangle(pos, size, color);
-						// HB.batch.drawTexturedRectangle(pos, size, HB.textures['oof']);
+						HB.renderer.colorRectangle(pos, size, color);
+						// HB.renderer.textureRectangle(pos, size, HB.textures['oof']);
 					}
 				}
 
-				HB.batch.drawColoredRectangle(HB.Vec2.new(), HB.Vec2.new(150, 150), HB.Vec4.colors.white);
-				HB.batch.drawTexturedRectangle(HB.Vec2.new(), HB.Vec2.new(150, 150), HB.textures.birb);
+				HB.renderer.rotatedColorRectangle(HB.Vec2.new(), HB.Vec2.new(150, 150), 180-angle, HB.Vec4.colors.white);
+				HB.renderer.rotatedTextureRectangle(HB.Vec2.new(), HB.Vec2.new(150, 150), angle++, HB.textures.birb);
+
+				HB.renderer.colorLine(HB.Vec2.new(), HB.mousePos, 5, HB.Vec4.colors.white);
+				HB.renderer.colorLine(HB.Vec2.new(HB.canvas.width, 0), HB.mousePos, 5, HB.Vec4.colors.white);
+				HB.renderer.colorLine(HB.canvas.size, HB.mousePos, 5, HB.Vec4.colors.white);
+				HB.renderer.colorLine(HB.Vec2.new(0, HB.canvas.height), HB.mousePos, 5, HB.Vec4.colors.white);
 
 				// const points = [
 				// 	[100, 100],
@@ -114,17 +119,17 @@
 					HB.Vec2.add(point, polygon.size.x/2, polygon.size.y/2);
 					points.push(point);
 				}
-				HB.batch.drawColoredPolygon(points, HB.Vec4.colors.yellow);
+				HB.renderer.colorPolygon(points, HB.Vec4.colors.yellow);
 
 				objects.forEach((object) => {
-					HB.batch.drawTexturedRectangle(object.pos, object.size, HB.textures[object.texture]);
+					HB.renderer.textureRectangle(object.pos, object.size, HB.textures[object.texture]);
 				});
 
-				HB.batch.drawColoredPoint(HB.mousePos, 10, HB.Vec4.colors.yellow);
+				HB.renderer.colorPoint(HB.mousePos, 10, HB.Vec4.colors.yellow);
 
-				HB.batch.drawColoredEllipse(HB.mousePos, HB.Vec2.new(100, 100), HB.Vec4.colors.green);
+				HB.renderer.colorEllipse(HB.mousePos, HB.Vec2.new(100, 100), HB.Vec4.colors.green);
 
-				HB.batch.drawColoredText('Well Hello There, Quality content', HB.mousePos, 64, 'start-start', HB.Vec4.colors.white);
+				HB.renderer.colorText('Well Hello There', HB.mousePos, 64, 'start-start', HB.Vec4.colors.white);
 			}
 
 			function fixedUpdate() {

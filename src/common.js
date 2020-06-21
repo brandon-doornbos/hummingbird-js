@@ -1,10 +1,9 @@
-import { Renderer } from './renderer.js';
+import { renderer, Renderer } from './renderer.js';
 import { camera } from './camera.js';
-import { batch } from './batch.js';
 import { Texture } from './texture.js';
 import { initMathObjects, Vec2, Mat4 } from './math.js';
 
-const version = "v0.5.17";
+const version = "v0.5.19";
 let noUpdate = false;
 let deltaTime = 0;
 let accumulator = 0;
@@ -102,7 +101,7 @@ function HBupdate(now) {
 	prevTime = now;
 
 	camera.setMVP();
-	batch.begin();
+	renderer.startBatch();
 
 	if(typeof fixedUpdate === 'function') {
 		accumulator += deltaTime;
@@ -120,7 +119,7 @@ function HBupdate(now) {
 
 	if(typeof update === 'function') update();
 
-	batch.end();
+	renderer.endBatch();
 	frames++;
 	requestAnimationFrame(HBupdate);
 }

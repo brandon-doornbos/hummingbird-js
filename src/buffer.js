@@ -1,5 +1,4 @@
 import { gl } from './common.js';
-import { maxVertexCount, maxIndexCount } from './batch.js';
 import { shader } from './shader.js';
 import { bytes } from './utility.js';
 
@@ -18,7 +17,7 @@ class VertexBuffer{
 		gl.bufferData(this.type, data, gl.DYNAMIC_DRAW);
 	}
 
-	static init() {
+	static init(maxVertexCount = 4000) {
 		vertices = new Float32Array(maxVertexCount*vertexStride);
 		vertexBuffer = new VertexBuffer(vertices);
 	}
@@ -42,7 +41,7 @@ class IndexBuffer{
 		gl.bufferData(this.type, data, gl.DYNAMIC_DRAW);
 	}
 
-	static init() {
+	static init(maxIndexCount = 6000) {
 		indices = new Uint16Array(maxIndexCount);
 		indexBuffer = new IndexBuffer(indices);
 	}
@@ -87,7 +86,7 @@ class VertexArray{
 		this.layout = new Layout();
 	}
 
-	static init() {
+	static init(maxVertexCount, maxIndexCount) {
 		vertexArray = new VertexArray();
 		vertexArray.layout.add('aVertexPosition', gl.FLOAT, 2);
 		vertexArray.layout.add('aVertexColor', gl.FLOAT, 4);
@@ -95,10 +94,10 @@ class VertexArray{
 		vertexArray.layout.add('aTextureId', gl.FLOAT, 1);
 		vertexArray.layout.add('aTextSize', gl.FLOAT, 1);
 
-		VertexBuffer.init();
+		VertexBuffer.init(maxVertexCount);
 		vertexArray.addBuffer(vertexBuffer);
 
-		IndexBuffer.init();
+		IndexBuffer.init(maxIndexCount);
 	}
 
 	addBuffer(vertexBuffer) {

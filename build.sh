@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cd ~/NAS/STACK/Coding/Hummingbird/
-
 echo "Building..."
 node node_modules/rollup/dist/bin/rollup src/index.js --file dist/hummingbird.js --format iife --output.name HB
 

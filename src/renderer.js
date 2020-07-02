@@ -93,7 +93,7 @@ class Renderer{
 		const sinX = size.x*-0.5*Math.sin(angle), sinY = size.y*-0.5*Math.sin(angle);
 		const sinX1 = size.x*0.5*Math.sin(angle), sinY1 = size.y*0.5*Math.sin(angle);
 
-		this.drawBatchedArbitraryQuad(
+		this.drawArbitraryBatchedQuad(
 			cosX-sinY+pos.x+size.x/2, sinX+cosY+pos.y+size.y/2,
 			cosX1-sinY+pos.x+size.x/2, sinX1+cosY+pos.y+size.y/2,
 			cosX1-sinY1+pos.x+size.x/2, sinX1+cosY1+pos.y+size.y/2,
@@ -107,9 +107,9 @@ class Renderer{
 		const angleA = Vec2.fromAngle(angle0-Math.PI/2, thickness/2);
 		const angleB = Vec2.fromAngle(angle0+Math.PI/2, thickness/2);
 
-		this.drawBatchedArbitraryQuad(
 		this.flushBatchIfBufferFilled();
 
+		this.drawArbitraryBatchedQuad(
 			vectorA.x-angleA.x, vectorA.y-angleA.y,
 			vectorA.x+angleA.x, vectorA.y+angleA.y,
 			vectorB.x-angleB.x, vectorB.y-angleB.y,
@@ -222,7 +222,7 @@ class Renderer{
 	}
 
 	drawBatchedQuad(x, y, w, h, tex, col, textSize, sx, sy, sw, sh) {
-		this.drawBatchedArbitraryQuad(
+		this.drawArbitraryBatchedQuad(
 			x, y,
 			x+w, y,
 			x+w, y+h,
@@ -233,7 +233,7 @@ class Renderer{
 		)
 	}
 
-	drawBatchedArbitraryQuad(x0, y0, x1, y1, x2, y2, x3, y3, tex = 0, col = HB.Vec4.one, textSize = 0, sx = 0, sy = 0, sw = 1, sh = 1) {
+	drawArbitraryBatchedQuad(x0, y0, x1, y1, x2, y2, x3, y3, tex = 0, col = HB.Vec4.one, textSize = 0, sx = 0, sy = 0, sw = 1, sh = 1) {
 		const start = this.batchedVertexCount*vertexStride;
 		vertices[start   ] = x0;
 		vertices[start+1 ] = y0;

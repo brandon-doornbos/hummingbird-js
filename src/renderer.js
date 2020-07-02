@@ -47,12 +47,15 @@ class Renderer{
 	}
 
 	colorPoint(pos, size = 1, color) {
+		this.flushBatchIfBufferFilled();
 		this.drawBatchedQuad(pos.x-size/4, pos.y-size/4, size/2, size/2, 0, color);
 	}
 
 	colorPolygon(points, color, center = 0) {
 		for(let i = 0; i < points.length-1; i++) {
 			if(i === center) continue;
+
+			this.flushBatchIfBufferFilled(3, 3);
 
 			this.drawBatchedTriangle(
 				points[center].x, points[center].y,
@@ -64,18 +67,22 @@ class Renderer{
 	}
 
 	colorRectangle(pos, size, color) {
+		this.flushBatchIfBufferFilled();
 		this.drawBatchedQuad(pos.x, pos.y, size.x, size.y, 0, color);
 	}
 
 	textureRectangle(pos, size, texture) {
+		this.flushBatchIfBufferFilled();
 		this.drawBatchedQuad(pos.x, pos.y, size.x, size.y, this.getBatchTextureIndex(texture));
 	}
 
 	rotatedColorRectangle(pos, size, angle, color) {
+		this.flushBatchIfBufferFilled();
 		this.drawRectangleWithRotation(pos, size, angle, 0, color);
 	}
 
 	rotatedTextureRectangle(pos, size, angle, texture) {
+		this.flushBatchIfBufferFilled();
 		this.drawRectangleWithRotation(pos, size, angle, this.getBatchTextureIndex(texture));
 	}
 
@@ -101,6 +108,8 @@ class Renderer{
 		const angleB = Vec2.fromAngle(angle0+Math.PI/2, thickness/2);
 
 		this.drawBatchedArbitraryQuad(
+		this.flushBatchIfBufferFilled();
+
 			vectorA.x-angleA.x, vectorA.y-angleA.y,
 			vectorA.x+angleA.x, vectorA.y+angleA.y,
 			vectorB.x-angleB.x, vectorB.y-angleB.y,
@@ -110,6 +119,7 @@ class Renderer{
 	}
 
 	colorEllipse(pos, size, color) {
+		this.flushBatchIfBufferFilled();
 		this.drawBatchedQuad(pos.x, pos.y, size.x, size.y, this.getBatchTextureIndex(textures.Hummingbird_Circle), color);
 	}
 
@@ -153,6 +163,8 @@ class Renderer{
 			const kerning = kernings[glyph.id];
 			if(kerning !== undefined) offsetx += kerning*scalar;
 
+			if(this.flushBatchIfBufferFilled()) textureIndex = this.getBatchTextureIndex(font);
+
 			this.drawBatchedQuad(
 				pos.x+glyph.xoff*scalar+offsetx, pos.y+glyph.yoff*scalar+offsety,
 				glyph.w*scalar, glyph.h*scalar,
@@ -168,8 +180,6 @@ class Renderer{
 	}
 
 	drawBatchedTriangle(x1, y1, x2, y2, x3, y3, color) {
-		if((this.batchedVertexCount + 3) >= this.maxVertexCount || (this.batchedIndexCount + 3) >= this.maxIndexCount) this.flushBatch();
-
 		const start = this.batchedVertexCount*vertexStride;
 		vertices[start   ] = x1;
 		vertices[start+1 ] = y1;
@@ -224,8 +234,6 @@ class Renderer{
 	}
 
 	drawBatchedArbitraryQuad(x0, y0, x1, y1, x2, y2, x3, y3, tex = 0, col = HB.Vec4.one, textSize = 0, sx = 0, sy = 0, sw = 1, sh = 1) {
-		if((this.batchedVertexCount + 4) >= this.maxVertexCount || (this.batchedIndexCount + 6) >= this.maxIndexCount) this.flushBatch();
-
 		const start = this.batchedVertexCount*vertexStride;
 		vertices[start   ] = x0;
 		vertices[start+1 ] = y0;
@@ -289,6 +297,14 @@ class Renderer{
 			texture.bind(this.batchTextureIndex++);
 		}
 		return textureIndex;
+	}
+
+	flushBatchIfBufferFilled(vertices = 4, indices = 6) {
+		if((this.batchedVertexCount + vertices) >= this.maxVertexCount || (this.batchedIndexCount + indices) >= this.maxIndexCount) {
+			this.flushBatch();
+			return true;
+		}
+		return false;
 	}
 
 	flushBatch() {

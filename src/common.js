@@ -66,6 +66,7 @@ function init(width = 100, height = 100, options) {
 			event.clientX-rect.left-document.body.scrollLeft,
 			event.clientY-rect.top-document.body.scrollTop
 		);
+		Vec2.constrain(mousePos, 0, canvas.width, 0, canvas.height);
 		if(typeof mouseMoved === 'function') mouseMoved(event);
 	});
 	window.addEventListener('mousedown', (event) => {

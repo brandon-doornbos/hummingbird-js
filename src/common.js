@@ -3,7 +3,7 @@ import { camera } from './camera.js';
 import { Texture } from './texture.js';
 import { initMathObjects, Vec2, Mat4 } from './math.js';
 
-const version = "v0.5.21";
+const version = "v0.5.23";
 let noUpdate = false;
 let deltaTime = 0;
 let accumulator = 0;
@@ -29,8 +29,7 @@ function HBsetup() {
 	Texture.init(loading);
 }
 
-function init(width = 100, height = 100, options) {
-	if(options === undefined) options = {};
+function init(width = 100, height = 100, options = {}) {
 	if(options.noUpdate === true) noUpdate = true;
 	if(options.canvas === undefined) {
 		canvas = document.createElement("CANVAS"), gl = canvas.getContext('webgl');

@@ -125,11 +125,11 @@
 					HB.renderer.textureRectangle(object.pos, object.size, HB.textures[object.texture]);
 				});
 
-				HB.renderer.colorPoint(HB.mousePos, 10, HB.Vec4.colors.yellow);
-
 				HB.renderer.colorEllipse(HB.mousePos, HB.Vec2.new(100, 100), HB.Vec4.colors.green);
 
-				HB.renderer.colorText('Well Hello There', HB.mousePos, 64, 'start-start', HB.Vec4.colors.white);
+				HB.renderer.colorText('Well hello there!', HB.mousePos, 42, 'start-start', HB.Vec4.colors.white);
+
+				HB.renderer.colorPoint(HB.mousePos, 10, HB.Vec4.colors.yellow);
 			}
 
 			function fixedUpdate() {

@@ -19,8 +19,14 @@ class HBMath{
 	static map(value, valLow, valHigh, resLow, resHigh) { // map a number to another range
 		return resLow + (resHigh - resLow) * (value - valLow) / (valHigh - valLow);
 	}
-	static random(low = 0, high = 1) { // a random float between 2 numbers
-		return Math.random() * (high-low) + low;
+	static random(low, high) { // a random float between 2 numbers
+		if(high !== undefined) {
+			return Math.random() * (high-low) + low;
+		} else if(low !== undefined) {
+			return Math.random() * low;
+		} else {
+			return Math.random();
+		}
 	}
 	static randomInt(low, high) { // a random integer between 2 numbers
 		return Math.floor(this.random(low, high));

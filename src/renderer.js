@@ -153,7 +153,7 @@ class Renderer{
 			case 'end': offsetx = -width; break;
 		}
 		switch(alignTo[1]) {
-			case 'start': break;
+			case 'start': offsety = -fontData.info.padding[3]*0.5; break;
 			case 'center': offsety = -height/2; break;
 			case 'end': offsety = -height; break;
 		}

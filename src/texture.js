@@ -8,9 +8,9 @@ let fontData = undefined;
 let font = undefined;
 
 class Texture{
-	constructor(name, path, out = textures, callback = function() { console.log("Texture loaded: "+this.name); }) {
+	constructor(name, path, out = textures, callback = function() { console.log("Texture loaded: "+this.name); }, filter = gl.LINEAR, wrap = gl.CLAMP_TO_EDGE) {
 		this.id = gl.createTexture();
-		this.createTexture(path);
+		this.createTexture(path, filter, wrap);
 		this.name = name;
 
 		if(out === undefined) {
@@ -77,7 +77,7 @@ class Texture{
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, errorTexture);
 	}
 
-	createTexture(path) {
+	createTexture(path, filter, wrap) {
 		this.bind();
 		this.setErrorTexture();
 
@@ -86,7 +86,7 @@ class Texture{
 		const image = new Image();
 		image.onload = () => {
 			this.bind();
-			Texture.setTextureParameters(gl.LINEAR, gl.CLAMP_TO_EDGE);
+			Texture.setTextureParameters(filter, wrap);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 			this.onLoadCallback();
 		}

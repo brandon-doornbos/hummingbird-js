@@ -3,7 +3,7 @@ import { camera } from './camera.js';
 import { Texture } from './texture.js';
 import { initMathObjects, Vec2, Mat4 } from './math.js';
 
-const version = "v0.5.24";
+const version = "v0.5.25";
 let noUpdate = false;
 let deltaTime = 0;
 let accumulator = 0;
@@ -12,6 +12,7 @@ let frames = 0;
 let prevTime = 0;
 const mousePos = { x: 0, y: 0 };
 let mouseIsPressed = false;
+const buttonsPressed = {};
 const keysPressed = {};
 let canvas = undefined;
 let gl = undefined;
@@ -70,10 +71,12 @@ function init(width = 100, height = 100, options = {}) {
 	});
 	window.addEventListener('mousedown', (event) => {
 		mouseIsPressed = true;
+		buttonsPressed[event.which] = true;
 		if(typeof mousePressed === 'function') mousePressed(event);
 	});
 	window.addEventListener('mouseup', (event) => {
 		mouseIsPressed = false;
+		buttonsPressed[event.which] = false;
 		if(typeof mouseReleased === 'function') mouseReleased(event);
 	});
 	if(typeof windowResized === 'function') {
@@ -126,4 +129,4 @@ function HBupdate(now) {
 
 window.addEventListener("load", HBsetup);
 
-export { version, noUpdate, deltaTime, accumulator, fixedUpdateFrequency, frames, prevTime, mousePos, mouseIsPressed, keysPressed, canvas, gl, HBsetup as setup, init, resizeCanvas, HBupdate as update };
+export { version, noUpdate, deltaTime, accumulator, fixedUpdateFrequency, frames, prevTime, mousePos, mouseIsPressed, buttonsPressed, keysPressed, canvas, gl, HBsetup as setup, init, resizeCanvas, HBupdate as update };

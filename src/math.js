@@ -31,14 +31,30 @@ class HBMath{
 	static randomInt(low, high) { // a random integer between 2 numbers
 		return Math.floor(this.random(low, high));
 	}
-	static seededRandom = class{ // randomizer that's seeded with a random integer (mulberry32 by Tommy Ettinger, under public domain)
-		constructor(seed) { this.t = seed + 0x6D2B79F; }
+	static seededRandom = class{ // randomizer that's seedable with a random integer (mulberry32 by Tommy Ettinger, under public domain)
+		constructor(seed = new Date().getTime(), integer = false) {
+			this.t = seed + 0x6D2B79F;
+			this.integer = integer;
+		}
 
-		value(low, high) {
+		value(low, high, integer = this.integer) { // either choose if you want integers at initialization or override it here
 			this.t = Math.imul(this.t ^ this.t >>> 15, this.t | 1);
 			this.t ^= this.t + Math.imul(this.t ^ this.t >>> 7, this.t | 61);
-			const res = ((this.t ^ this.t >>> 14) >>> 0) / 4294967296;
-			if(high !== undefined) return res * (high-low) + low; else if(low !== undefined) return res * low;
+			let res = ((this.t ^ this.t >>> 14) >>> 0);
+			if(integer === false) {
+				res /= 4294967296;
+				if(high !== undefined) {
+					return res * (high-low) + low;
+				} else if(low !== undefined) {
+					return res * low;
+				}
+			} else {
+				if(high !== undefined) {
+					return Math.floor(res/4294967296 * (high-low) + low);
+				} else if(low !== undefined) {
+					return Math.floor(res/4294967296 * low);
+				}
+			}
 			return res;
 		}
 	}

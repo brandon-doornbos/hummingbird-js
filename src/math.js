@@ -31,6 +31,17 @@ class HBMath{
 	static randomInt(low, high) { // a random integer between 2 numbers
 		return Math.floor(this.random(low, high));
 	}
+	static seededRandom = class{ // randomizer that's seeded with a random integer (mulberry32 by Tommy Ettinger, under public domain)
+		constructor(seed) { this.t = seed + 0x6D2B79F; }
+
+		value(low, high) {
+			this.t = Math.imul(this.t ^ this.t >>> 15, this.t | 1);
+			this.t ^= this.t + Math.imul(this.t ^ this.t >>> 7, this.t | 61);
+			const res = ((this.t ^ this.t >>> 14) >>> 0) / 4294967296;
+			if(high !== undefined) return res * (high-low) + low; else if(low !== undefined) return res * low;
+			return res;
+		}
+	}
 	static Noise = class{ // Perlin Noise class, create 1 instance and get values via noise.value(x); function, stole this a while ago and don't know who it's from
 		constructor(amp_ = 1, scl_ = 0.05) {
 			this.vertices = 256, this.amp = amp_, this.scl = scl_, this.r = [];

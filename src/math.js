@@ -31,6 +31,18 @@ class HBMath{
 	static randomInt(low, high) { // a random integer between 2 numbers
 		return Math.floor(this.random(low, high));
 	}
+	static Noise = class{ // Perlin Noise class, create 1 instance and get values via noise.value(x); function, stole this a while ago and don't know who it's from
+		constructor(amp_ = 1, scl_ = 0.05) {
+			this.vertices = 256, this.amp = amp_, this.scl = scl_, this.r = [];
+			for(let i = 0; i < this.vertices; i++) this.r.push(Math.random());
+		}
+
+		value(x) {
+			const sclX = x*this.scl, floorX = Math.floor(sclX), t = sclX-floorX;
+			const xMin = floorX & this.vertices-1, xMax = (xMin + 1) & this.vertices-1;
+			return HBMath.lerp(this.r[xMin], this.r[xMax], t*t*(3-2*t)) * this.amp;
+		}
+	}
 	static lerp(start, end, amt) { // linear interpolation
 		return start+amt*(end-start);
 	}
@@ -63,20 +75,6 @@ class HBMath{
 		const dx = circleCenter.x-Math.max(rectPos.x, Math.min(circleCenter.x, rectPos.x+rectSize.x));
 		const dy = circleCenter.y-Math.max(rectPos.y, Math.min(circleCenter.y, rectPos.y+rectSize.y));
 		return (dx*dx + dy*dy) < circleRadius*circleRadius;
-	}
-}
-
-// Perlin Noise class, create 1 instance and get values via noise.value(x); function
-class Noise{
-	constructor(amp_ = 1, scl_ = 0.05) {
-		this.vertices = 256, this.amp = amp_, this.scl = scl_, this.r = [];
-		for(let i = 0; i < this.vertices; i++) this.r.push(Math.random());
-	}
-
-	value(x) {
-		const sclX = x*this.scl, floorX = Math.floor(sclX), t = sclX-floorX;
-		const xMin = floorX & this.vertices-1, xMax = (xMin + 1) & this.vertices-1;
-		return HBMath.lerp(this.r[xMin], this.r[xMax], t*t*(3-2*t)) * this.amp;
 	}
 }
 
@@ -322,4 +320,4 @@ class Mat4{
 	}
 }
 
-export { initMathObjects, HBMath as Math, Noise, Vec2, Vec3, Vec4, Mat4 };
+export { initMathObjects, HBMath as Math, Vec2, Vec3, Vec4, Mat4 };

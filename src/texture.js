@@ -1,4 +1,4 @@
-import { gl, noUpdate, update } from './common.js';
+import { gl, start } from './common.js';
 import { shader } from './shader.js';
 import { loadFile } from './utility.js';
 import { Math } from './math.js';
@@ -28,7 +28,7 @@ class Texture{
 		loadFile("https://projects.santaclausnl.ga/Hummingbird/assets/arial.json", 'json', (data) => {
 			fontData = data;
 			loadElement.remove();
-			if(noUpdate === false) requestAnimationFrame(update);
+			start();
 		});
 		font = new Texture('Hummingbird_Font-Atlas', 'https://projects.santaclausnl.ga/Hummingbird/assets/arial.png');
 

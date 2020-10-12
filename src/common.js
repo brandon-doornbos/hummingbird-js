@@ -3,7 +3,7 @@ import { camera } from './camera.js';
 import { Texture } from './texture.js';
 import { initMathObjects, Vec2, Mat4 } from './math.js';
 
-const version = "v0.5.30";
+const version = "v0.5.31";
 let noUpdate = false;
 let deltaTime = 0;
 let accumulator = 0;
@@ -99,7 +99,7 @@ function resizeCanvas(width = 100, height = 100) {
 	Mat4.orthographic(camera.projectionMatrix, 0, canvas.width, 0, canvas.height);
 }
 
-function start() {
+let start = () => {
 	start = () => requestAnimationFrame(HBupdate);
 	if(noUpdate === false) start();
 }

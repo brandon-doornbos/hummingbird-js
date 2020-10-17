@@ -133,22 +133,22 @@
 			}
 
 			function fixedUpdate() {
-				if(HB.keysPressed[87] === true) HB.camera.translate(HB.Vec3.new(0, cameraSpeed, 0));
-				if(HB.keysPressed[65] === true) HB.camera.translate(HB.Vec3.new(cameraSpeed, 0, 0));
-				if(HB.keysPressed[83] === true) HB.camera.translate(HB.Vec3.new(0, -cameraSpeed, 0));
-				if(HB.keysPressed[68] === true) HB.camera.translate(HB.Vec3.new(-cameraSpeed, 0, 0));
+				if(HB.keysPressed['w']) HB.camera.translate(HB.Vec3.new(0, cameraSpeed, 0));
+				if(HB.keysPressed['a']) HB.camera.translate(HB.Vec3.new(cameraSpeed, 0, 0));
+				if(HB.keysPressed['s']) HB.camera.translate(HB.Vec3.new(0, -cameraSpeed, 0));
+				if(HB.keysPressed['d']) HB.camera.translate(HB.Vec3.new(-cameraSpeed, 0, 0));
 
-				// if(HB.keysPressed[69] === true) HB.camera.zoom(0.05);
-				// if(HB.keysPressed[81] === true) HB.camera.zoom(-0.05);
+				// if(HB.keysPressed['e']) HB.camera.zoom(0.05);
+				// if(HB.keysPressed['q']) HB.camera.zoom(-0.05);
 
-				if(HB.keysPressed[69] === true) HB.camera.translate(HB.Vec3.new(0, 0, 0.1));
-				if(HB.keysPressed[81] === true) HB.camera.translate(HB.Vec3.new(0, 0, -0.1));
+				if(HB.keysPressed['e']) HB.camera.translate(HB.Vec3.new(0, 0, 0.1));
+				if(HB.keysPressed['q']) HB.camera.translate(HB.Vec3.new(0, 0, -0.1));
 
-				// if(HB.keysPressed[69] === true) HB.Mat4.rotate(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Vec3.new(0, 0, 1), HB.Math.radians(1));
-				// if(HB.keysPressed[81] === true) HB.Mat4.rotate(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Vec3.new(0, 0, 1), HB.Math.radians(-1));
+				// if(HB.keysPressed['e']) HB.Mat4.rotate(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Vec3.new(0, 0, 1), HB.Math.radians(1));
+				// if(HB.keysPressed['q']) HB.Mat4.rotate(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Vec3.new(0, 0, 1), HB.Math.radians(-1));
 				//--------------------------------------same-thing----------------------------------------
-				// if(HB.keysPressed[69] === true) HB.Mat4.rotateZ(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Math.radians(1));
-				// if(HB.keysPressed[81] === true) HB.Mat4.rotateZ(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Math.radians(-1));
+				// if(HB.keysPressed['e']) HB.Mat4.rotateZ(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Math.radians(1));
+				// if(HB.keysPressed['q']) HB.Mat4.rotateZ(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Math.radians(-1));
 
 				polygon.update();
 

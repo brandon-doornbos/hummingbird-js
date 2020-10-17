@@ -3,7 +3,7 @@ import { camera } from './camera.js';
 import { Texture } from './texture.js';
 import { initMathObjects, Vec2, Mat4 } from './math.js';
 
-const version = "v0.5.33";
+const version = "v0.5.34";
 let noUpdate = false;
 let deltaTime = 0;
 let accumulator = 0;
@@ -53,11 +53,11 @@ function init(width = 100, height = 100, options = {}) {
 	}
 
 	window.addEventListener('keydown', (event) => {
-		keysPressed[event.keyCode] = true;
+		keysPressed[event.key.toLowerCase()] = true;
 		if(typeof keyPressed === 'function') keyPressed(event);
 	});
 	window.addEventListener('keyup', (event) => {
-		keysPressed[event.keyCode] = false;
+		keysPressed[event.key.toLowerCase()] = false;
 		if(typeof keyReleased === 'function') keyReleased(event);
 	});
 	window.addEventListener('mousemove', (event) => {

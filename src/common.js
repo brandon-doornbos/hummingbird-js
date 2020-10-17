@@ -3,7 +3,7 @@ import { camera } from './camera.js';
 import { Texture } from './texture.js';
 import { initMathObjects, Vec2, Mat4 } from './math.js';
 
-const version = "v0.5.34";
+const version = "v0.5.35";
 let noUpdate = false;
 let deltaTime = 0;
 let accumulator = 0;
@@ -71,12 +71,12 @@ function init(width = 100, height = 100, options = {}) {
 	});
 	window.addEventListener('mousedown', (event) => {
 		mouseIsPressed = true;
-		buttonsPressed[event.which] = true;
+		buttonsPressed[event.button] = true;
 		if(typeof mousePressed === 'function') mousePressed(event);
 	});
 	window.addEventListener('mouseup', (event) => {
 		mouseIsPressed = false;
-		buttonsPressed[event.which] = false;
+		buttonsPressed[event.button] = false;
 		if(typeof mouseReleased === 'function') mouseReleased(event);
 	});
 	if(typeof windowResized === 'function') {

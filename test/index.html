@@ -80,7 +80,7 @@
 			let angle = 0, cameraSpeed = 20;
 
 			function update() {
-				HB.renderer.clear(HB.Vec4.colors.black);
+				HB.renderer.clear(HB.Vec4.colors.Black);
 
 				const pos = HB.Vec2.new(), size = HB.Vec2.new(5, 5), color = HB.Vec4.new(0, 1, 1, 1);
 				for(let x = 0, r = 0, g = 1; x < HB.canvas.width; x += 6) {
@@ -92,13 +92,13 @@
 					}
 				}
 
-				HB.renderer.rotatedColorRectangle(HB.Vec2.new(), HB.Vec2.new(150, 150), 180-angle, HB.Vec4.colors.white);
+				HB.renderer.rotatedColorRectangle(HB.Vec2.new(), HB.Vec2.new(150, 150), 180-angle, HB.Vec4.colors.White);
 				HB.renderer.rotatedTextureRectangle(HB.Vec2.new(), HB.Vec2.new(150, 150), angle++, HB.textures.birb);
 
-				HB.renderer.colorLine(HB.Vec2.new(), HB.mousePos, 5, HB.Vec4.colors.white);
-				HB.renderer.colorLine(HB.Vec2.new(HB.canvas.width, 0), HB.mousePos, 5, HB.Vec4.colors.white);
-				HB.renderer.colorLine(HB.canvas.size, HB.mousePos, 5, HB.Vec4.colors.white);
-				HB.renderer.colorLine(HB.Vec2.new(0, HB.canvas.height), HB.mousePos, 5, HB.Vec4.colors.white);
+				HB.renderer.colorLine(HB.Vec2.new(), HB.mousePos, 5, HB.Vec4.colors.White);
+				HB.renderer.colorLine(HB.Vec2.new(HB.canvas.width, 0), HB.mousePos, 5, HB.Vec4.colors.White);
+				HB.renderer.colorLine(HB.canvas.size, HB.mousePos, 5, HB.Vec4.colors.White);
+				HB.renderer.colorLine(HB.Vec2.new(0, HB.canvas.height), HB.mousePos, 5, HB.Vec4.colors.White);
 
 				// const points = [
 				// 	[100, 100],
@@ -119,17 +119,17 @@
 					HB.Vec2.add(point, polygon.size.x/2, polygon.size.y/2);
 					points.push(point);
 				}
-				HB.renderer.colorPolygon(points, HB.Vec4.colors.yellow);
+				HB.renderer.colorPolygon(points, HB.Vec4.colors.Yellow);
 
 				objects.forEach((object) => {
 					HB.renderer.textureRectangle(object.pos, object.size, HB.textures[object.texture]);
 				});
 
-				HB.renderer.colorEllipse(HB.mousePos, HB.Vec2.new(100, 100), HB.Vec4.colors.green);
+				HB.renderer.colorEllipse(HB.mousePos, HB.Vec2.new(100, 100), HB.Vec4.colors.Lime);
 
-				HB.renderer.colorText('Well hello there!', HB.mousePos, 42, 'start-start', HB.Vec4.colors.white);
+				HB.renderer.colorText('Well hello there!', HB.mousePos, 42, 'start-start', HB.Vec4.colors.White);
 
-				HB.renderer.colorPoint(HB.mousePos, 10, HB.Vec4.colors.yellow);
+				HB.renderer.colorPoint(HB.mousePos, 10, HB.Vec4.colors.Yellow);
 			}
 
 			function fixedUpdate() {

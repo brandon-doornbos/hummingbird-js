@@ -3,7 +3,7 @@ import { camera } from './camera.js';
 import { Texture } from './texture.js';
 import { initMathObjects, Vec2, Mat4 } from './math.js';
 
-const version = "v0.5.35";
+const version = "v0.5.36";
 let noUpdate = false;
 let deltaTime = 0;
 let accumulator = 0;
@@ -84,11 +84,11 @@ function init(width = 100, height = 100, options = {}) {
 			windowResized(event);
 		});
 	}
-	// window.addEventListener('beforeunload', () => {
-	// 	renderer.delete();
-	// 	delete gl;
-	// 	canvas.remove();
-	// });
+	window.addEventListener('beforeunload', () => {
+		renderer.delete();
+		// delete gl;
+		canvas.remove();
+	});
 }
 
 function resizeCanvas(width = 100, height = 100) {

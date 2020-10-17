@@ -166,6 +166,25 @@ class Vec3{
 	}
 
 	static new(x = 0, y = 0, z = 0) { return { x: x, y: y, z: z }; }
+	static fromVec3(vector) { return { x: vector.x, y: vector.y, z: vector.z }; }
+	static copy(out, vector) { out.x = vector.x, out.y = vector.y, out.z = vector.z; }
+	static set(out, x, y, z) { out.x = x, out.y = y, out.z = z; }
+
+	static add(out, x, y, z) { out.x += x, out.y += y, out.z += z; }
+	static addVec3(out, vector) { out.x += vector.x, out.y += vector.y, out.z += vector.z; }
+	static addScalar(out, scalar) { out.x += scalar, out.y += scalar, out.z += scalar; }
+
+	static subtract(out, x, y, z) { out.x -= x, out.y -= y, out.z -= z; }
+	static subtractVec3(out, vector) { out.x -= vector.x, out.y -= vector.y, out.z -= vector.z; }
+	static subtractScalar(out, scalar) { out.x -= scalar, out.y -= scalar, out.z -= scalar; }
+
+	static multiply(out, x, y, z) { out.x *= x, out.y *= y, out.z *= z; }
+	static multiplyVec3(out, vector) { out.x *= vector.x, out.y *= vector.y, out.z *= vector.z; }
+	static multiplyScalar(out, scalar) { out.x *= scalar, out.y *= scalar, out.z *= scalar; }
+
+	static divide(out, x, y, z) { out.x /= x, out.y /= y, out.z /= z; }
+	static divideVec3(out, vector) { out.x /= vector.x, out.y /= vector.y, out.z /= vector.z; }
+	static divideScalar(out, scalar) { out.x /= scalar, out.y /= scalar, out.z /= scalar; }
 }
 
 class Vec4{

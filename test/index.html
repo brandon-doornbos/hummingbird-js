@@ -19,7 +19,15 @@
 	</head>
 	<body>
 		<script>
-			let objects, polygon;
+			let objects = [], circle, polygon, textures = ['oof', 'birb', 'piet', 'dickbutt', 'cat1', 'cat2', 'cat3', 'cat4'];
+
+			function mousePressed() {
+				for(let i = 0; i < 100; i++) {
+					objects.push(new Bouncer(textures[HB.Math.randomInt(textures.length-1)]));
+					// const colors = Object.values(HB.Vec4.colors);
+					// objects.push(new Bouncer(colors[HB.Math.randomInt(colors.length-1)]));
+				}
+			}
 
 			function setup() {
 				HB.init(1280, 720);
@@ -33,20 +41,10 @@
 				new HB.Texture('cat3', './cat3.png');
 				new HB.Texture('cat4', './cat4.jpg');
 
-				objects = [
-					new Bouncer('oof'),
-					new Bouncer('birb'),
-					new Bouncer('piet'),
-					new Bouncer('dickbutt'),
-					new Bouncer('cat1'),
-					new Bouncer('cat2'),
-					new Bouncer('cat3'),
-					new Bouncer('cat4'),
-					// new Bouncer('Hummingbird_Circle'),
-				];
-
-				polygon = new Bouncer(HB.Vec4.colors.yellow);
+				polygon = new Bouncer(HB.Vec4.colors.Yellow);
 				polygon.size = HB.Vec2.new(200, 200);
+
+				circle = new Bouncer(HB.Vec4.colors.Lime);
 			}
 
 			class Bouncer{
@@ -78,9 +76,12 @@
 			}
 
 			let angle = 0, cameraSpeed = 20;
+			let avg = [];
 
 			function update() {
 				HB.renderer.clear(HB.Vec4.colors.Black);
+				avg.push(HB.deltaTime);
+				while(avg.length > 50) avg.shift();
 
 				const pos = HB.Vec2.new(), size = HB.Vec2.new(5, 5), color = HB.Vec4.new(0, 1, 1, 1);
 				for(let x = 0, r = 0, g = 1; x < HB.canvas.width; x += 6) {
@@ -123,11 +124,16 @@
 
 				objects.forEach((object) => {
 					HB.renderer.textureRectangle(object.pos, object.size, HB.textures[object.texture]);
+					// HB.renderer.colorRectangle(object.pos, object.size, object.texture);
 				});
 
-				HB.renderer.colorEllipse(HB.mousePos, HB.Vec2.new(100, 100), HB.Vec4.colors.Lime);
+				HB.renderer.colorEllipse(circle.pos, circle.size, circle.texture);
 
-				HB.renderer.colorText('Well hello there!', HB.mousePos, 42, 'start-start', HB.Vec4.colors.White);
+				HB.renderer.colorText('Click! ', HB.mousePos, 42, 'start-start', HB.Vec4.colors.White);
+				HB.renderer.colorText(4+objects.length+' objects', HB.Vec2.new(HB.mousePos.x, HB.mousePos.y+42), 42, 'start-start', HB.Vec4.colors.White);
+				let average = 0;
+				for(let deltaTime of avg) average += deltaTime;
+				HB.renderer.colorText((average/=avg.length).toFixed(2)+' ms, '+(1000/average).toFixed(2)+' FPS', HB.Vec2.new(HB.mousePos.x, HB.mousePos.y+84), 42, 'start-start', HB.Vec4.colors.White);
 
 				HB.renderer.colorPoint(HB.mousePos, 10, HB.Vec4.colors.Yellow);
 			}
@@ -138,19 +144,18 @@
 				if(HB.keysPressed['s']) HB.camera.translate(HB.Vec3.new(0, -cameraSpeed, 0));
 				if(HB.keysPressed['d']) HB.camera.translate(HB.Vec3.new(-cameraSpeed, 0, 0));
 
-				// if(HB.keysPressed['e']) HB.camera.zoom(0.05);
-				// if(HB.keysPressed['q']) HB.camera.zoom(-0.05);
+				if(HB.keysPressed['e']) HB.camera.zoom(0.05);
+				if(HB.keysPressed['q']) HB.camera.zoom(-0.05);
 
-				if(HB.keysPressed['e']) HB.camera.translate(HB.Vec3.new(0, 0, 0.1));
-				if(HB.keysPressed['q']) HB.camera.translate(HB.Vec3.new(0, 0, -0.1));
+				// if(HB.keysPressed['e']) HB.camera.translate(HB.Vec3.new(0, 0, 0.1));
+				// if(HB.keysPressed['q']) HB.camera.translate(HB.Vec3.new(0, 0, -0.1));
 
-				// if(HB.keysPressed['e']) HB.Mat4.rotate(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Vec3.new(0, 0, 1), HB.Math.radians(1));
-				// if(HB.keysPressed['q']) HB.Mat4.rotate(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Vec3.new(0, 0, 1), HB.Math.radians(-1));
-				//--------------------------------------same-thing----------------------------------------
-				// if(HB.keysPressed['e']) HB.Mat4.rotateZ(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Math.radians(1));
-				// if(HB.keysPressed['q']) HB.Mat4.rotateZ(HB.camera.viewMatrix, HB.camera.viewMatrix, HB.Math.radians(-1));
+				// if(HB.keysPressed['e']) HB.camera.rotate(HB.Math.radians(1));
+				// if(HB.keysPressed['q']) HB.camera.rotate(HB.Math.radians(-1));
 
 				polygon.update();
+
+				circle.update();
 
 				objects.forEach((object) => {
 					object.update();

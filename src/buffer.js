@@ -117,7 +117,7 @@ class VertexArray{
 	delete() {
 		this.unbind();
 		vertexArray.layout.elements.forEach((element) => gl.disableVertexAttribArray(element.index));
-		gl.deleteVertexArray(this.id);
+		this.ext.deleteVertexArrayOES(this.id);
 	}
 }
 

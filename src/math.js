@@ -1,9 +1,52 @@
 // import { canvas } from './common.js';
 
+class seededRandom{ // randomizer that's seedable with a random integer (mulberry32 by Tommy Ettinger, under public domain)
+	constructor(seed = new Date().getTime(), integer = false) {
+		this.t = seed + 0x6D2B79F;
+		this.integer = integer;
+	}
+
+	value(low, high, integer = this.integer) { // either choose if you want integers at initialization or override it here
+		this.t = Math.imul(this.t ^ this.t >>> 15, this.t | 1);
+		this.t ^= this.t + Math.imul(this.t ^ this.t >>> 7, this.t | 61);
+		let res = ((this.t ^ this.t >>> 14) >>> 0);
+		if(integer === false) {
+			res /= 4294967296;
+			if(high !== undefined) {
+				return res * (high-low) + low;
+			} else if(low !== undefined) {
+				return res * low;
+			}
+		} else {
+			if(high !== undefined) {
+				return Math.floor(res/4294967296 * (high-low) + low);
+			} else if(low !== undefined) {
+				return Math.floor(res/4294967296 * low);
+			}
+		}
+		return res;
+	}
+}
+
+class Noise{ // Perlin Noise class, create 1 instance and get values via noise.value(x); function, stole this a while ago and don't know who it's from
+	constructor(amp_ = 1, scl_ = 0.05) {
+		this.vertices = 256, this.amp = amp_, this.scl = scl_, this.r = [];
+		for(let i = 0; i < this.vertices; i++) this.r.push(Math.random());
+	}
+
+	value(x) {
+		const sclX = x*this.scl, floorX = Math.floor(sclX), t = sclX-floorX;
+		const xMin = floorX & this.vertices-1, xMax = (xMin + 1) & this.vertices-1;
+		return HBMath.lerp(this.r[xMin], this.r[xMax], t*t*(3-2*t)) * this.amp;
+	}
+}
+
 function initMathObjects() {
 	Vec2.init();
 	Vec3.init();
 	Vec4.init();
+	HBMath.seededRandom = seededRandom;
+	HBMath.Noise = Noise;
 }
 
 class HBMath{
@@ -30,45 +73,6 @@ class HBMath{
 	}
 	static randomInt(low, high) { // a random integer between 2 numbers
 		return Math.floor(this.random(low, high));
-	}
-	static seededRandom = class{ // randomizer that's seedable with a random integer (mulberry32 by Tommy Ettinger, under public domain)
-		constructor(seed = new Date().getTime(), integer = false) {
-			this.t = seed + 0x6D2B79F;
-			this.integer = integer;
-		}
-
-		value(low, high, integer = this.integer) { // either choose if you want integers at initialization or override it here
-			this.t = Math.imul(this.t ^ this.t >>> 15, this.t | 1);
-			this.t ^= this.t + Math.imul(this.t ^ this.t >>> 7, this.t | 61);
-			let res = ((this.t ^ this.t >>> 14) >>> 0);
-			if(integer === false) {
-				res /= 4294967296;
-				if(high !== undefined) {
-					return res * (high-low) + low;
-				} else if(low !== undefined) {
-					return res * low;
-				}
-			} else {
-				if(high !== undefined) {
-					return Math.floor(res/4294967296 * (high-low) + low);
-				} else if(low !== undefined) {
-					return Math.floor(res/4294967296 * low);
-				}
-			}
-			return res;
-		}
-	}
-	static Noise = class{ // Perlin Noise class, create 1 instance and get values via noise.value(x); function, stole this a while ago and don't know who it's from
-		constructor(amp_ = 1, scl_ = 0.05) {
-			this.vertices = 256, this.amp = amp_, this.scl = scl_, this.r = [];
-			for(let i = 0; i < this.vertices; i++) this.r.push(Math.random());
-		}
-
-		value(x) {
-			const sclX = x*this.scl, floorX = Math.floor(sclX), t = sclX-floorX;
-			const xMin = floorX & this.vertices-1, xMax = (xMin + 1) & this.vertices-1;
-			return HBMath.lerp(this.r[xMin], this.r[xMax], t*t*(3-2*t)) * this.amp;
-		}
 	}
 	static lerp(start, end, amt) { // linear interpolation
 		return start+amt*(end-start);

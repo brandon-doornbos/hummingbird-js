@@ -4,7 +4,7 @@
   "description": "A game engine for JavaScript running on WebGL.",
   "main": "src/index.js",
   "scripts": {
-    "build": "bash build.sh"
+    "build": "npx rollup -c"
   },
   "repository": {
     "type": "git",
@@ -27,7 +27,6 @@
   "homepage": "https://github.com/SantaClausNL/Hummingbird#readme",
   "dependencies": {},
   "devDependencies": {
-    "rollup": "^2.7.2",
-    "terser": "^4.7.0"
+    "@ampproject/rollup-plugin-closure-compiler": "^0.26.0"
   }
 }

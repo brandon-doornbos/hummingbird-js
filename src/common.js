@@ -3,14 +3,14 @@ import { camera } from './camera.js';
 import { Texture } from './texture.js';
 import { initMathObjects, Vec2, Mat4 } from './math.js';
 
-const version = "v0.5.40";
+const version = "v0.5.41";
 let noUpdate = false;
 let deltaTime = 0;
 let accumulator = 0;
 let fixedUpdateFrequency = 50;
 let frames = 0;
 let prevTime = 0;
-const mousePos = { x: 0, y: 0 };
+const mousePosition = { x: 0, y: 0 };
 let mouseIsPressed = false;
 const buttonsPressed = {};
 const keysPressed = {};
@@ -62,11 +62,11 @@ function init(width = 100, height = 100, options = {}) {
 	});
 	window.addEventListener('mousemove', (event) => {
 		const rect = canvas.getBoundingClientRect();
-		Vec2.set(mousePos,
+		Vec2.set(mousePosition,
 			event.clientX-((canvas.clientWidth-canvas.width)*0.5+HB.canvas.clientLeft+rect.left),
 			event.clientY-((canvas.clientHeight-canvas.height)*0.5+HB.canvas.clientTop+rect.top)
 		);
-		Vec2.constrain(mousePos, 0, canvas.width, 0, canvas.height);
+		Vec2.constrain(mousePosition, 0, canvas.width, 0, canvas.height);
 		if(typeof mouseMoved === 'function') mouseMoved(event);
 	});
 	window.addEventListener('mousedown', (event) => {
@@ -134,4 +134,4 @@ function HBupdate(now) {
 
 window.addEventListener("load", HBsetup);
 
-export { version, noUpdate, deltaTime, accumulator, fixedUpdateFrequency, frames, prevTime, mousePos, mouseIsPressed, buttonsPressed, keysPressed, canvas, gl, HBsetup as setup, init, start, resizeCanvas, HBupdate as update };
+export { version, noUpdate, deltaTime, accumulator, fixedUpdateFrequency, frames, prevTime, mousePosition, mouseIsPressed, buttonsPressed, keysPressed, canvas, gl, HBsetup as setup, init, start, resizeCanvas, HBupdate as update };

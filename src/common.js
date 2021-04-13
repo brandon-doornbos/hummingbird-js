@@ -3,7 +3,7 @@ import { camera } from './camera.js';
 import { Texture } from './texture.js';
 import { initMathObjects, Vec2, Mat4 } from './math.js';
 
-const version = "v0.5.39";
+const version = "v0.5.40";
 let noUpdate = false;
 let deltaTime = 0;
 let accumulator = 0;
@@ -63,8 +63,8 @@ function init(width = 100, height = 100, options = {}) {
 	window.addEventListener('mousemove', (event) => {
 		const rect = canvas.getBoundingClientRect();
 		Vec2.set(mousePos,
-			event.clientX-rect.left-document.body.scrollLeft,
-			event.clientY-rect.top-document.body.scrollTop
+			event.clientX-((canvas.clientWidth-canvas.width)*0.5+HB.canvas.clientLeft+rect.left),
+			event.clientY-((canvas.clientHeight-canvas.height)*0.5+HB.canvas.clientTop+rect.top)
 		);
 		Vec2.constrain(mousePos, 0, canvas.width, 0, canvas.height);
 		if(typeof mouseMoved === 'function') mouseMoved(event);

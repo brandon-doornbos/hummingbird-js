@@ -41,7 +41,7 @@ class Renderer{
 		this.batchTextureCache = {};
 	}
 
-	clear(color = undefined) {
+	clear(color) {
 		if(color !== undefined) gl.clearColor(color.x, color.y, color.z, color.w);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 	}

@@ -48,7 +48,8 @@ class Renderer{
 
 	colorPoint(pos, size = 1, color) {
 		this.flushBatchIfBufferFilled();
-		this.drawBatchedQuad(pos.x-size/4, pos.y-size/4, size/2, size/2, 0, color);
+		const halfSize = size*0.5;
+		this.drawBatchedQuad(pos.x-halfSize, pos.y-halfSize, size, size, 0, color);
 	}
 
 	colorPolygon(points, color, center = 0) {

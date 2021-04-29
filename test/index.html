@@ -135,7 +135,7 @@
 				for(let deltaTime of avg) average += deltaTime;
 				HB.renderer.colorText((average/=avg.length).toFixed(2)+' ms, '+(1000/average).toFixed(2)+' FPS', HB.Vec2.new(HB.mousePosition.x, HB.mousePosition.y+84), 42, 'start-start', HB.Vec4.colors.White);
 
-				HB.renderer.colorPoint(HB.mousePosition, 10, HB.Vec4.colors.Yellow);
+				HB.renderer.colorPoint(HB.mousePosition, 5, HB.Vec4.colors.Yellow);
 			}
 
 			function fixedUpdate() {

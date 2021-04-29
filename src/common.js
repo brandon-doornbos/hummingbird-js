@@ -3,7 +3,7 @@ import { camera } from './camera.js';
 import { Texture } from './texture.js';
 import { initMathObjects, Vec2, Mat4 } from './math.js';
 
-const version = "v0.5.43";
+const version = "v0.5.44";
 let noUpdate = false;
 let deltaTime = 0;
 let accumulator = 0;

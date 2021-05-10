@@ -21,7 +21,7 @@ class Camera{
 		camera = new Camera();
 	}
 
-	setMVP(mvp = undefined) {
+	setMVP(mvp) {
 		if(mvp === undefined) {
 			// const modelView = Mat4.new(1);
 			// Mat4.multMat4(modelView, this.modelMatrix, this.viewMatrix);

@@ -25,7 +25,7 @@ function loadFile(path, type = 'text', callback) {
 
 // function for generating an id, i.e. for keeping objects seperate
 // there are arguments for length, inclusion of specific character sets and an idList in which you can give previous ids to prevent duplicates
-function generateId(length = 8, lowercase = true, uppercase = false, numbers = false, idList = undefined) {
+function generateId(length = 8, lowercase = true, uppercase = false, numbers = false, idList) {
 	let id = '', vocab = [];
 	if(lowercase) vocab.push('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');
 	if(uppercase) vocab.push('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');

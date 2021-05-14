@@ -6,3 +6,8 @@ export * from './buffer.js';
 export * from './texture.js';
 export * from './utility.js';
 export * from './math.js';
+
+/**
+ * When the library is built, this object encompasses all methods and members.
+ * @namespace HB
+ */

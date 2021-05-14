@@ -1,6 +1,11 @@
 import { gl } from './common.js';
 
-// gives byte amount of different WebGL types
+/**
+ * Gives byte amount of different WebGL types.
+ * @memberof HB
+ * @param {number} type - WebGL enum value (gl.FLOAT, gl.BYTE, gl.UNSIGNED_INT are currently supported).
+ * @returns {number} amount of bytes.
+ */
 function bytes(type) {
 	switch(type) {
 		case gl.FLOAT: case gl.UNSIGNED_INT: return 4;
@@ -8,8 +13,15 @@ function bytes(type) {
 	}
 }
 
-// load a file, give type(from link below) and supply callback that takes 1 i.e. data argument loadFile('path_to.file', (data) => console.log(data));
-// https://developer.mozilla.org/en-US/docs/Web/API/Body#Methods
+/**
+ * Load a file.
+ * @memberof HB
+ * @param {string} path - Path of the file.
+ * @param {string} type="text" - Type of the file [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/Body#Methods}.
+ * @param {Function} callback - Callback with 1 argument which will receive data.
+ * @fires loadFile:callback
+ * @returns {Object} Object with 'data' and 'path' string properties.
+ */
 function loadFile(path, type = 'text', callback) {
 	let returnValue = {data: "", path};
 
@@ -23,8 +35,16 @@ function loadFile(path, type = 'text', callback) {
 	return returnValue;
 }
 
-// function for generating an id, i.e. for keeping objects seperate
-// there are arguments for length, inclusion of specific character sets and an idList in which you can give previous ids to prevent duplicates
+/**
+ * Function for generating an ID, i.e. for keeping objects seperate.
+ * @memberof HB
+ * @param {number} length - Length of the identifier.
+ * @param {boolean} lowercase - Whether to include the lowercase latin alphabet.
+ * @param {boolean} uppercase - Whether to include the uppercase latin alphabet.
+ * @param {boolean} numbers - Whether to include numbers 0-9.
+ * @param {Array} idList - Optional array with previously generated IDs to prevent duplicates.
+ * @returns {string} Unique identifier constructed according to the arguments.
+ */
 function generateId(length = 8, lowercase = true, uppercase = false, numbers = false, idList) {
 	let id = '', vocab = [];
 	if(lowercase) vocab.push('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');

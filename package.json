@@ -27,6 +27,9 @@
   "homepage": "https://github.com/SantaClausNL/Hummingbird#readme",
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "^0.26.0",
-    "rollup": "^2.42.4"
+    "clean-jsdoc-theme": "^3.2.7",
+    "jsdoc": "^3.6.6",
+    "rollup": "^2.47.0",
+    "rollup-plugin-jsdoc": "^0.1.2"
   }
 }

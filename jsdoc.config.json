@@ -1,0 +1,43 @@
+{
+	"plugins": [],
+	"recurseDepth": 10,
+	"source": {
+		"include": "./src/",
+		"includePattern": ".+\\.js(doc|x)?$",
+		"excludePattern": "(^|\\/|\\\\)_"
+	},
+	"sourceType": "module",
+	"tags": {
+		"allowUnknownTags": true,
+		"dictionaries": ["jsdoc","closure"]
+	},
+	"templates": {
+		"cleverLinks": false,
+		"monospaceLinks": false
+	},
+	"opts": {
+		"template": "node_modules/clean-jsdoc-theme",
+		"theme_opts": {
+			"theme": "dark",
+			"menu": [
+				{
+					"title": "Trello Board",
+					"link": "https://trello.com/b/QO8sjFeJ/hummingbird",
+					"target": "_blank"
+				},{
+					"title": "Github",
+					"link": "https://www.github.com/SantaClausNL/Hummingbird/",
+					"target": "_blank"
+				},{
+					"title": "Library",
+					"link": "https://projects.santaclausnl.ga/Hummingbird/dist/hummingbird.js",
+					"target": "_blank"
+				},{
+					"title": "Minified Library",
+					"link": "https://projects.santaclausnl.ga/Hummingbird/dist/hummingbird.min.js",
+					"target": "_blank"
+				}
+			]
+		}
+	}
+}

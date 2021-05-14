@@ -3,11 +3,42 @@ import { shader } from './shader.js';
 import { loadFile } from './utility.js';
 import { Math } from './math.js';
 
+/**
+ * This Object has all textures indexed by name to be used in the texture draw methods.
+ * @type {Object}
+ * @memberof HB
+ */
 const textures = {};
+/**
+ * (DO NOT USE) Variable for the kernings, size, etc. of the included font.
+ * @readonly
+ * @memberof HB
+ */
 let fontData = undefined;
+/**
+ * (DO NOT USE) Texture with the included font.
+ * @readonly
+ * @type {HB.Texture}
+ * @memberof HB
+ */
 let font = undefined;
 
+/**
+ * Class with all of the initialization and methods for a texture.
+ * @memberof HB
+ */
 class Texture{
+	/**
+	 * Construct this for the texture to be added to the {@link HB.textures} Object, so you do not have to assign the instance to a value, it gets added to 'out' automatically.
+	 * @constructor
+	 * @param {string} name - Name of the texture, for indexing in the 'out' Object.
+	 * @param {string} path - Path in the file system to the texture file, [supported formats]{@link https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#supported_image_formats}.
+	 * @param {Object} out=HB.textures - The Object to add the texture to.
+	 * @param {Function} callback - Is called when the texture has finished loading, logs the loaded textures to the browser console by default.
+	 * @param {number} filter=gl.LINEAR - WebGL enum value for texture filtering, see gl.TEXTURE_MAG/MIN_FILTER on [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter#parameters}.
+	 * @param {number} wrap=gl.CLAMP_TO_EDGE - WebGL enum value for texture wrapping, see gl.TEXTURE_WRAP_S/T on [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter#parameters}.
+	 * @memberof HB
+	 */
 	constructor(name, path, out = textures, callback = function() { console.log("Texture loaded: "+this.name); }, filter = gl.LINEAR, wrap = gl.CLAMP_TO_EDGE) {
 		this.id = gl.createTexture();
 		this.createTexture(path, filter, wrap);
@@ -24,6 +55,11 @@ class Texture{
 		this.onLoadCallback = callback;
 	}
 
+	/**
+	 * (DO NOT USE) Internal method for creating the font, circle and blank textures needed for drawing text, ellipses and colored shapes. Also sets up the textureSamplers in the shader.
+	 * @param {HTMLElement} loadElement - The element to remove when the necessary textures have been loaded.
+	 * @readonly
+	 */
 	static init(loadElement) {
 		loadFile("https://projects.santaclausnl.ga/Hummingbird/assets/arial.json", 'json', (data) => {
 			fontData = data;
@@ -71,12 +107,23 @@ class Texture{
 		}
 	}
 
+	/**
+	 * (DO NOT USE) Method for setting an error texture in case of a texture failing to load etc.
+	 * @readonly
+	 */
 	setErrorTexture() {
 		const errorTexture = new Uint8Array([255, 255, 255, 255, 191, 191, 191, 255, 191, 191, 191, 255, 255, 255, 255, 255]);
 		Texture.setTextureParameters(gl.NEAREST, gl.REPEAT);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE, errorTexture);
 	}
 
+	/**
+	 * (DO NOT USE) Internal method for actually creating a texture, is called by constructor.
+	 * @param {string} path - Path of the texture.
+	 * @param {number} filter - WebGL enum value for texture filtering, see gl.TEXTURE_MAG/MIN_FILTER on [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter#parameters}.
+	 * @param {number} wrap - WebGL enum value for texture wrapping, see gl.TEXTURE_WRAP_S/T on [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter#parameters}.
+	 * @readonly
+	 */
 	createTexture(path, filter, wrap) {
 		this.bind();
 		this.setErrorTexture();
@@ -93,6 +140,12 @@ class Texture{
 		image.src = path;
 	}
 
+	/**
+	 * (DO NOT USE) Internal method for setting the texure parameters, is called by {@link HB.Texture#createTexture}.
+	 * @param {number} filter - WebGL enum value for texture filtering, see gl.TEXTURE_MAG/MIN_FILTER on [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter#parameters}.
+	 * @param {number} wrap - WebGL enum value for texture wrapping, see gl.TEXTURE_WRAP_S/T on [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter#parameters}.
+	 * @readonly
+	 */
 	static setTextureParameters(filter, wrap) {
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
@@ -100,11 +153,24 @@ class Texture{
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap);
 	}
 
+	/**
+	 * (DO NOT USE) Internal method binding the texture to a specific slot.
+	 * @param {number} slot - Which slot, 1-16.
+	 * @readonly
+	 */
 	bind(slot = 1) {
 		gl.activeTexture(gl['TEXTURE' + slot]);
 		gl.bindTexture(gl.TEXTURE_2D, this.id);
 	}
+	/**
+	 * (DO NOT USE) Internal method for binding an empty texture, or unbinding this one.
+	 * @readonly
+	 */
 	unbind() { gl.bindTexture(gl.TEXTURE_2D, null); }
+	/**
+	 * (DO NOT USE) Internal method for deleting this texture, is called on all textures by {@link HB.Renderer#delete}.
+	 * @readonly
+	 */
 	delete() {
 		this.unbind();
 		gl.deleteTexture(this.id);

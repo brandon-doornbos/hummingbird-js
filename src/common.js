@@ -3,21 +3,96 @@ import { camera } from './camera.js';
 import { Texture } from './texture.js';
 import { initMathObjects, Vec2, Mat4 } from './math.js';
 
+/**
+ * Hummingbird version.
+ * @memberof HB
+ */
 const version = "v0.5.47";
+/**
+ * Internal variable to keep track of this from {@link HB.init}.
+ * @readonly
+ * @memberof HB
+ */
 let noUpdate = false;
+/**
+ * Internal variable for {@link fixedUpdate}.
+ * @readonly
+ * @memberof HB
+ */
 let deltaTime = 0;
+/**
+ * Internal variable for {@link fixedUpdate}.
+ * @readonly
+ * @memberof HB
+ */
 let accumulator = 0;
+/**
+ * Variable to set how many times per second {@link fixedUpdate} is called.
+ * @memberof HB
+ */
 let fixedUpdateFrequency = 50;
+/**
+ * Increments by 1 everytime {@link HB.update} is called.
+ * @memberof HB
+ */
 let frames = 0;
+/**
+ * Internal variable for {@link fixedUpdate}.
+ * @readonly
+ * @memberof HB
+ */
 let prevTime = 0;
+/**
+ * The current mouse position on the canvas (top-left is 0,0; constrained from 0 to {@link HB.canvas.size}).
+ * @type {HB.Vec2}
+ * @memberof HB
+ */
 const mousePosition = { x: 0, y: 0 };
+/**
+ * The current mouse position on the page (top-left of canvas is 0,0; unconstrained).
+ * @type {HB.Vec2}
+ * @memberof HB
+ */
 const mousePositionFree = { x: 0, y: 0 };
+/**
+ * true if any or all of the mouse buttons are currently pressed.
+ * @readonly
+ * @memberof HB
+ */
 let mouseIsPressed = false;
+/**
+ * Empty Object that gets populated by a 'button: boolean' combo when that mouse-button is pressed, [MDN Reference]{@link https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button}.
+ * @memberof HB
+ */
 const buttonsPressed = {};
+/**
+ * Empty Object that gets populated by a 'key: boolean' combo when that key is pressed, [MDN Reference]{@link https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key}.
+ * @memberof HB
+ */
 const keysPressed = {};
+/**
+ * Variable that contains the canvas.
+ * @readonly
+ * @type HTMLCanvasElement
+ * @property {HB.Vec2} size - 2D Vector with the canvas width and height.
+ * @property {HB.Vec2} center - 2D Vector with the canvas center.
+ * @memberof HB
+ */
 let canvas = undefined;
+/**
+ * Variable that contains the canvas context.
+ * @readonly
+ * @type WebGLRenderingContext
+ * @memberof HB
+ */
 let gl = undefined;
 
+/**
+ * The main setup function of Hummingbird, initializes in-engine textures and math objects, gets called on the window 'load' event. When this finishes, the global setup function is called.
+ * @alias setup
+ * @memberof HB
+ * @fires global:setup
+ */
 function HBsetup() {
 	console.log("Hummingbird "+version+" by SantaClausNL. https://www.santaclausnl.ga/");
 	const loading = document.createElement('p');
@@ -31,6 +106,17 @@ function HBsetup() {
 	Texture.init(loading);
 }
 
+/**
+ * This function creates the canvas and webgl canvas context and initializes the renderer and included event handlers.
+ * @memberof HB
+ * @param {number} width=100 - The width of the created canvas.
+ * @param {number} height=100 - The height of the created canvas.
+ * @param {Object} options - An object with options for initialization.
+ * @param {boolean} options.noUpdate=false - Stops the built in update function from immediately running if true.
+ * @param {HTMLCanvasElement} options.canvas - Supply a canvas to which Hummingbird must hook, instead of creating a new one.
+ * @param {HTMLElement} options.parent=document.body - Supply a parent element to create our canvas element under.
+ * @param {string} options.id=HummingbirdCanvas - The ID of the canvas in the DOM.
+ */
 function init(width = 100, height = 100, options = {}) {
 	if(options.noUpdate === true) noUpdate = true;
 	if(options.canvas === undefined) {
@@ -93,6 +179,12 @@ function init(width = 100, height = 100, options = {}) {
 	});
 }
 
+/**
+ * This function resizes the canvas element and updates this in the rendering backend.
+ * @memberof HB
+ * @param {number} width=100 - The width to resize the canvas to.
+ * @param {number} height=100 - The height to resize the canvas to.
+ */
 function resizeCanvas(width = 100, height = 100) {
 	canvas.width = width, canvas.height = height;
 	Vec2.set(canvas.size, canvas.width, canvas.height);
@@ -109,6 +201,13 @@ let start = () => {
 	if(noUpdate === false) start();
 }
 
+/**
+ * The main update function of Hummingbird, updates the camera and starts a render batch. Calls update, which runs at the vsync rate of the display (for drawing) and fixedUpdate, which runs at {@link HB.fixedUpdateFrequency} (suitable for physics).
+ * @alias update
+ * @memberof HB
+ * @fires global:update
+ * @fires global:fixedUpdate
+ */
 function HBupdate(now) {
 	deltaTime = now-prevTime;
 	prevTime = now;

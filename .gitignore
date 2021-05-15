@@ -1,4 +1,5 @@
 /node_modules/
 /dist/
+/docs/
 /run.sh
 /package-lock.json

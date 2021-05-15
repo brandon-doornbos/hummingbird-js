@@ -832,8 +832,8 @@ class Mat4{
 	}
 
 	/**
-	 * @ignore
 	 * A method to create a perspective projection matrix.
+	 * @ignore
 	 * @param {Object} out - The matrix to create the perspective projection into.
 	 * @param {number} FoV - The frustum Field of View.
 	 * @param {number} aspect - The frustum aspect ratio.

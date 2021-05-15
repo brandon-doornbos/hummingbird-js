@@ -31,8 +31,16 @@ class Renderer{
 		gl.cullFace(gl.FRONT);
 		gl.enable(gl.CULL_FACE);
 
-		Shader.init();
+		/**
+		 * (DO NOT USE) This is the amount of texture units available, for increased compatibility/performance.
+		 * @readonly
+		 */
+		this.textureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS) || 8;
+		Shader.init(this.textureUnits);
 		shader.bind();
+		const textureSamplers = [];
+		for(let i = 0; i < this.textureUnits; i++) { textureSamplers[i] = i; }
+		shader.setUniformArray('i', 'uTextureIds', textureSamplers);
 
 		/**
 		 * (DO NOT USE) Internal variable to keep track of max vertices in one batch, default is 4000.
@@ -455,7 +463,7 @@ class Renderer{
 	getBatchTextureIndex(texture) {
 		let textureIndex = this.batchTextureCache[texture.name];
 		if(textureIndex === undefined) {
-			if((this.batchTextureIndex + 1) >= 16) this.flushBatch();
+			if((this.batchTextureIndex + 1) >= this.textureUnits) this.flushBatch();
 			this.batchTextureCache[texture.name] = textureIndex = this.batchTextureIndex;
 			texture.bind(this.batchTextureIndex++);
 		}

@@ -21,9 +21,10 @@ class Shader{
 	 * @readonly
 	 * @param {string} vertexShaderSource - Argument for optional vertex shader, unused in favor of [the default included shader]{@link https://projects.santaclausnl.ga/Hummingbird/docs/shader.js.html}.
 	 * @param {string} fragmentShaderSource - Argument for optional fragment shader, unused in favor of [the default included shader]{@link https://projects.santaclausnl.ga/Hummingbird/docs/shader.js.html}.
+	 * @param {string} textureUnits=8 - The amount of texture units available, set automatically.
 	 * @memberof HB
 	 */
-	constructor(vertexShaderSource, fragmentShaderSource) {
+	constructor(vertexShaderSource, fragmentShaderSource, textureUnits) {
 		/**
 		 * (DO NOT USE) Internal variable to keep track of the vertex source for compilation, [the default shader]{@link https://projects.santaclausnl.ga/Hummingbird/docs/shader.js.html}.
 		 * @readonly
@@ -66,12 +67,12 @@ class Shader{
 			varying float vTextureId;
 			varying float vTextSize;
 
-			uniform sampler2D uTextureIds[16];
+			uniform sampler2D uTextureIds[${textureUnits}];
 
 			void main() {
 				vec4 texSample;
 				int textureId = int(vTextureId);
-				for(int i = 0; i < 16; i++) {
+				for(int i = 0; i < ${textureUnits}; i++) {
 					if(i == textureId) {
 						texSample = texture2D(uTextureIds[i], vTexturePosition); break;
 					}
@@ -108,11 +109,12 @@ class Shader{
 
 	/**
 	 * (DO NOT USE) Internal method for creating the {@link HB.shader} instance.
+	 * @param {number} textureUnits=8 - The amount of available texture units.
 	 * @readonly
 	 */
-	static init() {
+	static init(textureUnits) {
 		gl.getExtension('OES_standard_derivatives');
-		shader = new Shader();
+		shader = new Shader(undefined, undefined, textureUnits);
 	}
 
 	/**

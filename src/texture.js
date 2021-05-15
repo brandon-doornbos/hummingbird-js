@@ -56,7 +56,7 @@ class Texture{
 	}
 
 	/**
-	 * (DO NOT USE) Internal method for creating the font, circle and blank textures needed for drawing text, ellipses and colored shapes. Also sets up the textureSamplers in the shader.
+	 * (DO NOT USE) Internal method for creating the font, circle and blank textures needed for drawing text, ellipses and colored shapes.
 	 * @param {HTMLElement} loadElement - The element to remove when the necessary textures have been loaded.
 	 * @readonly
 	 */
@@ -92,11 +92,6 @@ class Texture{
 		this.setTextureParameters(gl.LINEAR, gl.CLAMP_TO_EDGE);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, circleSize, circleSize, 0, gl.RGBA, gl.UNSIGNED_BYTE, circle);
 		textures.Hummingbird_Circle.onLoadCallback();
-
-		// const textureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-		const textureSamplers = [];
-		for(let i = 0; i < 16; i++) { textureSamplers[i] = i; }
-		shader.setUniformArray('i', 'uTextureIds', textureSamplers);
 
 		{ // set a blank texture on texture slot 0
 			const blankTexture = gl.createTexture();

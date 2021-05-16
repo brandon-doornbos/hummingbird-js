@@ -53,10 +53,11 @@ class Noise{
 	 * Create a new Noise class.
 	 * @param {number} amp - The amplitude of the noise.
 	 * @param {number} scl - The scale of the noise.
+	 * @param {Function} randFunc=Math.random - The random function used for generating the noise. For seeded noise, where srand is an {@link HB.Math.SeededRandom} instance, use '() => { srand.value(); }'.
 	 */
-	constructor(amp = 1, scl = 0.05) {
+	constructor(amp = 1, scl = 0.05, randFunc = Math.random) {
 		this.vertices = 256, this.amp = amp, this.scl = scl, this.r = [];
-		for(let i = 0; i < this.vertices; i++) this.r.push(Math.random());
+		for(let i = 0; i < this.vertices; i++) this.r.push(randFunc());
 	}
 
 	/**

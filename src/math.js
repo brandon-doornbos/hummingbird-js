@@ -1,9 +1,9 @@
 /**
  * Randomizer class that's seedable with a random integer (mulberry32 by Tommy Ettinger, under public domain).
- * @alias HB.Math.seededRandom
+ * @alias HB.Math.SeededRandom
  * @memberof HB
  */
-class seededRandom{
+class SeededRandom{
 	/**
 	 * Create a new randomizer with a seed to extract values from.
 	 * @param {number} seed - Integer to use as seed, defaults to current time in milliseconds.
@@ -18,7 +18,7 @@ class seededRandom{
 	 * Get a random value.
 	 * @param {number} low=0 - The lowest value to return (inclusive).
 	 * @param {number} high=1 - The highest value to return (exclusive), if 'integer' is true, this will default to the unsigned 32-bit integer max (4294967296).
-	 * @param {boolean} integer - Whether to return integers or floats.
+	 * @param {boolean} integer=this.integer - Whether to return integers or floats, defaults to the value set in the constructor.
 	 * @returns {number}
 	 */
 	value(low, high, integer = this.integer) {
@@ -72,14 +72,14 @@ class Noise{
 }
 
 /**
- * Method to initialize the zero and one vectors, and assign {@link HB.seededRandom} and {@link HB.Noise} to {@link HB.Math}.
+ * Method to initialize the zero and one vectors, and assign {@link HB.SeededRandom} and {@link HB.Noise} to {@link HB.Math}.
  * @memberof HB
  */
 function initMathObjects() {
 	Vec2.init();
 	Vec3.init();
 	Vec4.init();
-	HBMath.seededRandom = seededRandom;
+	HBMath.SeededRandom = SeededRandom;
 	HBMath.Noise = Noise;
 }
 

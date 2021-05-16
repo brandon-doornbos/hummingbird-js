@@ -7,7 +7,7 @@ import { initMathObjects, Vec2, Mat4 } from './math.js';
  * Hummingbird version.
  * @memberof HB
  */
-const version = "v0.5.48";
+const version = "v0.5.49";
 /**
  * Internal variable to keep track of this from {@link HB.init}.
  * @readonly

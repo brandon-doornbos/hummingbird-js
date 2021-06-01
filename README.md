@@ -18,7 +18,7 @@ To build the library yourself follow the instructions below (platform agnostic).
 The built library will be in 'dist' in normal and minified form.
 
 # Links
-- [Documentation](https://projects.santaclausnl.ga/Hummingbird/docs/)
+- [Documentation](https://projects.brandond.nl/Hummingbird/docs/)
 - [Trello board](https://trello.com/b/QO8sjFeJ)
-- [Built library](https://projects.santaclausnl.ga/Hummingbird/dist/hummingbird.js)
-- [Minified library](https://projects.santaclausnl.ga/Hummingbird/dist/hummingbird.min.js)
+- [Built library](https://projects.brandond.nl/Hummingbird/dist/hummingbird.js)
+- [Minified library](https://projects.brandond.nl/Hummingbird/dist/hummingbird.min.js)

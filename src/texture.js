@@ -61,12 +61,12 @@ class Texture{
 	 * @readonly
 	 */
 	static init(loadElement) {
-		loadFile("https://projects.santaclausnl.ga/Hummingbird/assets/arial.json", 'json', (data) => {
+		loadFile("https://projects.brandond.nl/Hummingbird/assets/arial.json", 'json', (data) => {
 			fontData = data;
 			loadElement.remove();
 			start();
 		});
-		font = new Texture('Hummingbird_Font-Atlas', 'https://projects.santaclausnl.ga/Hummingbird/assets/arial.png');
+		font = new Texture('Hummingbird_Font-Atlas', 'https://projects.brandond.nl/Hummingbird/assets/arial.png');
 
 		const circleSize = 1000;
 		const circle = new Uint8Array(circleSize*circleSize*4);

@@ -19,14 +19,14 @@ class Shader{
 	 * (DO NOT USE) Internal use by Hummingbird only.
 	 * @constructor
 	 * @readonly
-	 * @param {string} vertexShaderSource - Argument for optional vertex shader, unused in favor of [the default included shader]{@link https://projects.santaclausnl.ga/Hummingbird/docs/shader.js.html}.
-	 * @param {string} fragmentShaderSource - Argument for optional fragment shader, unused in favor of [the default included shader]{@link https://projects.santaclausnl.ga/Hummingbird/docs/shader.js.html}.
+	 * @param {string} vertexShaderSource - Argument for optional vertex shader, unused in favor of [the default included shader]{@link https://projects.brandond.nl/Hummingbird/docs/shader.js.html}.
+	 * @param {string} fragmentShaderSource - Argument for optional fragment shader, unused in favor of [the default included shader]{@link https://projects.brandond.nl/Hummingbird/docs/shader.js.html}.
 	 * @param {string} textureUnits=8 - The amount of texture units available, set automatically.
 	 * @memberof HB
 	 */
 	constructor(vertexShaderSource, fragmentShaderSource, textureUnits) {
 		/**
-		 * (DO NOT USE) Internal variable to keep track of the vertex source for compilation, [the default shader]{@link https://projects.santaclausnl.ga/Hummingbird/docs/shader.js.html}.
+		 * (DO NOT USE) Internal variable to keep track of the vertex source for compilation, [the default shader]{@link https://projects.brandond.nl/Hummingbird/docs/shader.js.html}.
 		 * @readonly
 		 */
 		this.vertexShaderSource = vertexShaderSource || `
@@ -54,7 +54,7 @@ class Shader{
 			}
 		`;
 		/**
-		 * (DO NOT USE) Internal variable to keep track of the fragment source for compilation, [the default shader]{@link https://projects.santaclausnl.ga/Hummingbird/docs/shader.js.html}.
+		 * (DO NOT USE) Internal variable to keep track of the fragment source for compilation, [the default shader]{@link https://projects.brandond.nl/Hummingbird/docs/shader.js.html}.
 		 * @readonly
 		 */
 		this.fragmentShaderSource = fragmentShaderSource || `

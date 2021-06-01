@@ -94,7 +94,7 @@ let gl = undefined;
  * @fires global:setup
  */
 function HBsetup() {
-	console.log("Hummingbird "+version+" by SantaClausNL. https://www.santaclausnl.ga/");
+	console.log("Hummingbird "+version+" by SantaClausNL. https://www.brandond.nl/");
 	const loading = document.createElement('p');
 	loading.innerText = "LOADING...";
 	loading.style = "margin: 0; position: absolute; top: 50%; left: 50%; font-size: 7em; transform: translate(-50%, -50%); font-family: Arial, Helvetica, sans-serif;";

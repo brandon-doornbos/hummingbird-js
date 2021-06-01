@@ -30,11 +30,11 @@
 					"target": "_blank"
 				},{
 					"title": "Library",
-					"link": "https://projects.santaclausnl.ga/Hummingbird/dist/hummingbird.js",
+					"link": "https://projects.brandond.nl/Hummingbird/dist/hummingbird.js",
 					"target": "_blank"
 				},{
 					"title": "Minified Library",
-					"link": "https://projects.santaclausnl.ga/Hummingbird/dist/hummingbird.min.js",
+					"link": "https://projects.brandond.nl/Hummingbird/dist/hummingbird.min.js",
 					"target": "_blank"
 				}
 			]

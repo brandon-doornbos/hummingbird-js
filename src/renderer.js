@@ -237,7 +237,7 @@ class Renderer{
 
 	/**
 	 * Method for drawing colored text on screen, can only be called when a batch has been started.
-	 * @param {string} string - ASCII text to be rendered, see the charset in {@link https://projects.santaclausnl.ga/Hummingbird/assets/arial_pretty.json} for all characters.
+	 * @param {string} string - ASCII text to be rendered, see the charset in {@link https://projects.brandond.nl/Hummingbird/assets/arial_pretty.json} for all characters.
 	 * @param {HB.Vec2} pos - Position of the text, anchor-point determined by the align parameter.
 	 * @param {number} size=12 - Pixel size (height) of the text.
 	 * @param {string} align="start-start" - Where to place the anchor-point, this is a string formatted as "'x-anchor'-'y-anchor'", e.g. "end-center". Possible values are [start, center, end], modelled after [this]{@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/textAlign#options}.

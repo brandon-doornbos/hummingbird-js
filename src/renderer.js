@@ -69,11 +69,11 @@ class Renderer{
 	}
 
 	/**
-	 * Method for starting a new rendering batch, is automatically called in {@link HB.update}.
+	 * Method for starting a new rendering batch, is automatically called in {@link HB.internalUpdate}.
 	 */
 	startBatch() { this.resetBatch(); }
 	/**
-	 * Method for ending the rendering batch, is automatically called in {@link HB.update}.
+	 * Method for ending the rendering batch, is automatically called in {@link HB.internalUpdate}.
 	 */
 	endBatch() { this.flushBatch(); }
 

@@ -1,6 +1,6 @@
 let objects = [], circle, polygon, textures = ['oof', 'birb', 'piet', 'dickbutt', 'cat1', 'cat2', 'cat3', 'cat4'];
 
-function mousePressed() {
+HB.mousePressed = function() {
 	for(let i = 0; i < 100; i++) {
 		objects.push(new Bouncer(textures[HB.Math.randomInt(textures.length-1)]));
 		// const colors = Object.values(HB.Vec4.colors);
@@ -8,7 +8,7 @@ function mousePressed() {
 	}
 }
 
-function setup() {
+HB.setup = function() {
 	HB.init(1280, 720);
 
 	new HB.Texture('oof', './assets/oof.png');
@@ -57,7 +57,7 @@ class Bouncer{
 let angle = 0, cameraSpeed = 20;
 let avg = [];
 
-function update() {
+HB.update = function() {
 	HB.renderer.clear(HB.Vec4.colors.Black);
 	avg.push(HB.deltaTime);
 	while(avg.length > 50) avg.shift();
@@ -117,7 +117,7 @@ function update() {
 	HB.renderer.colorPoint(HB.mousePosition, 5, HB.Vec4.colors.Yellow);
 }
 
-function fixedUpdate() {
+HB.fixedUpdate = function() {
 	if(HB.keysPressed['w']) HB.camera.translate(HB.Vec3.new(0, cameraSpeed, 0));
 	if(HB.keysPressed['a']) HB.camera.translate(HB.Vec3.new(cameraSpeed, 0, 0));
 	if(HB.keysPressed['s']) HB.camera.translate(HB.Vec3.new(0, -cameraSpeed, 0));

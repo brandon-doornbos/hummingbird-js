@@ -172,4 +172,9 @@ class Texture{
 	}
 }
 
-export { Texture, textures, fontData, font };
+export {
+	Texture,
+	textures,
+	fontData,
+	font
+};

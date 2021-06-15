@@ -100,4 +100,7 @@ class Camera{
 	}
 }
 
-export { Camera, camera };
+export {
+	Camera,
+	camera
+};

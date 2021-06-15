@@ -238,4 +238,22 @@ function HBupdate(now) {
 
 window.addEventListener("load", HBsetup);
 
-export { version, noUpdate, deltaTime, accumulator, fixedUpdateFrequency, frames, prevTime, mousePosition, mousePositionFree, mouseIsPressed, buttonsPressed, keysPressed, canvas, gl, HBsetup as setup, init, start, resizeCanvas, HBupdate as update };
+export {
+	version,
+	setup,
+	deltaTime,
+	accumulator,
+	fixedUpdate,
+	frames,
+	prevTime,
+	mouseMoved,
+	mousePositionFree,
+	mousePressed,
+	buttonsPressed,
+	keyPressed,
+	canvas,
+	gl,
+	internalSetup,
+	start,
+	resizeCanvas,
+	internalUpdate

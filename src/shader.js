@@ -230,4 +230,7 @@ class Shader{
 	}
 }
 
-export { Shader, shader };
+export {
+	Shader,
+	shader
+};

@@ -987,4 +987,11 @@ class Mat4{
 	}
 }
 
-export { initMathObjects, HBMath as Math, Vec2, Vec3, Vec4, Mat4 };
+export {
+	initMathObjects,
+	HBMath as Math,
+	Vec2,
+	Vec3,
+	Vec4,
+	Mat4
+};

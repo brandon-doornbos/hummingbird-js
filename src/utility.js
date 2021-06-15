@@ -63,4 +63,8 @@ function generateId(length = 8, lowercase = true, uppercase = false, numbers = f
 	function generate() { for(let i = 0; i < length; i++) id += vocab[Math.floor(Math.random() * vocab.length)]; }
 }
 
-export { bytes, loadFile, generateId };
+export {
+	bytes,
+	loadFile,
+	generateId
+};

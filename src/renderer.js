@@ -520,4 +520,7 @@ class Renderer{
 	}
 }
 
-export { renderer, Renderer };
+export {
+	renderer,
+	Renderer
+};

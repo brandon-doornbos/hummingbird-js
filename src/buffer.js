@@ -309,4 +309,14 @@ class VertexArray{
 	}
 }
 
-export { VertexArray, vertexArray, vertexStride, VertexBuffer, vertexBuffer, vertices, IndexBuffer, indexBuffer, indices };
+export {
+	VertexArray,
+	vertexArray,
+	vertexStride,
+	VertexBuffer,
+	vertexBuffer,
+	vertices,
+	IndexBuffer,
+	indexBuffer,
+	indices
+};

@@ -7,7 +7,7 @@ import { initMathObjects, Vec2, Mat4 } from './math.js';
  * Hummingbird version.
  * @memberof HB
  */
-const version = "v0.6.0";
+const version = "v0.6.1";
 /**
  * Overwrite this function to access the built in 'setup' function, which is fired after {@link HB.internalSetup} finishes.
  * @type {Function}
@@ -124,6 +124,13 @@ let keyReleased = new Function();
  */
 const keysPressed = {};
 /**
+ * Overwrite this function to access the 'resize' event. MDN{@link https://developer.mozilla.org/en-US/docs/Web/API/Window/resize_event}
+ * @param {UIEvent} event
+ * @type {Function}
+ * @memberof HB
+ */
+let windowResized = new Function();
+/**
  * Variable that contains the canvas.
  * @readonly
  * @type HTMLCanvasElement
@@ -218,11 +225,9 @@ function init(width = 100, height = 100, options = {}) {
 		buttonsPressed[event.button] = false;
 		HB.mouseReleased(event);
 	});
-	if(typeof windowResized === 'function') {
-		window.addEventListener('resize', (event) => {
-			windowResized(event);
-		});
-	}
+	window.addEventListener('resize', (event) => {
+		HB.windowResized(event);
+	});
 	window.addEventListener('beforeunload', () => {
 		renderer.delete();
 		// delete gl;
@@ -310,6 +315,7 @@ export {
 	internalSetup,
 	init,
 	start,
+	windowResized,
 	resizeCanvas,
 	internalUpdate
 };

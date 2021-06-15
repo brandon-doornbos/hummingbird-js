@@ -12,7 +12,7 @@ function setup() {
 	HB.init(1280, 720);
 
 	new HB.Texture('oof', './assets/oof.png');
-	new HB.Texture('birb', 'https://projects.brandond.nl/Hummingbird/assets/logo.svg');
+	new HB.Texture('birb', '../../assets/logo.svg');
 	new HB.Texture('piet', './assets/piet-piraat.jpg');
 	new HB.Texture('dickbutt', './assets/dickbutt.jpg');
 	new HB.Texture('cat1', './assets/cat1.jpg');

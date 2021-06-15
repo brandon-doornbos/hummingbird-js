@@ -3,13 +3,14 @@ import { gl } from './common.js';
 /**
  * Gives byte amount of different WebGL types.
  * @memberof HB
- * @param {number} type - WebGL enum value (gl.FLOAT, gl.BYTE, gl.UNSIGNED_INT are currently supported).
+ * @param {number} type - WebGL enum value (gl.FLOAT, etc). MDN{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Constants#data_types}.
  * @returns {number} amount of bytes.
  */
 function bytes(type) {
 	switch(type) {
-		case gl.FLOAT: case gl.UNSIGNED_INT: return 4;
-		case gl.BYTE: return 1;
+		case gl.INT: case gl.UNSIGNED_INT: case gl.FLOAT: return 4;
+		case gl.SHORT: case gl.UNSIGNED_SHORT: return 2;
+		case gl.BYTE: case gl.UNSIGNED_BYTE: return 1;
 	}
 }
 

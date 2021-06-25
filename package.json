@@ -15,7 +15,6 @@
     "engine",
     "javascript",
     "webgl",
-    "webgl2",
     "games",
     "graphics"
   ],
@@ -28,8 +27,8 @@
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "^0.26.0",
     "clean-jsdoc-theme": "^3.2.7",
-    "jsdoc": "^3.6.6",
-    "rollup": "^2.47.0",
+    "jsdoc": "^3.6.7",
+    "rollup": "^2.52.3",
     "rollup-plugin-jsdoc": "^0.1.2"
   }
 }

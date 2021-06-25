@@ -512,7 +512,7 @@ class Renderer{
 	 * @readonly
 	 */
 	delete() {
-		Object.values(textures).forEach((texture) => { texture.delete(); });
+		for(let tex in textures) textures[tex].delete();
 		shader.delete();
 		vertexArray.delete();
 		vertexBuffer.delete();

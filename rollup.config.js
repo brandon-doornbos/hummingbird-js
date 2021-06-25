@@ -25,7 +25,9 @@ export default [
 			intro: '/* Hummingbird by SantaClausNL, https://github.com/SantaClausNL/Hummingbird */'
 		},
 		plugins: [
-			compiler()
+			compiler({
+				language_out: "ECMASCRIPT_2015"
+			})
 		]
 	}
 ]

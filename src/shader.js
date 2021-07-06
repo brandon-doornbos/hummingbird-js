@@ -1,4 +1,5 @@
 import { gl } from './common.js';
+import { shaders } from './default_shaders.js';
 import { Mat4 } from './math.js';
 
 /**
@@ -19,82 +20,33 @@ class Shader{
 	 * (DO NOT USE) Internal use by Hummingbird only.
 	 * @constructor
 	 * @readonly
-	 * @param {string} vertexShaderSource - Argument for optional vertex shader, unused in favor of [the default included shader]{@link https://projects.brandond.nl/Hummingbird/docs/shader.js.html}.
-	 * @param {string} fragmentShaderSource - Argument for optional fragment shader, unused in favor of [the default included shader]{@link https://projects.brandond.nl/Hummingbird/docs/shader.js.html}.
-	 * @param {string} textureUnits=8 - The amount of texture units available, set automatically.
+	 * @param {Function} vertexFunc - Optional function that returns the vertex shader source, [defaults]{@link https://projects.brandond.nl/Hummingbird/docs/default_shaders.js.html}.
+	 * @param {Function} fragmentFunc - Optional function that returns the fragment shader source, [defaults]{@link https://projects.brandond.nl/Hummingbird/docs/default_shaders.js.html}.
+	 * @param {Function} shaderInitFunc - Optional function to (for example) initialize uniforms in the shader, [defaults]{@link https://projects.brandond.nl/Hummingbird/docs/default_shaders.js.html}.
 	 * @memberof HB
 	 */
-	constructor(vertexShaderSource, fragmentShaderSource, textureUnits) {
+	constructor(vertexFunc = shaders.colored.vertex, fragmentFunc = shaders.colored.fragment, shaderInitFunc = shaders.colored.init) {
 		/**
-		 * (DO NOT USE) Internal variable to keep track of the vertex source for compilation, [the default shader]{@link https://projects.brandond.nl/Hummingbird/docs/shader.js.html}.
+		 * (DO NOT USE) Internal variable to keep track of the vertex source for compilation.
 		 * @readonly
 		 */
-		this.vertexShaderSource = vertexShaderSource || `
-			attribute vec4 aVertexPosition;
-			attribute vec4 aVertexColor;
-			attribute vec2 aTexturePosition;
-			attribute float aTextureId;
-			attribute float aTextSize;
-
-			varying vec4 vScreenPosition;
-			varying vec4 vVertexColor;
-			varying vec2 vTexturePosition;
-			varying float vTextureId;
-			varying float vTextSize;
-
-			uniform mat4 uMVP;
-
-			void main() {
-				vScreenPosition = uMVP * aVertexPosition;
-				gl_Position = vScreenPosition;
-				vVertexColor = aVertexColor;
-				vTexturePosition = aTexturePosition;
-				vTextureId = aTextureId;
-				vTextSize = aTextSize;
-			}
-		`;
+		this.vertexSource = vertexFunc();
 		/**
-		 * (DO NOT USE) Internal variable to keep track of the fragment source for compilation, [the default shader]{@link https://projects.brandond.nl/Hummingbird/docs/shader.js.html}.
+		 * (DO NOT USE) Internal variable to keep track of the fragment source for compilation.
 		 * @readonly
 		 */
-		this.fragmentShaderSource = fragmentShaderSource || `
-			#extension GL_OES_standard_derivatives : enable
-
-			precision mediump float;
-			varying vec4 vScreenPosition;
-			varying vec4 vVertexColor;
-			varying vec2 vTexturePosition;
-			varying float vTextureId;
-			varying float vTextSize;
-
-			uniform sampler2D uTextureIds[${textureUnits}];
-
-			void main() {
-				vec4 texSample;
-				int textureId = int(vTextureId);
-				for(int i = 0; i < ${textureUnits}; i++) {
-					if(i == textureId) {
-						texSample = texture2D(uTextureIds[i], vTexturePosition); break;
-					}
-				}
-				if(vTextSize <= 0.0) {
-					// float dist = distance(vec4(0.0, 0.0, 0.0, 1.0), vScreenPosition);
-					// vec4 color = texSample * vVertexColor;
-					// pixelColor = vec4(color.rgb, smoothstep(0.75, 0.5, dist)*color.a);
-					gl_FragColor = vVertexColor * texSample;
-				} else {
-					float sigDist = max(min(texSample.r, texSample.g), min(max(texSample.r, texSample.g), texSample.b)) - 0.5;
-					float alpha = clamp(sigDist/fwidth(sigDist) + 0.4, 0.0, 1.0);
-					gl_FragColor = vec4(vVertexColor.rgb, alpha * vVertexColor.a);
-				}
-			}
-		`;
+		this.fragmentSource = fragmentFunc();
+		/**
+		 * (DO NOT USE) Internal variable for initilization of parts of the shaders (like uniforms).
+		 * @readonly
+		 */
+		this.initFunc = shaderInitFunc;
 
 		/**
 		 * (DO NOT USE) Internal variable in which the shader is stored.
 		 * @readonly
 		 */
-		this.id = this.createProgram(this.vertexShaderSource, this.fragmentShaderSource);
+		this.id = this.createProgram(this.vertexSource, this.fragmentSource);
 		/**
 		 * (DO NOT USE) Internal variable for caching shader attributes, to minimize API calls.
 		 * @readonly
@@ -109,12 +61,13 @@ class Shader{
 
 	/**
 	 * (DO NOT USE) Internal method for creating the {@link HB.shader} instance.
-	 * @param {number} textureUnits=8 - The amount of available texture units.
 	 * @readonly
 	 */
-	static init(textureUnits) {
+	static init() {
 		gl.getExtension('OES_standard_derivatives');
-		shader = new Shader(undefined, undefined, textureUnits);
+		shader = new Shader();
+		shader.bind();
+		shader.initFunc();
 	}
 
 	/**

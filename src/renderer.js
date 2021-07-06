@@ -36,12 +36,6 @@ class Renderer{
 		 * @readonly
 		 */
 		this.textureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS) || 8;
-		Shader.init(this.textureUnits);
-		shader.bind();
-		const textureSamplers = [];
-		for(let i = 0; i < this.textureUnits; i++) { textureSamplers[i] = i; }
-		shader.setUniformArray('i', 'uTextureIds', textureSamplers);
-
 		/**
 		 * (DO NOT USE) Internal variable to keep track of max vertices in one batch, default is 4000.
 		 * @readonly
@@ -55,8 +49,6 @@ class Renderer{
 
 		this.resetBatch();
 
-		VertexArray.init(this.maxVertexCount, this.maxIndexCount);
-
 		Camera.init();
 	}
 
@@ -66,6 +58,8 @@ class Renderer{
 	 */
 	static init() {
 		renderer = new Renderer();
+		Shader.init();
+		VertexArray.init(renderer.maxVertexCount, renderer.maxIndexCount);
 	}
 
 	/**

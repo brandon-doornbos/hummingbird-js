@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/SantaClausNL/Hummingbird.git"
+    "url": "git+https://github.com/brandon-doornbos/Hummingbird.git"
   },
   "keywords": [
     "game",
@@ -21,9 +21,9 @@
   "author": "SantaClausNL",
   "license": "WTFPL",
   "bugs": {
-    "url": "https://github.com/SantaClausNL/Hummingbird/issues"
+    "url": "https://github.com/brandon-doornbos/Hummingbird/issues"
   },
-  "homepage": "https://github.com/SantaClausNL/Hummingbird#readme",
+  "homepage": "https://github.com/brandon-doornbos/Hummingbird#readme",
   "devDependencies": {
     "@ampproject/rollup-plugin-closure-compiler": "^0.26.0",
     "clean-jsdoc-theme": "^3.2.7",

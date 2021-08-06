@@ -1,5 +1,5 @@
 import { gl } from './common.js';
-import { shaders } from './default_shaders.js';
+import { shaders } from './shader_source.js';
 import { Mat4 } from './math.js';
 
 /**
@@ -20,9 +20,9 @@ class Shader{
 	 * (DO NOT USE) Internal use by Hummingbird only.
 	 * @constructor
 	 * @readonly
-	 * @param {Function} vertexFunc - Optional function that returns the vertex shader source, [defaults]{@link https://projects.brandond.nl/Hummingbird/docs/default_shaders.js.html}.
-	 * @param {Function} fragmentFunc - Optional function that returns the fragment shader source, [defaults]{@link https://projects.brandond.nl/Hummingbird/docs/default_shaders.js.html}.
-	 * @param {Function} shaderInitFunc - Optional function to (for example) initialize uniforms in the shader, [defaults]{@link https://projects.brandond.nl/Hummingbird/docs/default_shaders.js.html}.
+	 * @param {Function} vertexFunc - Optional function that returns the vertex shader source, [defaults]{@link https://projects.brandond.nl/Hummingbird/docs/shader_source.js.html}.
+	 * @param {Function} fragmentFunc - Optional function that returns the fragment shader source, [defaults]{@link https://projects.brandond.nl/Hummingbird/docs/shader_source.js.html}.
+	 * @param {Function} shaderInitFunc - Optional function to (for example) initialize uniforms in the shader, [defaults]{@link https://projects.brandond.nl/Hummingbird/docs/shader_source.js.html}.
 	 * @memberof HB
 	 */
 	constructor(vertexFunc = shaders.colored.vertex, fragmentFunc = shaders.colored.fragment, shaderInitFunc = shaders.colored.init) {

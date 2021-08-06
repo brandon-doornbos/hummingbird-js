@@ -1,13 +1,12 @@
 import { renderer, Renderer } from './renderer.js';
 import { camera } from './camera.js';
-import { Texture } from './texture.js';
 import { initMathObjects, Vec2, Mat4 } from './math.js';
 
 /**
  * Hummingbird version.
  * @memberof HB
  */
-const version = "v0.6.3";
+const version = "v0.6.4";
 /**
  * Overwrite this function to access the built in 'setup' function, which is fired after {@link HB.internalSetup} finishes.
  * @type {Function}
@@ -148,20 +147,40 @@ let canvas = undefined;
 let gl = undefined;
 
 /**
- * The main setup function of Hummingbird, initializes in-engine textures and math objects, gets called on the window 'load' event. When this finishes, {@link HB.setup} is called.
+ * (DO NOT USE) DOM element containing the loading text during engine initialization.
+ * @readonly
+ * @type HTMLElement
  * @memberof HB
  */
+ let loadElement = document.createElement('p');
+ /**
+	* Function that is used for the 'noUpdate' mechanism, see {@link HB.init}.
+	* @readonly
+	* @memberof HB
+	*/
+ let start = () => {
+	 start = () => {
+		 requestAnimationFrame(internalUpdate);
+		 start = undefined;
+		 loadElement.remove();
+	 }
+	 if(noUpdate === false) start();
+ }
+ 
+ /**
+	* The main setup function of Hummingbird, initializes math objects, gets called on the window 'load' event. When this finishes, {@link HB.setup} is called.
+	* @memberof HB
+	*/
 function internalSetup() {
 	console.log("Hummingbird "+version+" by SantaClausNL. https://www.brandond.nl/");
-	const loading = document.createElement('p');
-	loading.innerText = "LOADING...";
-	loading.style = "margin: 0; position: absolute; top: 50%; left: 50%; font-size: 7em; transform: translate(-50%, -50%); font-family: Arial, Helvetica, sans-serif;";
-	document.body.appendChild(loading);
+	loadElement.innerText = "LOADING...";
+	loadElement.style = "margin: 0; position: absolute; top: 50%; left: 50%; font-size: 7em; transform: translate(-50%, -50%); font-family: Arial, Helvetica, sans-serif;";
+	document.body.appendChild(loadElement);
 
 	initMathObjects();
 	HB.setup();
 
-	Texture.init(loading);
+	start();
 }
 
 /**
@@ -170,7 +189,7 @@ function internalSetup() {
  * @param {number} width=100 - The width of the created canvas.
  * @param {number} height=100 - The height of the created canvas.
  * @param {Object} options - An object with options for initialization.
- * @param {boolean} options.noUpdate=false - Stops the built in {@link HB.internalUpdate} function from immediately running if true.
+ * @param {boolean} options.noUpdate=false - Stops the built in {@link HB.internalUpdate} function from immediately running if true, start the draw loop by calling {@link HB.start}.
  * @param {HTMLCanvasElement} options.canvas - Supply a canvas to which Hummingbird must hook, instead of creating a new one.
  * @param {HTMLElement} options.parent=document.body - Supply a parent element to create our canvas element under.
  * @param {string} options.id=HummingbirdCanvas - The ID of the canvas in the DOM.
@@ -247,14 +266,6 @@ function resizeCanvas(width = 100, height = 100) {
 	Vec2.set(canvas.center, canvas.width/2, canvas.height/2);
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	Mat4.orthographic(camera.projectionMatrix, 0, canvas.width, 0, canvas.height);
-}
-
-let start = () => {
-	start = () => {
-		requestAnimationFrame(internalUpdate);
-		start = undefined;
-	}
-	if(noUpdate === false) start();
 }
 
 /**

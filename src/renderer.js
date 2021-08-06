@@ -2,7 +2,7 @@ import { gl } from './common.js';
 import { Camera } from "./camera.js";
 import { shader, Shader } from "./shader.js";
 import { VertexArray, vertexArray, vertexStride, vertexBuffer, vertices, indexBuffer, indices } from "./buffer.js";
-import { textures, font, fontData } from "./texture.js";
+import { Texture, textures, font, fontData } from "./texture.js";
 import { Vec2 } from './math.js';
 
 /**
@@ -60,6 +60,7 @@ class Renderer{
 		renderer = new Renderer();
 		Shader.init();
 		VertexArray.init(renderer.maxVertexCount, renderer.maxIndexCount);
+		Texture.init();
 	}
 
 	/**
@@ -239,6 +240,22 @@ class Renderer{
 	 * @returns {number} Final width of the rendered text.
 	 */
 	colorText(string, pos, size = 12, align = 'start-start', color) {
+		const alignTo = align.split('-');
+
+		if(fontData === undefined) {
+			let newPos = Vec2.fromVec2(pos), newSize = Vec2.new(string.length*size*0.5, size);
+			switch(alignTo[0]) {
+				case 'center': newPos.x -= newSize.x*0.5; break;
+				case 'end': newPos.x -= newSize.x; break;
+			}
+			switch(alignTo[1]) {
+				case 'center': newPos.y -= newSize.y*0.5; break;
+				case 'end': newPos.y -= newSize.y; break;
+			}
+			this.textureRectangle(newPos, newSize, textures.Hummingbird_Error);
+			return;
+		}
+
 		const glyphs = [], kernings = {};
 		const scalar = size/fontData.info.size;
 		let width = 0;
@@ -261,7 +278,6 @@ class Renderer{
 		}
 
 		let offsetx = 0, offsety = 0;
-		const alignTo = align.split('-');
 		switch(alignTo[0]) {
 			case 'start': break;
 			case 'center': offsetx = -width/2; break;

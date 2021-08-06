@@ -1,5 +1,4 @@
-import { gl, start } from './common.js';
-import { shader } from './shader.js';
+import { gl } from './common.js';
 import { loadFile } from './utility.js';
 import { Math } from './math.js';
 
@@ -56,17 +55,15 @@ class Texture{
 	}
 
 	/**
-	 * (DO NOT USE) Internal method for creating the font, circle and blank textures needed for drawing text, ellipses and colored shapes.
-	 * @param {HTMLElement} loadElement - The element to remove when the necessary textures have been loaded.
+	 * (DO NOT USE) Internal method for creating the font, circle, error texture and blank textures needed for drawing text, ellipses and colored shapes.
 	 * @readonly
 	 */
-	static init(loadElement) {
-		loadFile("https://projects.brandond.nl/Hummingbird/assets/arial.json", 'json', (data) => {
-			fontData = data;
-			loadElement.remove();
-			start();
-		});
+	static init() {
+		loadFile("https://projects.brandond.nl/Hummingbird/assets/arial.json", 'json', (data) => fontData = data);
 		font = new Texture('Hummingbird_Font-Atlas', 'https://projects.brandond.nl/Hummingbird/assets/arial.png');
+
+		new Texture('Hummingbird_Error');
+		textures.Hummingbird_Error.onLoadCallback();
 
 		const circleSize = 1000;
 		const circle = new Uint8Array(circleSize*circleSize*4);

@@ -12,13 +12,13 @@ const shaders = {
 			attribute vec4 aVertexColor;
 			attribute vec2 aTexturePosition;
 			attribute float aTextureId;
-			attribute float aTextSize;
+			attribute float aTextRange;
 
 			varying vec4 vScreenPosition;
 			varying vec4 vVertexColor;
 			varying vec2 vTexturePosition;
 			varying float vTextureId;
-			varying float vTextSize;
+			varying float vTextRange;
 
 			uniform mat4 uMVP;
 
@@ -28,17 +28,17 @@ const shaders = {
 				vVertexColor = aVertexColor;
 				vTexturePosition = aTexturePosition;
 				vTextureId = aTextureId;
-				vTextSize = aTextSize;
+				vTextRange = aTextRange;
 			}
-		`}, fragment: () => { return `
-			#extension GL_OES_standard_derivatives : enable
-
+		`}, fragment: () => {
+			return `
 			precision mediump float;
+
 			varying vec4 vScreenPosition;
 			varying vec4 vVertexColor;
 			varying vec2 vTexturePosition;
 			varying float vTextureId;
-			varying float vTextSize;
+			varying float vTextRange;
 
 			uniform sampler2D uTextureIds[${renderer.textureUnits}];
 
@@ -50,14 +50,16 @@ const shaders = {
 						texSample = texture2D(uTextureIds[i], vTexturePosition); break;
 					}
 				}
-				if(vTextSize <= 0.0) {
+
+				if(vTextRange <= 0.0) {
 					// float dist = distance(vec4(0.0, 0.0, 0.0, 1.0), vScreenPosition);
 					// vec4 color = texSample * vVertexColor;
 					// pixelColor = vec4(color.rgb, smoothstep(0.75, 0.5, dist)*color.a);
 					gl_FragColor = vVertexColor * texSample;
 				} else {
-					float sigDist = max(min(texSample.r, texSample.g), min(max(texSample.r, texSample.g), texSample.b)) - 0.5;
-					float alpha = clamp(sigDist/fwidth(sigDist) + 0.4, 0.0, 1.0);
+					float sigDist = max(min(texSample.r, texSample.g), min(max(texSample.r, texSample.g), texSample.b));
+					float screenPxDistance = vTextRange * (sigDist - 0.5);
+					float alpha = clamp(screenPxDistance + 0.5, 0.0, 1.0);
 					gl_FragColor = vec4(vVertexColor.rgb, alpha * vVertexColor.a);
 				}
 			}

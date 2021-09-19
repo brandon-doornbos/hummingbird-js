@@ -263,7 +263,7 @@ class VertexArray{
 		vertexArray.layout.add('aVertexColor', gl.FLOAT, 4);
 		vertexArray.layout.add('aTexturePosition', gl.FLOAT, 2);
 		vertexArray.layout.add('aTextureId', gl.FLOAT, 1);
-		vertexArray.layout.add('aTextSize', gl.FLOAT, 1);
+		vertexArray.layout.add('aTextRange', gl.FLOAT, 1);
 
 		VertexBuffer.init(maxVertexCount);
 		vertexArray.addBuffer(vertexBuffer);

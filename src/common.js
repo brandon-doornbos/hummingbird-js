@@ -6,7 +6,7 @@ import { initMathObjects, Vec2, Mat4 } from './math.js';
  * Hummingbird version.
  * @memberof HB
  */
-const version = "v0.6.4";
+const version = "v0.6.5";
 /**
  * Overwrite this function to access the built in 'setup' function, which is fired after {@link HB.internalSetup} finishes.
  * @type {Function}

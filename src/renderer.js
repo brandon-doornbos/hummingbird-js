@@ -299,7 +299,7 @@ class Renderer{
 			this.drawBatchedQuad(
 				pos.x+glyph.xoff*scalar+offsetx, pos.y+glyph.yoff*scalar+offsety,
 				glyph.w*scalar, glyph.h*scalar,
-				textureIndex, color, scalar,
+				textureIndex, color, scalar * fontData.distanceField.distanceRange,
 				glyph.x/fontData.common.scaleW, glyph.y/fontData.common.scaleH,
 				glyph.w/fontData.common.scaleW, glyph.h/fontData.common.scaleH
 			);
@@ -372,19 +372,19 @@ class Renderer{
 	 * @param {number} h - Height of the quad.
 	 * @param {number} tex - Optional internal batch-specific texture ID.
 	 * @param {HB.Vec4} col - Optional color of the quad.
-	 * @param {number} textSize - Optional size of text to identify when text is being rendered.
+	 * @param {number} textRange - Optional value to check whether text is being rendered and anti-alias it.
 	 * @param {number} sx - UV x-coordinate of the texture, 0-1.
 	 * @param {number} sy - UV y-coordinate of the texture, 0-1.
 	 * @param {number} sw - UV width of the texture, 0-1.
 	 * @param {number} sh - UV height of the texture, 0-1.
 	 */
-	drawBatchedQuad(x, y, w, h, tex, col, textSize, sx, sy, sw, sh) {
+	drawBatchedQuad(x, y, w, h, tex, col, textRange, sx, sy, sw, sh) {
 		this.drawArbitraryBatchedQuad(
 			x, y,
 			x+w, y,
 			x+w, y+h,
 			x, y+h,
-			tex, col, textSize,
+			tex, col, textRange,
 			sx, sy,
 			sw, sh
 		)
@@ -403,13 +403,13 @@ class Renderer{
 	 * @param {number} y3 - Bottom-left y-coordinate.
 	 * @param {number} tex=0 - Optional internal batch-specific texture ID.
 	 * @param {HB.Vec4} col={@link HB.Vec4.one} - Optional color of the quad.
-	 * @param {number} textSize=0 - Optional size of text to identify when text is being rendered.
+	 * @param {number} textRange=0 - Optional value to check whether text is being rendered and anti-alias it.
 	 * @param {number} sx=0 - UV x-coordinate of the texture, 0-1.
 	 * @param {number} sy=0 - UV y-coordinate of the texture, 0-1.
 	 * @param {number} sw=1 - UV width of the texture, 0-1.
 	 * @param {number} sh=1 - UV height of the texture, 0-1.
 	 */
-	drawArbitraryBatchedQuad(x0, y0, x1, y1, x2, y2, x3, y3, tex = 0, col = HB.Vec4.one, textSize = 0, sx = 0, sy = 0, sw = 1, sh = 1) {
+	drawArbitraryBatchedQuad(x0, y0, x1, y1, x2, y2, x3, y3, tex = 0, col = HB.Vec4.one, textRange = 0, sx = 0, sy = 0, sw = 1, sh = 1) {
 		const start = this.batchedVertexCount*vertexStride;
 		vertices[start   ] = x0;
 		vertices[start+1 ] = y0;
@@ -420,7 +420,7 @@ class Renderer{
 		vertices[start+6 ] = sx;
 		vertices[start+7 ] = sy;
 		vertices[start+8 ] = tex;
-		vertices[start+9 ] = textSize;
+		vertices[start+9 ] = textRange;
 
 		vertices[start+10] = x1;
 		vertices[start+11] = y1;
@@ -431,7 +431,7 @@ class Renderer{
 		vertices[start+16] = sx+sw;
 		vertices[start+17] = sy;
 		vertices[start+18] = tex;
-		vertices[start+19] = textSize;
+		vertices[start+19] = textRange;
 
 		vertices[start+20] = x2;
 		vertices[start+21] = y2;
@@ -442,7 +442,7 @@ class Renderer{
 		vertices[start+26] = sx+sw;
 		vertices[start+27] = sy+sh;
 		vertices[start+28] = tex;
-		vertices[start+29] = textSize;
+		vertices[start+29] = textRange;
 
 		vertices[start+30] = x3;
 		vertices[start+31] = y3;
@@ -453,7 +453,7 @@ class Renderer{
 		vertices[start+36] = sx;
 		vertices[start+37] = sy+sh;
 		vertices[start+38] = tex;
-		vertices[start+39] = textSize;
+		vertices[start+39] = textRange;
 
 		indices[this.batchedIndexCount  ] = this.batchedVertexCount;
 		indices[this.batchedIndexCount+1] = this.batchedVertexCount+1;

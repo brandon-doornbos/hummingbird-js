@@ -8,7 +8,7 @@ export default [
 			file: 'dist/hummingbird.js',
 			format: 'iife',
 			name: 'HB',
-			intro: '/* Hummingbird by SantaClausNL, https://github.com/brandon-doornbos/Hummingbird */'
+			intro: '/* Hummingbird by SantaClausNL, https://github.com/brandon-doornbos/hummingbird-js */'
 		},
 		plugins: [
 			jsdoc({
@@ -22,7 +22,7 @@ export default [
 			file: 'dist/hummingbird.min.js',
 			format: 'iife',
 			name: 'HB',
-			intro: '/* Hummingbird by SantaClausNL, https://github.com/brandon-doornbos/Hummingbird */'
+			intro: '/* Hummingbird by SantaClausNL, https://github.com/brandon-doornbos/hummingbird-js */'
 		},
 		plugins: [
 			compiler({

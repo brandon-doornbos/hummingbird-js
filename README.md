@@ -5,13 +5,13 @@ JavaScript's Canvas API is great, but also very slow. Therefore I decided to mak
 
 This has been a great learning experience for me, in terms of Git(Hub), OpenGL and general computer graphics programming.
 
-![Alt text](https://github.com/brandon-doornbos/Hummingbird/raw/master/assets/logo.png "Hummingbird engine logo.")
+![Alt text](https://github.com/brandon-doornbos/hummingbird-js/raw/master/assets/logo.png "Hummingbird engine logo.")
 
 # Building
 To build the library yourself follow the instructions below (platform agnostic).
 
-1. `git clone https://github.com/brandon-doornbos/Hummingbird.git`
-2. `cd Hummingbird`
+1. `git clone https://github.com/brandon-doornbos/hummingbird-js.git`
+2. `cd hummingbird-js`
 3. `npm install`
 4. `npm run-script build`
 

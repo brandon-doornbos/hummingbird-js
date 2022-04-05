@@ -16,7 +16,7 @@ export default [
 				config: 'jsdoc.config.json',
 			})
 		]
-	},{
+	}, {
 		input: './src/index.js',
 		output: {
 			file: 'dist/hummingbird.min.js',

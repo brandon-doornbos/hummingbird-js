@@ -18,7 +18,7 @@ let renderer = undefined;
  * @readonly
  * @memberof HB
  */
-class Renderer{
+class Renderer {
 	/**
 	 * (DO NOT USE) Internal use by Hummingbird only, all methods are available on {@link HB.renderer}.
 	 * @constructor
@@ -88,7 +88,7 @@ class Renderer{
 	 * @param {HB.Vec4} color - Color to clear the screen with.
 	 */
 	clear(color) {
-		if(color !== undefined) gl.clearColor(color.x, color.y, color.z, color.w);
+		if (color !== undefined) gl.clearColor(color.x, color.y, color.z, color.w);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 	}
 
@@ -100,8 +100,8 @@ class Renderer{
 	 */
 	colorPoint(pos, size = 1, color) {
 		this.flushBatchIfBufferFilled();
-		const halfSize = size*0.5;
-		this.drawBatchedQuad(pos.x-halfSize, pos.y-halfSize, size, size, 0, color);
+		const halfSize = size * 0.5;
+		this.drawBatchedQuad(pos.x - halfSize, pos.y - halfSize, size, size, 0, color);
 	}
 
 	/**
@@ -111,15 +111,15 @@ class Renderer{
 	 * @param {number} center=0 - Element of points Array which indicates the center of the polygon, only needed occasionally for concave polygons.
 	 */
 	colorPolygon(points, color, center = 0) {
-		for(let i = 0; i < points.length-1; i++) {
-			if(i === center) continue;
+		for (let i = 0; i < points.length - 1; i++) {
+			if (i === center) continue;
 
 			this.flushBatchIfBufferFilled(3, 3);
 
 			this.drawBatchedTriangle(
 				points[center].x, points[center].y,
 				points[i].x, points[i].y,
-				points[i+1].x, points[i+1].y,
+				points[i + 1].x, points[i + 1].y,
 				color
 			);
 		}
@@ -182,16 +182,16 @@ class Renderer{
 	 */
 	drawRectangleWithRotation(pos, size, angle, texture = 0, color = HB.Vec4.one) {
 		angle = HB.Math.radians(angle);
-		const cosX = size.x*-0.5*Math.cos(angle), cosY = size.y*-0.5*Math.cos(angle);
-		const cosX1 = size.x*0.5*Math.cos(angle), cosY1 = size.y*0.5*Math.cos(angle);
-		const sinX = size.x*-0.5*Math.sin(angle), sinY = size.y*-0.5*Math.sin(angle);
-		const sinX1 = size.x*0.5*Math.sin(angle), sinY1 = size.y*0.5*Math.sin(angle);
+		const cosX = size.x * -0.5 * Math.cos(angle), cosY = size.y * -0.5 * Math.cos(angle);
+		const cosX1 = size.x * 0.5 * Math.cos(angle), cosY1 = size.y * 0.5 * Math.cos(angle);
+		const sinX = size.x * -0.5 * Math.sin(angle), sinY = size.y * -0.5 * Math.sin(angle);
+		const sinX1 = size.x * 0.5 * Math.sin(angle), sinY1 = size.y * 0.5 * Math.sin(angle);
 
 		this.drawArbitraryBatchedQuad(
-			cosX-sinY+pos.x+size.x/2, sinX+cosY+pos.y+size.y/2,
-			cosX1-sinY+pos.x+size.x/2, sinX1+cosY+pos.y+size.y/2,
-			cosX1-sinY1+pos.x+size.x/2, sinX1+cosY1+pos.y+size.y/2,
-			cosX-sinY1+pos.x+size.x/2, sinX+cosY1+pos.y+size.y/2,
+			cosX - sinY + pos.x + size.x / 2, sinX + cosY + pos.y + size.y / 2,
+			cosX1 - sinY + pos.x + size.x / 2, sinX1 + cosY + pos.y + size.y / 2,
+			cosX1 - sinY1 + pos.x + size.x / 2, sinX1 + cosY1 + pos.y + size.y / 2,
+			cosX - sinY1 + pos.x + size.x / 2, sinX + cosY1 + pos.y + size.y / 2,
 			texture, color
 		);
 	}
@@ -205,16 +205,16 @@ class Renderer{
 	 */
 	colorLine(vectorA, vectorB, thickness, color) {
 		const angle0 = Vec2.angleBetweenVec2(vectorA, vectorB);
-		const angleA = Vec2.fromAngle(angle0-Math.PI/2, thickness/2);
-		const angleB = Vec2.fromAngle(angle0+Math.PI/2, thickness/2);
+		const angleA = Vec2.fromAngle(angle0 - Math.PI / 2, thickness / 2);
+		const angleB = Vec2.fromAngle(angle0 + Math.PI / 2, thickness / 2);
 
 		this.flushBatchIfBufferFilled();
 
 		this.drawArbitraryBatchedQuad(
-			vectorA.x-angleA.x, vectorA.y-angleA.y,
-			vectorA.x+angleA.x, vectorA.y+angleA.y,
-			vectorB.x-angleB.x, vectorB.y-angleB.y,
-			vectorB.x+angleB.x, vectorB.y+angleB.y,
+			vectorA.x - angleA.x, vectorA.y - angleA.y,
+			vectorA.x + angleA.x, vectorA.y + angleA.y,
+			vectorB.x - angleB.x, vectorB.y - angleB.y,
+			vectorB.x + angleB.x, vectorB.y + angleB.y,
 			0, color
 		);
 	}
@@ -242,14 +242,14 @@ class Renderer{
 	colorText(string, pos, size = 12, align = 'start-start', color) {
 		const alignTo = align.split('-');
 
-		if(fontData === undefined) {
-			let newPos = Vec2.fromVec2(pos), newSize = Vec2.new(string.length*size*0.5, size);
-			switch(alignTo[0]) {
-				case 'center': newPos.x -= newSize.x*0.5; break;
+		if (fontData === undefined) {
+			let newPos = Vec2.fromVec2(pos), newSize = Vec2.new(string.length * size * 0.5, size);
+			switch (alignTo[0]) {
+				case 'center': newPos.x -= newSize.x * 0.5; break;
 				case 'end': newPos.x -= newSize.x; break;
 			}
-			switch(alignTo[1]) {
-				case 'center': newPos.y -= newSize.y*0.5; break;
+			switch (alignTo[1]) {
+				case 'center': newPos.y -= newSize.y * 0.5; break;
 				case 'end': newPos.y -= newSize.y; break;
 			}
 			this.textureRectangle(newPos, newSize, textures.Hummingbird_Error);
@@ -257,20 +257,20 @@ class Renderer{
 		}
 
 		const glyphs = [], kernings = {};
-		const scalar = size/fontData.info.size;
+		const scalar = size / fontData.info.size;
 		let width = 0;
-		const height = fontData.common.lineh*scalar;
+		const height = fontData.common.lineh * scalar;
 
 		let prevKerns;
-		for(let i = 0; i < string.length; i++) {
+		for (let i = 0; i < string.length; i++) {
 			const glyph = fontData.chars[string[i]] || fontData.chars['?'];
-			width += glyph.xadv*scalar;
+			width += glyph.xadv * scalar;
 			glyphs.push(glyph);
 
-			if(prevKerns !== undefined) {
+			if (prevKerns !== undefined) {
 				const kerning = prevKerns[glyph.id];
-				if(kerning !== undefined) {
-					width += kerning*scalar;
+				if (kerning !== undefined) {
+					width += kerning * scalar;
 					kernings[glyph.id] = kerning;
 				}
 			}
@@ -278,33 +278,33 @@ class Renderer{
 		}
 
 		let offsetx = 0, offsety = 0;
-		switch(alignTo[0]) {
+		switch (alignTo[0]) {
 			case 'start': break;
-			case 'center': offsetx = -width/2; break;
+			case 'center': offsetx = -width / 2; break;
 			case 'end': offsetx = -width; break;
 		}
-		switch(alignTo[1]) {
-			case 'start': offsety = -fontData.info.padding[3]*0.5; break;
-			case 'center': offsety = -height/2; break;
+		switch (alignTo[1]) {
+			case 'start': offsety = -fontData.info.padding[3] * 0.5; break;
+			case 'center': offsety = -height / 2; break;
 			case 'end': offsety = -height; break;
 		}
 
 		let textureIndex = this.getBatchTextureIndex(font);
-		for(let glyph of glyphs) {
+		for (let glyph of glyphs) {
 			const kerning = kernings[glyph.id];
-			if(kerning !== undefined) offsetx += kerning*scalar;
+			if (kerning !== undefined) offsetx += kerning * scalar;
 
-			if(this.flushBatchIfBufferFilled()) textureIndex = this.getBatchTextureIndex(font);
+			if (this.flushBatchIfBufferFilled()) textureIndex = this.getBatchTextureIndex(font);
 
 			this.drawBatchedQuad(
-				pos.x+glyph.xoff*scalar+offsetx, pos.y+glyph.yoff*scalar+offsety,
-				glyph.w*scalar, glyph.h*scalar,
+				pos.x + glyph.xoff * scalar + offsetx, pos.y + glyph.yoff * scalar + offsety,
+				glyph.w * scalar, glyph.h * scalar,
 				textureIndex, color, scalar * fontData.distanceField.distanceRange,
-				glyph.x/fontData.common.scaleW, glyph.y/fontData.common.scaleH,
-				glyph.w/fontData.common.scaleW, glyph.h/fontData.common.scaleH
+				glyph.x / fontData.common.scaleW, glyph.y / fontData.common.scaleH,
+				glyph.w / fontData.common.scaleW, glyph.h / fontData.common.scaleH
 			);
 
-			offsetx += glyph.xadv*scalar;
+			offsetx += glyph.xadv * scalar;
 		}
 
 		return width;
@@ -322,43 +322,43 @@ class Renderer{
 	 * @param {HB.Vec4} color - Color of the triangle.
 	 */
 	drawBatchedTriangle(x1, y1, x2, y2, x3, y3, color) {
-		const start = this.batchedVertexCount*vertexStride;
-		vertices[start   ] = x1;
-		vertices[start+1 ] = y1;
-		vertices[start+2 ] = color.x;
-		vertices[start+3 ] = color.y;
-		vertices[start+4 ] = color.z;
-		vertices[start+5 ] = color.w;
-		vertices[start+6 ] = 0;
-		vertices[start+7 ] = 1;
-		vertices[start+8 ] = 0;
-		vertices[start+9 ] = 0;
+		const start = this.batchedVertexCount * vertexStride;
+		vertices[start] = x1;
+		vertices[start + 1] = y1;
+		vertices[start + 2] = color.x;
+		vertices[start + 3] = color.y;
+		vertices[start + 4] = color.z;
+		vertices[start + 5] = color.w;
+		vertices[start + 6] = 0;
+		vertices[start + 7] = 1;
+		vertices[start + 8] = 0;
+		vertices[start + 9] = 0;
 
-		vertices[start+10] = x2;
-		vertices[start+11] = y2;
-		vertices[start+12] = color.x;
-		vertices[start+13] = color.y;
-		vertices[start+14] = color.z;
-		vertices[start+15] = color.w;
-		vertices[start+16] = 0.5;
-		vertices[start+17] = 0.5;
-		vertices[start+18] = 0;
-		vertices[start+19] = 0;
+		vertices[start + 10] = x2;
+		vertices[start + 11] = y2;
+		vertices[start + 12] = color.x;
+		vertices[start + 13] = color.y;
+		vertices[start + 14] = color.z;
+		vertices[start + 15] = color.w;
+		vertices[start + 16] = 0.5;
+		vertices[start + 17] = 0.5;
+		vertices[start + 18] = 0;
+		vertices[start + 19] = 0;
 
-		vertices[start+20] = x3;
-		vertices[start+21] = y3;
-		vertices[start+22] = color.x;
-		vertices[start+23] = color.y;
-		vertices[start+24] = color.z;
-		vertices[start+25] = color.w;
-		vertices[start+26] = 1;
-		vertices[start+27] = 1;
-		vertices[start+28] = 0;
-		vertices[start+29] = 0;
+		vertices[start + 20] = x3;
+		vertices[start + 21] = y3;
+		vertices[start + 22] = color.x;
+		vertices[start + 23] = color.y;
+		vertices[start + 24] = color.z;
+		vertices[start + 25] = color.w;
+		vertices[start + 26] = 1;
+		vertices[start + 27] = 1;
+		vertices[start + 28] = 0;
+		vertices[start + 29] = 0;
 
-		indices[this.batchedIndexCount  ] = this.batchedVertexCount;
-		indices[this.batchedIndexCount+1] = this.batchedVertexCount+1;
-		indices[this.batchedIndexCount+2] = this.batchedVertexCount+2;
+		indices[this.batchedIndexCount] = this.batchedVertexCount;
+		indices[this.batchedIndexCount + 1] = this.batchedVertexCount + 1;
+		indices[this.batchedIndexCount + 2] = this.batchedVertexCount + 2;
 
 		this.batchedVertexCount += 3, this.batchedIndexCount += 3;
 	}
@@ -381,9 +381,9 @@ class Renderer{
 	drawBatchedQuad(x, y, w, h, tex, col, textRange, sx, sy, sw, sh) {
 		this.drawArbitraryBatchedQuad(
 			x, y,
-			x+w, y,
-			x+w, y+h,
-			x, y+h,
+			x + w, y,
+			x + w, y + h,
+			x, y + h,
 			tex, col, textRange,
 			sx, sy,
 			sw, sh
@@ -410,57 +410,57 @@ class Renderer{
 	 * @param {number} sh=1 - UV height of the texture, 0-1.
 	 */
 	drawArbitraryBatchedQuad(x0, y0, x1, y1, x2, y2, x3, y3, tex = 0, col = HB.Vec4.one, textRange = 0, sx = 0, sy = 0, sw = 1, sh = 1) {
-		const start = this.batchedVertexCount*vertexStride;
-		vertices[start   ] = x0;
-		vertices[start+1 ] = y0;
-		vertices[start+2 ] = col.x;
-		vertices[start+3 ] = col.y;
-		vertices[start+4 ] = col.z;
-		vertices[start+5 ] = col.w;
-		vertices[start+6 ] = sx;
-		vertices[start+7 ] = sy;
-		vertices[start+8 ] = tex;
-		vertices[start+9 ] = textRange;
+		const start = this.batchedVertexCount * vertexStride;
+		vertices[start] = x0;
+		vertices[start + 1] = y0;
+		vertices[start + 2] = col.x;
+		vertices[start + 3] = col.y;
+		vertices[start + 4] = col.z;
+		vertices[start + 5] = col.w;
+		vertices[start + 6] = sx;
+		vertices[start + 7] = sy;
+		vertices[start + 8] = tex;
+		vertices[start + 9] = textRange;
 
-		vertices[start+10] = x1;
-		vertices[start+11] = y1;
-		vertices[start+12] = col.x;
-		vertices[start+13] = col.y;
-		vertices[start+14] = col.z;
-		vertices[start+15] = col.w;
-		vertices[start+16] = sx+sw;
-		vertices[start+17] = sy;
-		vertices[start+18] = tex;
-		vertices[start+19] = textRange;
+		vertices[start + 10] = x1;
+		vertices[start + 11] = y1;
+		vertices[start + 12] = col.x;
+		vertices[start + 13] = col.y;
+		vertices[start + 14] = col.z;
+		vertices[start + 15] = col.w;
+		vertices[start + 16] = sx + sw;
+		vertices[start + 17] = sy;
+		vertices[start + 18] = tex;
+		vertices[start + 19] = textRange;
 
-		vertices[start+20] = x2;
-		vertices[start+21] = y2;
-		vertices[start+22] = col.x;
-		vertices[start+23] = col.y;
-		vertices[start+24] = col.z;
-		vertices[start+25] = col.w;
-		vertices[start+26] = sx+sw;
-		vertices[start+27] = sy+sh;
-		vertices[start+28] = tex;
-		vertices[start+29] = textRange;
+		vertices[start + 20] = x2;
+		vertices[start + 21] = y2;
+		vertices[start + 22] = col.x;
+		vertices[start + 23] = col.y;
+		vertices[start + 24] = col.z;
+		vertices[start + 25] = col.w;
+		vertices[start + 26] = sx + sw;
+		vertices[start + 27] = sy + sh;
+		vertices[start + 28] = tex;
+		vertices[start + 29] = textRange;
 
-		vertices[start+30] = x3;
-		vertices[start+31] = y3;
-		vertices[start+32] = col.x;
-		vertices[start+33] = col.y;
-		vertices[start+34] = col.z;
-		vertices[start+35] = col.w;
-		vertices[start+36] = sx;
-		vertices[start+37] = sy+sh;
-		vertices[start+38] = tex;
-		vertices[start+39] = textRange;
+		vertices[start + 30] = x3;
+		vertices[start + 31] = y3;
+		vertices[start + 32] = col.x;
+		vertices[start + 33] = col.y;
+		vertices[start + 34] = col.z;
+		vertices[start + 35] = col.w;
+		vertices[start + 36] = sx;
+		vertices[start + 37] = sy + sh;
+		vertices[start + 38] = tex;
+		vertices[start + 39] = textRange;
 
-		indices[this.batchedIndexCount  ] = this.batchedVertexCount;
-		indices[this.batchedIndexCount+1] = this.batchedVertexCount+1;
-		indices[this.batchedIndexCount+2] = this.batchedVertexCount+2;
-		indices[this.batchedIndexCount+3] = this.batchedVertexCount+2;
-		indices[this.batchedIndexCount+4] = this.batchedVertexCount+3;
-		indices[this.batchedIndexCount+5] = this.batchedVertexCount;
+		indices[this.batchedIndexCount] = this.batchedVertexCount;
+		indices[this.batchedIndexCount + 1] = this.batchedVertexCount + 1;
+		indices[this.batchedIndexCount + 2] = this.batchedVertexCount + 2;
+		indices[this.batchedIndexCount + 3] = this.batchedVertexCount + 2;
+		indices[this.batchedIndexCount + 4] = this.batchedVertexCount + 3;
+		indices[this.batchedIndexCount + 5] = this.batchedVertexCount;
 
 		this.batchedVertexCount += 4, this.batchedIndexCount += 6;
 	}
@@ -472,8 +472,8 @@ class Renderer{
 	 */
 	getBatchTextureIndex(texture) {
 		let textureIndex = this.batchTextureCache[texture.name];
-		if(textureIndex === undefined) {
-			if((this.batchTextureIndex + 1) >= this.textureUnits) this.flushBatch();
+		if (textureIndex === undefined) {
+			if ((this.batchTextureIndex + 1) >= this.textureUnits) this.flushBatch();
 			this.batchTextureCache[texture.name] = textureIndex = this.batchTextureIndex;
 			texture.bind(this.batchTextureIndex++);
 		}
@@ -487,7 +487,7 @@ class Renderer{
 	 * @returns {boolean} Whether the batch had to be rendered.
 	 */
 	flushBatchIfBufferFilled(vertices = 4, indices = 6) {
-		if((this.batchedVertexCount + vertices) >= this.maxVertexCount || (this.batchedIndexCount + indices) >= this.maxIndexCount) {
+		if ((this.batchedVertexCount + vertices) >= this.maxVertexCount || (this.batchedIndexCount + indices) >= this.maxIndexCount) {
 			this.flushBatch();
 			return true;
 		}
@@ -499,7 +499,7 @@ class Renderer{
 	 * @readonly
 	 */
 	flushBatch() {
-		vertexBuffer.partialWrite(vertices, this.batchedVertexCount*vertexStride);
+		vertexBuffer.partialWrite(vertices, this.batchedVertexCount * vertexStride);
 		indexBuffer.partialWrite(indices, this.batchedIndexCount);
 		this.drawIndexedTriangles(this.batchedIndexCount);
 		this.resetBatch();
@@ -522,7 +522,7 @@ class Renderer{
 	 * @readonly
 	 */
 	delete() {
-		for(let tex in textures) textures[tex].delete();
+		for (let tex in textures) textures[tex].delete();
 		shader.delete();
 		vertexArray.delete();
 		vertexBuffer.delete();

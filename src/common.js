@@ -152,27 +152,27 @@ let gl = undefined;
  * @type HTMLElement
  * @memberof HB
  */
- let loadElement = document.createElement('p');
- /**
-	* Function that is used for the 'noUpdate' mechanism, see {@link HB.init}.
-	* @readonly
-	* @memberof HB
-	*/
- let start = () => {
-	 start = () => {
-		 requestAnimationFrame(internalUpdate);
-		 start = undefined;
-		 loadElement.remove();
-	 }
-	 if(noUpdate === false) start();
- }
- 
- /**
-	* The main setup function of Hummingbird, initializes math objects, gets called on the window 'load' event. When this finishes, {@link HB.setup} is called.
-	* @memberof HB
-	*/
+let loadElement = document.createElement('p');
+/**
+   * Function that is used for the 'noUpdate' mechanism, see {@link HB.init}.
+   * @readonly
+   * @memberof HB
+   */
+let start = () => {
+	start = () => {
+		requestAnimationFrame(internalUpdate);
+		start = undefined;
+		loadElement.remove();
+	}
+	if (noUpdate === false) start();
+}
+
+/**
+   * The main setup function of Hummingbird, initializes math objects, gets called on the window 'load' event. When this finishes, {@link HB.setup} is called.
+   * @memberof HB
+   */
 function internalSetup() {
-	console.log("Hummingbird "+version+" by SantaClausNL. https://www.brandond.nl/");
+	console.log("Hummingbird " + version + " by SantaClausNL. https://www.brandond.nl/");
 	loadElement.innerText = "LOADING...";
 	loadElement.style = "margin: 0; position: absolute; top: 50%; left: 50%; font-size: 7em; transform: translate(-50%, -50%); font-family: Arial, Helvetica, sans-serif;";
 	document.body.appendChild(loadElement);
@@ -195,21 +195,21 @@ function internalSetup() {
  * @param {string} options.id=HummingbirdCanvas - The ID of the canvas in the DOM.
  */
 function init(width = 100, height = 100, options = {}) {
-	if(options.noUpdate === true) noUpdate = true;
-	if(options.canvas === undefined) {
+	if (options.noUpdate === true) noUpdate = true;
+	if (options.canvas === undefined) {
 		canvas = document.createElement("CANVAS"), gl = canvas.getContext('webgl');
-		if(options.parent === undefined) document.body.appendChild(canvas); else options.parent.appendChild(canvas);
+		if (options.parent === undefined) document.body.appendChild(canvas); else options.parent.appendChild(canvas);
 	} else canvas = options.canvas, gl = canvas.getContext('webgl');
 
-	if(gl === null) {
+	if (gl === null) {
 		canvas.parentNode.removeChild(canvas);
 		const p = document.createElement('p');
 		p.innerText = 'WebGL is not supported on your browser or machine.';
-		if(options.parent === undefined) document.body.appendChild(p); else options.parent.appendChild(p);
+		if (options.parent === undefined) document.body.appendChild(p); else options.parent.appendChild(p);
 	} else {
 		canvas.width = width, canvas.height = height;
 		canvas.size = Vec2.new(canvas.width, canvas.height);
-		canvas.center = Vec2.new(canvas.width/2, canvas.height/2);
+		canvas.center = Vec2.new(canvas.width / 2, canvas.height / 2);
 		canvas.id = (options.id === undefined) ? "HummingbirdCanvas" : options.id;
 		canvas.setAttribute('alt', 'Hummingbird canvas element.');
 
@@ -227,8 +227,8 @@ function init(width = 100, height = 100, options = {}) {
 	window.addEventListener('mousemove', (event) => {
 		const rect = canvas.getBoundingClientRect();
 		Vec2.set(mousePosition,
-			event.clientX-((canvas.clientWidth-canvas.width)*0.5+HB.canvas.clientLeft+rect.left),
-			event.clientY-((canvas.clientHeight-canvas.height)*0.5+HB.canvas.clientTop+rect.top)
+			event.clientX - ((canvas.clientWidth - canvas.width) * 0.5 + HB.canvas.clientLeft + rect.left),
+			event.clientY - ((canvas.clientHeight - canvas.height) * 0.5 + HB.canvas.clientTop + rect.top)
 		);
 		Vec2.copy(mousePositionFree, mousePosition);
 		Vec2.constrain(mousePosition, 0, canvas.width, 0, canvas.height);
@@ -263,7 +263,7 @@ function init(width = 100, height = 100, options = {}) {
 function resizeCanvas(width = 100, height = 100) {
 	canvas.width = width, canvas.height = height;
 	Vec2.set(canvas.size, canvas.width, canvas.height);
-	Vec2.set(canvas.center, canvas.width/2, canvas.height/2);
+	Vec2.set(canvas.center, canvas.width / 2, canvas.height / 2);
 	gl.viewport(0, 0, canvas.width, canvas.height);
 	Mat4.orthographic(camera.projectionMatrix, 0, canvas.width, 0, canvas.height);
 }
@@ -273,22 +273,22 @@ function resizeCanvas(width = 100, height = 100) {
  * @memberof HB
  */
 function internalUpdate(now) {
-	deltaTime = now-prevTime;
+	deltaTime = now - prevTime;
 	prevTime = now;
 
 	camera.setMVP();
 	renderer.startBatch();
 
 	accumulator += deltaTime;
-	while(accumulator >= 1000/fixedUpdateFrequency) {
-		if(deltaTime > 1000) {
+	while (accumulator >= 1000 / fixedUpdateFrequency) {
+		if (deltaTime > 1000) {
 			accumulator = 0;
 			deltaTime = 1;
 			HB.fixedUpdate();
 			break;
 		}
 		HB.fixedUpdate();
-		accumulator -= 1000/fixedUpdateFrequency;
+		accumulator -= 1000 / fixedUpdateFrequency;
 	}
 
 	HB.update();

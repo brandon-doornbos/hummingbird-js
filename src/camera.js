@@ -14,7 +14,7 @@ let camera = undefined;
  * @readonly
  * @memberof HB
  */
-class Camera{
+class Camera {
 	/**
 	 * (DO NOT USE) Internal use by Hummingbird only, all methods are available on {@link HB.camera}.
 	 * @constructor
@@ -63,7 +63,7 @@ class Camera{
 	 * @param {HB.Mat4} mvp=HB.Camera.MVP - Optional MVP to render with.
 	 */
 	setMVP(mvp) {
-		if(mvp === undefined) {
+		if (mvp === undefined) {
 			// const modelView = Mat4.new(1);
 			// Mat4.multMat4(modelView, this.modelMatrix, this.viewMatrix);
 			Mat4.multMat4(this.MVP, this.viewMatrix, this.projectionMatrix);
@@ -86,7 +86,7 @@ class Camera{
 	 */
 	zoom(amount) {
 		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-canvas.center.x, -canvas.center.y));
-		Mat4.scale(this.viewMatrix, this.viewMatrix, 1+amount);
+		Mat4.scale(this.viewMatrix, this.viewMatrix, 1 + amount);
 		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(canvas.center.x, canvas.center.y));
 	}
 	/**

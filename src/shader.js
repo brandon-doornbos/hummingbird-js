@@ -15,7 +15,7 @@ let shader = undefined;
  * @readonly
  * @memberof HB
  */
-class Shader{
+class Shader {
 	/**
 	 * (DO NOT USE) Internal use by Hummingbird only.
 	 * @constructor
@@ -81,12 +81,12 @@ class Shader{
 		const program = gl.createProgram();
 		const vertexShader = this.compileShader(gl.VERTEX_SHADER, vertexShaderSource);
 		const fragmentShader = this.compileShader(gl.FRAGMENT_SHADER, fragmentShaderSource);
-	
+
 		gl.attachShader(program, vertexShader);
 		gl.attachShader(program, fragmentShader);
 		gl.linkProgram(program);
 		gl.validateProgram(program);
-	
+
 		gl.deleteShader(vertexShader);
 		gl.deleteShader(fragmentShader);
 
@@ -105,7 +105,7 @@ class Shader{
 		gl.shaderSource(shader, source);
 		gl.compileShader(shader);
 
-		if(gl.getShaderParameter(shader, gl.COMPILE_STATUS) === false) {
+		if (gl.getShaderParameter(shader, gl.COMPILE_STATUS) === false) {
 			console.error(gl.getShaderInfoLog(shader));
 			gl.deleteShader(shader);
 			return null;
@@ -121,7 +121,7 @@ class Shader{
 	 * @returns {number} ID of attribute inside shader.
 	 */
 	getAttribLocation(name) {
-		if(this.attribLocationCache[name] === undefined) this.attribLocationCache[name] = gl.getAttribLocation(this.id, name);
+		if (this.attribLocationCache[name] === undefined) this.attribLocationCache[name] = gl.getAttribLocation(this.id, name);
 		return this.attribLocationCache[name];
 	}
 	/**
@@ -131,7 +131,7 @@ class Shader{
 	 * @returns {WebGLUniformLocation} Location of uniform inside shader.
 	 */
 	getUniformLocation(name) {
-		if(this.uniformLocationCache[name] === undefined) this.uniformLocationCache[name] = gl.getUniformLocation(this.id, name);
+		if (this.uniformLocationCache[name] === undefined) this.uniformLocationCache[name] = gl.getUniformLocation(this.id, name);
 		return this.uniformLocationCache[name];
 	}
 	/**
@@ -141,7 +141,7 @@ class Shader{
 	 * @param {string} name - Name of the uniform.
 	 * @param {Array} values - Array with values, length 1-4, see [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/uniform}.
 	 */
-	setUniform(type, name, values) { gl['uniform'+values.length+type](this.getUniformLocation(name), values[0], values[1], values[2], values[3]); }
+	setUniform(type, name, values) { gl['uniform' + values.length + type](this.getUniformLocation(name), values[0], values[1], values[2], values[3]); }
 	/**
 	 * (DO NOT USE) Method for setting array uniforms inside shaders.
 	 * @readonly
@@ -150,7 +150,7 @@ class Shader{
 	 * @param {Array} array - Array with values, see [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/uniform}.
 	 * @param {number} elementAmount - Amount of elements in each element of the array, i.e. 2 for vec2, see [docs.gl]{@link https://docs.gl/es2/glUniform} and [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/uniform}.
 	 */
-	setUniformArray(type, name, array, elementAmount = 1) { gl['uniform'+elementAmount+type+'v'](this.getUniformLocation(name), array); }
+	setUniformArray(type, name, array, elementAmount = 1) { gl['uniform' + elementAmount + type + 'v'](this.getUniformLocation(name), array); }
 	/**
 	 * (DO NOT USE) Method for setting matrix uniforms inside shaders.
 	 * @readonly
@@ -160,7 +160,7 @@ class Shader{
 	 */
 	setUniformMatrix(type, name, matrix) {
 		const glMatrix = Mat4.toArray(matrix);
-		gl['uniformMatrix'+Math.sqrt(glMatrix.length)+type+'v'](this.getUniformLocation(name), false, glMatrix);
+		gl['uniformMatrix' + Math.sqrt(glMatrix.length) + type + 'v'](this.getUniformLocation(name), false, glMatrix);
 	}
 
 	/**

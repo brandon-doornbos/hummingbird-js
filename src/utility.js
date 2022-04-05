@@ -7,7 +7,7 @@ import { gl } from './common.js';
  * @returns {number} amount of bytes.
  */
 function bytes(type) {
-	switch(type) {
+	switch (type) {
 		case gl.INT: case gl.UNSIGNED_INT: case gl.FLOAT: return 4;
 		case gl.SHORT: case gl.UNSIGNED_SHORT: return 2;
 		case gl.BYTE: case gl.UNSIGNED_BYTE: return 1;
@@ -24,9 +24,9 @@ function bytes(type) {
  * @returns {Object} Object with 'data' and 'path' string properties.
  */
 function loadFile(path, type = 'text', callback) {
-	let returnValue = {data: "", path};
+	let returnValue = { data: "", path };
 
-	const options = {method: 'GET'};
+	const options = { method: 'GET' };
 	fetch(path, options).then((res) => {
 		return res[type]();
 	}).then((data) => {
@@ -48,20 +48,20 @@ function loadFile(path, type = 'text', callback) {
  */
 function generateId(length = 8, lowercase = true, uppercase = false, numbers = false, idList) {
 	let id = '', vocab = [];
-	if(lowercase) vocab.push('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z');
-	if(uppercase) vocab.push('A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');
-	if(numbers) vocab.push(0,1,2,3,4,5,6,7,8,9);
+	if (lowercase) vocab.push('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
+	if (uppercase) vocab.push('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
+	if (numbers) vocab.push(0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
 
-	if(idList !== undefined) {
+	if (idList !== undefined) {
 		do {
 			id = '';
 			generate();
-		} while(idList.every((listId) => listId !== id) === false);
+		} while (idList.every((listId) => listId !== id) === false);
 	} else generate();
 
 	return id;
 
-	function generate() { for(let i = 0; i < length; i++) id += vocab[Math.floor(Math.random() * vocab.length)]; }
+	function generate() { for (let i = 0; i < length; i++) id += vocab[Math.floor(Math.random() * vocab.length)]; }
 }
 
 export {

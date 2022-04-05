@@ -50,7 +50,7 @@ let indices = undefined;
  * @readonly
  * @memberof HB
  */
-class VertexBuffer{
+class VertexBuffer {
 	/**
 	 * (DO NOT USE) Internal use by Hummingbird only.
 	 * @constructor
@@ -71,7 +71,7 @@ class VertexBuffer{
 	 * @readonly
 	 */
 	static init(maxVertexCount = 4000) {
-		vertices = new Float32Array(maxVertexCount*vertexStride);
+		vertices = new Float32Array(maxVertexCount * vertexStride);
 		vertexBuffer = new VertexBuffer(vertices);
 	}
 
@@ -114,7 +114,7 @@ class VertexBuffer{
  * @readonly
  * @memberof HB
  */
-class IndexBuffer{
+class IndexBuffer {
 	/**
 	 * (DO NOT USE) Internal use by Hummingbird only.
 	 * @constructor
@@ -178,7 +178,7 @@ class IndexBuffer{
  * @readonly
  * @memberof HB
  */
-class VertexArray{
+class VertexArray {
 	/**
 	 * (DO NOT USE) Internal use by Hummingbird only.
 	 * @constructor
@@ -205,7 +205,7 @@ class VertexArray{
 		 * @readonly
 		 * @alias HB.VertexArray.Layout
 		 */
-		class Layout{
+		class Layout {
 			/**
 			 * (DO NOT USE) Internal use by Hummingbird only, sets {@link HB.vertexStride} to 0.
 			 * @constructor
@@ -230,8 +230,8 @@ class VertexArray{
 			add(name, type, count, normalized = false) {
 				vertexStride += count;
 				const index = shader.getAttribLocation(name);
-				if(index !== -1) this.elements.push({ index: index, type: type, count: count, normalized: normalized });
-				this.stride += count*bytes(type);
+				if (index !== -1) this.elements.push({ index: index, type: type, count: count, normalized: normalized });
+				this.stride += count * bytes(type);
 				return index;
 			}
 
@@ -284,7 +284,7 @@ class VertexArray{
 		this.layout.elements.forEach((element) => {
 			gl.enableVertexAttribArray(element.index);
 			gl.vertexAttribPointer(element.index, element.count, element.type, element.normalized, this.layout.stride, offset);
-			offset += element.count*bytes(element.type);
+			offset += element.count * bytes(element.type);
 		});
 	}
 
@@ -293,15 +293,15 @@ class VertexArray{
 	 * @readonly
 	 */
 	bind() { this.ext.bindVertexArrayOES(this.id); }
-	 /**
-	 * (DO NOT USE) Method to bind an empty vertex array object (set this one as inactive).
-	 * @readonly
-	 */
+	/**
+	* (DO NOT USE) Method to bind an empty vertex array object (set this one as inactive).
+	* @readonly
+	*/
 	unbind() { this.ext.bindVertexArrayOES(null); }
-	 /**
-	 * (DO NOT USE) Method to unbind, disable attributes and then delete this vertex array object, is called from {@link HB.Renderer#delete}.
-	 * @readonly
-	 */
+	/**
+	* (DO NOT USE) Method to unbind, disable attributes and then delete this vertex array object, is called from {@link HB.Renderer#delete}.
+	* @readonly
+	*/
 	delete() {
 		this.unbind();
 		vertexArray.layout.elements.forEach((element) => gl.disableVertexAttribArray(element.index));

@@ -7,7 +7,8 @@ import { shader } from './shader.js';
  */
 const shaders = {
 	colored: {
-		vertex: () => { return `
+		vertex: () => {
+			return `
 			attribute vec4 aVertexPosition;
 			attribute vec4 aVertexColor;
 			attribute vec2 aTexturePosition;
@@ -65,7 +66,7 @@ const shaders = {
 			}
 		`}, init: () => {
 			const textureSamplers = [];
-			for(let i = 0; i < renderer.textureUnits; i++) { textureSamplers[i] = i; }
+			for (let i = 0; i < renderer.textureUnits; i++) { textureSamplers[i] = i; }
 			shader.setUniformArray('i', 'uTextureIds', textureSamplers);
 		}
 	}

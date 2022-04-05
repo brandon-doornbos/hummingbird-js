@@ -26,7 +26,7 @@ let font = undefined;
  * Class with all of the initialization and methods for a texture.
  * @memberof HB
  */
-class Texture{
+class Texture {
 	/**
 	 * Construct this for the texture to be added to the {@link HB.textures} Object, so you do not have to assign the instance to a value, it gets added to 'out' automatically.
 	 * @constructor
@@ -38,16 +38,16 @@ class Texture{
 	 * @param {number} wrap=gl.CLAMP_TO_EDGE - WebGL enum value for texture wrapping, see gl.TEXTURE_WRAP_S/T on [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/texParameter#parameters}.
 	 * @memberof HB
 	 */
-	constructor(name, path, out = textures, callback = function() { console.log("Texture loaded: "+this.name); }, filter = gl.LINEAR, wrap = gl.CLAMP_TO_EDGE) {
+	constructor(name, path, out = textures, callback = function () { console.log("Texture loaded: " + this.name); }, filter = gl.LINEAR, wrap = gl.CLAMP_TO_EDGE) {
 		this.id = gl.createTexture();
 		this.createTexture(path, filter, wrap);
 		this.name = name;
 
-		if(out === undefined) {
+		if (out === undefined) {
 			textures[this.name] = this;
-		} else if(Array.isArray(out)) {
+		} else if (Array.isArray(out)) {
 			out.push(this);
-		} else if(out instanceof Object) {
+		} else if (out instanceof Object) {
 			out[this.name] = this;
 		}
 
@@ -66,21 +66,21 @@ class Texture{
 		textures.Hummingbird_Error.onLoadCallback();
 
 		const circleSize = 1000;
-		const circle = new Uint8Array(circleSize*circleSize*4);
-		for(let x = 0; x < circleSize; x++) {
-			for(let y = 0; y < circleSize; y++) {
-				const index = (x*circleSize+y)*4;
+		const circle = new Uint8Array(circleSize * circleSize * 4);
+		for (let x = 0; x < circleSize; x++) {
+			for (let y = 0; y < circleSize; y++) {
+				const index = (x * circleSize + y) * 4;
 
-				if(Math.dist(x, y, circleSize/2, circleSize/2) < circleSize/2) {
-					circle[index  ] = 255;
-					circle[index+1] = 255;
-					circle[index+2] = 255;
-					circle[index+3] = 255;
+				if (Math.dist(x, y, circleSize / 2, circleSize / 2) < circleSize / 2) {
+					circle[index] = 255;
+					circle[index + 1] = 255;
+					circle[index + 2] = 255;
+					circle[index + 3] = 255;
 				} else {
-					circle[index  ] = 0;
-					circle[index+1] = 0;
-					circle[index+2] = 0;
-					circle[index+3] = 0;
+					circle[index] = 0;
+					circle[index + 1] = 0;
+					circle[index + 2] = 0;
+					circle[index + 3] = 0;
 				}
 			}
 		}
@@ -120,7 +120,7 @@ class Texture{
 		this.bind();
 		this.setErrorTexture();
 
-		if(path === undefined) return;
+		if (path === undefined) return;
 
 		const image = new Image();
 		image.onload = () => {

@@ -3,7 +3,7 @@
  * @alias HB.Math.SeededRandom
  * @memberof HB
  */
-class SeededRandom{
+class SeededRandom {
 	/**
 	 * Create a new randomizer with a seed to extract values from.
 	 * @param {number} seed - Integer to use as seed, defaults to current time in milliseconds.
@@ -25,18 +25,18 @@ class SeededRandom{
 		this.t = Math.imul(this.t ^ this.t >>> 15, this.t | 1);
 		this.t ^= this.t + Math.imul(this.t ^ this.t >>> 7, this.t | 61);
 		let res = ((this.t ^ this.t >>> 14) >>> 0);
-		if(integer === false) {
+		if (integer === false) {
 			res /= 4294967296;
-			if(high !== undefined) {
-				return res * (high-low) + low;
-			} else if(low !== undefined) {
+			if (high !== undefined) {
+				return res * (high - low) + low;
+			} else if (low !== undefined) {
 				return res * low;
 			}
 		} else {
-			if(high !== undefined) {
-				return Math.floor(res/4294967296 * (high-low) + low);
-			} else if(low !== undefined) {
-				return Math.floor(res/4294967296 * low);
+			if (high !== undefined) {
+				return Math.floor(res / 4294967296 * (high - low) + low);
+			} else if (low !== undefined) {
+				return Math.floor(res / 4294967296 * low);
 			}
 		}
 		return res;
@@ -48,7 +48,7 @@ class SeededRandom{
  * @alias HB.Math.Noise
  * @memberof HB
  */
-class Noise{
+class Noise {
 	/**
 	 * Create a new Noise class.
 	 * @param {number} amp - The amplitude of the noise.
@@ -57,7 +57,7 @@ class Noise{
 	 */
 	constructor(amp = 1, scl = 0.05, randFunc = Math.random) {
 		this.vertices = 256, this.amp = amp, this.scl = scl, this.r = [];
-		for(let i = 0; i < this.vertices; i++) this.r.push(randFunc());
+		for (let i = 0; i < this.vertices; i++) this.r.push(randFunc());
 	}
 
 	/**
@@ -66,9 +66,9 @@ class Noise{
 	 * @returns {number}
 	 */
 	value(x) {
-		const sclX = x*this.scl, floorX = Math.floor(sclX), t = sclX-floorX;
-		const xMin = floorX & this.vertices-1, xMax = (xMin + 1) & this.vertices-1;
-		return HBMath.lerp(this.r[xMin], this.r[xMax], t*t*(3-2*t)) * this.amp;
+		const sclX = x * this.scl, floorX = Math.floor(sclX), t = sclX - floorX;
+		const xMin = floorX & this.vertices - 1, xMax = (xMin + 1) & this.vertices - 1;
+		return HBMath.lerp(this.r[xMin], this.r[xMax], t * t * (3 - 2 * t)) * this.amp;
 	}
 }
 
@@ -89,14 +89,14 @@ function initMathObjects() {
  * @alias HB.Math
  * @memberof HB
  */
-class HBMath{
+class HBMath {
 	/**
 	 * Method to convert cartesian degrees to radians.
 	 * @param {number} degrees - The amount of degrees to convert.
 	 * @returns {number}
 	 */
 	static radians(degrees) {
-		return degrees*(Math.PI/180);
+		return degrees * (Math.PI / 180);
 	}
 	/**
 	 * Method to convert radians to cartesian degrees.
@@ -104,7 +104,7 @@ class HBMath{
 	 * @returns {number}
 	 */
 	static degrees(radians) { // convert radians to degrees
-		return radians*(180/Math.PI);
+		return radians * (180 / Math.PI);
 	}
 	/**
 	 * Method to get the distance between two 2D points.
@@ -115,7 +115,7 @@ class HBMath{
 	 * @returns {number}
 	 */
 	static dist(x1, y1, x2, y2) { // gets distance between 2 x+y pairs
-		return Math.sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
+		return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 	}
 	/**
 	 * Method to map a number to another range.
@@ -136,9 +136,9 @@ class HBMath{
 	 * @returns {number}
 	 */
 	static random(low, high) {
-		if(high !== undefined) {
-			return Math.random() * (high-low) + low;
-		} else if(low !== undefined) {
+		if (high !== undefined) {
+			return Math.random() * (high - low) + low;
+		} else if (low !== undefined) {
 			return Math.random() * low;
 		} else {
 			return Math.random();
@@ -161,7 +161,7 @@ class HBMath{
 	 * @returns {number}
 	 */
 	static lerp(start, end, amt) {
-		return start+amt*(end-start);
+		return start + amt * (end - start);
 	}
 	/**
 	 * Method to constrain a value in a range.
@@ -171,9 +171,9 @@ class HBMath{
 	 * @returns {number} Original value if it is not constrained.
 	 */
 	static constrain(value, min, max) {
-		if(value > max) {
+		if (value > max) {
 			return max;
-		} else if(value < min) {
+		} else if (value < min) {
 			return min;
 		} else {
 			return value;
@@ -187,9 +187,9 @@ class HBMath{
 	 * @returns {number} Original value if it is not wrapped.
 	 */
 	static wrap(value, min, max) {
-		if(value > max) {
+		if (value > max) {
 			return min;
-		} else if(value < min) {
+		} else if (value < min) {
 			return max;
 		} else {
 			return value;
@@ -205,10 +205,10 @@ class HBMath{
 	 */
 	static rectRectCollision(vectorA, sizeA, vectorB, sizeB) {
 		return (
-			Math.abs((vectorA.x+sizeA.x/2)-(vectorB.x+sizeB.x/2))*2 < (sizeA.x+sizeB.x)
+			Math.abs((vectorA.x + sizeA.x / 2) - (vectorB.x + sizeB.x / 2)) * 2 < (sizeA.x + sizeB.x)
 		) && (
-			Math.abs((vectorA.y+sizeA.y/2)-(vectorB.y+sizeB.y/2))*2 < (sizeA.y+sizeB.y)
-		);
+				Math.abs((vectorA.y + sizeA.y / 2) - (vectorB.y + sizeB.y / 2)) * 2 < (sizeA.y + sizeB.y)
+			);
 	}
 	/**
 	 * Method to check for a collision between an axis-aligned rectangle and a circle.
@@ -219,9 +219,9 @@ class HBMath{
 	 * @returns {boolean} true if colliding.
 	 */
 	static rectCircleCollision(rectPos, rectSize, circleCenter, circleRadius) {
-		const dx = circleCenter.x-Math.max(rectPos.x, Math.min(circleCenter.x, rectPos.x+rectSize.x));
-		const dy = circleCenter.y-Math.max(rectPos.y, Math.min(circleCenter.y, rectPos.y+rectSize.y));
-		return (dx*dx + dy*dy) < circleRadius*circleRadius;
+		const dx = circleCenter.x - Math.max(rectPos.x, Math.min(circleCenter.x, rectPos.x + rectSize.x));
+		const dy = circleCenter.y - Math.max(rectPos.y, Math.min(circleCenter.y, rectPos.y + rectSize.y));
+		return (dx * dx + dy * dy) < circleRadius * circleRadius;
 	}
 }
 
@@ -229,13 +229,13 @@ class HBMath{
  * 2D vector class.
  * @memberof HB
  */
-class Vec2{
+class Vec2 {
 	/**
 	 * Since static class properties are not widely supported, an init function is needed to set the 'zero' and 'one' vector. Is called automatically by {@link HB.initMathObjects}.
 	 */
 	static init() {
-		Vec2.zero = {x: 0, y: 0};
-		Vec2.one = {x: 1, y: 1};
+		Vec2.zero = { x: 0, y: 0 };
+		Vec2.one = { x: 1, y: 1 };
 	}
 
 	/**
@@ -383,7 +383,7 @@ class Vec2{
 	 * @returns {number} Distance between the vectors.
 	 */
 	static distBetweenVec2(vectorA, vectorB) {
-		return Math.sqrt((vectorB.x-vectorA.x)*(vectorB.x-vectorA.x) + (vectorB.y-vectorA.y)*(vectorB.y-vectorA.y));
+		return Math.sqrt((vectorB.x - vectorA.x) * (vectorB.x - vectorA.x) + (vectorB.y - vectorA.y) * (vectorB.y - vectorA.y));
 	}
 
 	/**
@@ -395,14 +395,14 @@ class Vec2{
 	 */
 	static collidesRect(vector, rectPos, rectSize) {
 		return ((
-			vector.x < rectPos.x+rectSize.x
+			vector.x < rectPos.x + rectSize.x
 		) && (
-			vector.x > rectPos.x
-		) && (
-			vector.y < rectPos.y+rectSize.y
-		) && (
-			vector.y > rectPos.y
-		));
+				vector.x > rectPos.x
+			) && (
+				vector.y < rectPos.y + rectSize.y
+			) && (
+				vector.y > rectPos.y
+			));
 	}
 }
 
@@ -410,7 +410,7 @@ class Vec2{
  * 3D vector class.
  * @memberof HB
  */
-class Vec3{
+class Vec3 {
 	/**
 	 * Since static class properties are not widely supported, an init function is needed to set the 'zero' and 'one' vector. Is called automatically by {@link HB.initMathObjects}.
 	 */
@@ -536,7 +536,7 @@ class Vec3{
  * 4D vector class.
  * @memberof HB
  */
-class Vec4{
+class Vec4 {
 	/**
 	 * Since static class properties are not widely supported, an init function is needed to set the 'zero' and 'one' vector. Is called automatically by {@link HB.initMathObjects}.
 	 * Also sets {@link HB.Vec4.colors}, an object with all of the HTML colors indexed by name, see [W3Schools]{@link https://www.w3schools.com/colors/colors_names.asp}.
@@ -546,154 +546,154 @@ class Vec4{
 		Vec4.one = { x: 1, y: 1, z: 1, w: 1 };
 
 		Vec4.colors = {
-			AliceBlue:{x:0.94,y:0.97,z:1,w:1},
-			AntiqueWhite:{x:0.98,y:0.92,z:0.84,w:1},
-			Aqua:{x:0,y:1,z:1,w:1},
-			Aquamarine:{x:0.5,y:1,z:0.83,w:1},
-			Azure:{x:0.94,y:1,z:1,w:1},
-			Beige:{x:0.96,y:0.96,z:0.86,w:1},
-			Bisque:{x:1,y:0.89,z:0.77,w:1},
-			Black:{x:0,y:0,z:0,w:1},
-			BlanchedAlmond:{x:1,y:0.92,z:0.8,w:1},
-			Blue:{x:0,y:0,z:1,w:1},
-			BlueViolet:{x:0.54,y:0.17,z:0.89,w:1},
-			Brown:{x:0.65,y:0.16,z:0.16,w:1},
-			BurlyWood:{x:0.87,y:0.72,z:0.53,w:1},
-			CadetBlue:{x:0.37,y:0.62,z:0.63,w:1},
-			Chartreuse:{x:0.5,y:1,z:0,w:1},
-			Chocolate:{x:0.82,y:0.41,z:0.12,w:1},
-			Coral:{x:1,y:0.5,z:0.31,w:1},
-			CornflowerBlue:{x:0.39,y:0.58,z:0.93,w:1},
-			Cornsilk:{x:1,y:0.97,z:0.86,w:1},
-			Crimson:{x:0.86,y:0.08,z:0.24,w:1},
-			Cyan:{x:0,y:1,z:1,w:1},
-			DarkBlue:{x:0,y:0,z:0.55,w:1},
-			DarkCyan:{x:0,y:0.55,z:0.55,w:1},
-			DarkGoldenRod:{x:0.72,y:0.53,z:0.04,w:1},
-			DarkGray:{x:0.66,y:0.66,z:0.66,w:1},
-			DarkGrey:{x:0.66,y:0.66,z:0.66,w:1},
-			DarkGreen:{x:0,y:0.39,z:0,w:1},
-			DarkKhaki:{x:0.74,y:0.72,z:0.42,w:1},
-			DarkMagenta:{x:0.55,y:0,z:0.55,w:1},
-			DarkOliveGreen:{x:0.33,y:0.42,z:0.18,w:1},
-			DarkOrange:{x:1,y:0.55,z:0,w:1},
-			DarkOrchid:{x:0.6,y:0.2,z:0.8,w:1},
-			DarkRed:{x:0.55,y:0,z:0,w:1},
-			DarkSalmon:{x:0.91,y:0.59,z:0.48,w:1},
-			DarkSeaGreen:{x:0.56,y:0.74,z:0.56,w:1},
-			DarkSlateBlue:{x:0.28,y:0.24,z:0.55,w:1},
-			DarkSlateGray:{x:0.18,y:0.31,z:0.31,w:1},
-			DarkSlateGrey:{x:0.18,y:0.31,z:0.31,w:1},
-			DarkTurquoise:{x:0,y:0.81,z:0.82,w:1},
-			DarkViolet:{x:0.58,y:0,z:0.83,w:1},
-			DeepPink:{x:1,y:0.08,z:0.58,w:1},
-			DeepSkyBlue:{x:0,y:0.75,z:1,w:1},
-			DimGray:{x:0.41,y:0.41,z:0.41,w:1},
-			DimGrey:{x:0.41,y:0.41,z:0.41,w:1},
-			DodgerBlue:{x:0.12,y:0.56,z:1,w:1},
-			FireBrick:{x:0.7,y:0.13,z:0.13,w:1},
-			FloralWhite:{x:1,y:0.98,z:0.94,w:1},
-			ForestGreen:{x:0.13,y:0.55,z:0.13,w:1},
-			Fuchsia:{x:1,y:0,z:1,w:1},
-			Gainsboro:{x:0.86,y:0.86,z:0.86,w:1},
-			GhostWhite:{x:0.97,y:0.97,z:1,w:1},
-			Gold:{x:1,y:0.84,z:0,w:1},
-			GoldenRod:{x:0.85,y:0.65,z:0.13,w:1},
-			Gray:{x:0.5,y:0.5,z:0.5,w:1},
-			Grey:{x:0.5,y:0.5,z:0.5,w:1},
-			Green:{x:0,y:0.5,z:0,w:1},
-			GreenYellow:{x:0.68,y:1,z:0.18,w:1},
-			HoneyDew:{x:0.94,y:1,z:0.94,w:1},
-			HotPink:{x:1,y:0.41,z:0.71,w:1},
-			IndianRed:{x:0.8,y:0.36,z:0.36,w:1},
-			Indigo:{x:0.29,y:0,z:0.51,w:1},
-			Ivory:{x:1,y:1,z:0.94,w:1},
-			Khaki:{x:0.94,y:0.9,z:0.55,w:1},
-			Lavender:{x:0.9,y:0.9,z:0.98,w:1},
-			LavenderBlush:{x:1,y:0.94,z:0.96,w:1},
-			LawnGreen:{x:0.49,y:0.99,z:0,w:1},
-			LemonChiffon:{x:1,y:0.98,z:0.8,w:1},
-			LightBlue:{x:0.68,y:0.85,z:0.9,w:1},
-			LightCoral:{x:0.94,y:0.5,z:0.5,w:1},
-			LightCyan:{x:0.88,y:1,z:1,w:1},
-			LightGoldenRodYellow:{x:0.98,y:0.98,z:0.82,w:1},
-			LightGray:{x:0.83,y:0.83,z:0.83,w:1},
-			LightGrey:{x:0.83,y:0.83,z:0.83,w:1},
-			LightGreen:{x:0.56,y:0.93,z:0.56,w:1},
-			LightPink:{x:1,y:0.71,z:0.76,w:1},
-			LightSalmon:{x:1,y:0.63,z:0.48,w:1},
-			LightSeaGreen:{x:0.13,y:0.7,z:0.67,w:1},
-			LightSkyBlue:{x:0.53,y:0.81,z:0.98,w:1},
-			LightSlateGray:{x:0.47,y:0.53,z:0.6,w:1},
-			LightSlateGrey:{x:0.47,y:0.53,z:0.6,w:1},
-			LightSteelBlue:{x:0.69,y:0.77,z:0.87,w:1},
-			LightYellow:{x:1,y:1,z:0.88,w:1},
-			Lime:{x:0,y:1,z:0,w:1},
-			LimeGreen:{x:0.2,y:0.8,z:0.2,w:1},
-			Linen:{x:0.98,y:0.94,z:0.9,w:1},
-			Magenta:{x:1,y:0,z:1,w:1},
-			Maroon:{x:0.5,y:0,z:0,w:1},
-			MediumAquaMarine:{x:0.4,y:0.8,z:0.67,w:1},
-			MediumBlue:{x:0,y:0,z:0.8,w:1},
-			MediumOrchid:{x:0.73,y:0.33,z:0.83,w:1},
-			MediumPurple:{x:0.58,y:0.44,z:0.86,w:1},
-			MediumSeaGreen:{x:0.24,y:0.7,z:0.44,w:1},
-			MediumSlateBlue:{x:0.48,y:0.41,z:0.93,w:1},
-			MediumSpringGreen:{x:0,y:0.98,z:0.6,w:1},
-			MediumTurquoise:{x:0.28,y:0.82,z:0.8,w:1},
-			MediumVioletRed:{x:0.78,y:0.08,z:0.52,w:1},
-			MidnightBlue:{x:0.1,y:0.1,z:0.44,w:1},
-			MintCream:{x:0.96,y:1,z:0.98,w:1},
-			MistyRose:{x:1,y:0.89,z:0.88,w:1},
-			Moccasin:{x:1,y:0.89,z:0.71,w:1},
-			NavajoWhite:{x:1,y:0.87,z:0.68,w:1},
-			Navy:{x:0,y:0,z:0.5,w:1},
-			OldLace:{x:0.99,y:0.96,z:0.9,w:1},
-			Olive:{x:0.5,y:0.5,z:0,w:1},
-			OliveDrab:{x:0.42,y:0.56,z:0.14,w:1},
-			Orange:{x:1,y:0.65,z:0,w:1},
-			OrangeRed:{x:1,y:0.27,z:0,w:1},
-			Orchid:{x:0.85,y:0.44,z:0.84,w:1},
-			PaleGoldenRod:{x:0.93,y:0.91,z:0.67,w:1},
-			PaleGreen:{x:0.6,y:0.98,z:0.6,w:1},
-			PaleTurquoise:{x:0.69,y:0.93,z:0.93,w:1},
-			PaleVioletRed:{x:0.86,y:0.44,z:0.58,w:1},
-			PapayaWhip:{x:1,y:0.94,z:0.84,w:1},
-			PeachPuff:{x:1,y:0.85,z:0.73,w:1},
-			Peru:{x:0.8,y:0.52,z:0.25,w:1},
-			Pink:{x:1,y:0.75,z:0.8,w:1},
-			Plum:{x:0.87,y:0.63,z:0.87,w:1},
-			PowderBlue:{x:0.69,y:0.88,z:0.9,w:1},
-			Purple:{x:0.5,y:0,z:0.5,w:1},
-			RebeccaPurple:{x:0.4,y:0.2,z:0.6,w:1},
-			Red:{x:1,y:0,z:0,w:1},
-			RosyBrown:{x:0.74,y:0.56,z:0.56,w:1},
-			RoyalBlue:{x:0.25,y:0.41,z:0.88,w:1},
-			SaddleBrown:{x:0.55,y:0.27,z:0.07,w:1},
-			Salmon:{x:0.98,y:0.5,z:0.45,w:1},
-			SandyBrown:{x:0.96,y:0.64,z:0.38,w:1},
-			SeaGreen:{x:0.18,y:0.55,z:0.34,w:1},
-			SeaShell:{x:1,y:0.96,z:0.93,w:1},
-			Sienna:{x:0.63,y:0.32,z:0.18,w:1},
-			Silver:{x:0.75,y:0.75,z:0.75,w:1},
-			SkyBlue:{x:0.53,y:0.81,z:0.92,w:1},
-			SlateBlue:{x:0.42,y:0.35,z:0.8,w:1},
-			SlateGray:{x:0.44,y:0.5,z:0.56,w:1},
-			SlateGrey:{x:0.44,y:0.5,z:0.56,w:1},
-			Snow:{x:1,y:0.98,z:0.98,w:1},
-			SpringGreen:{x:0,y:1,z:0.5,w:1},
-			SteelBlue:{x:0.27,y:0.51,z:0.71,w:1},
-			Tan:{x:0.82,y:0.71,z:0.55,w:1},
-			Teal:{x:0,y:0.5,z:0.5,w:1},
-			Thistle:{x:0.85,y:0.75,z:0.85,w:1},
-			Tomato:{x:1,y:0.39,z:0.28,w:1},
-			Turquoise:{x:0.25,y:0.88,z:0.82,w:1},
-			Violet:{x:0.93,y:0.51,z:0.93,w:1},
-			Wheat:{x:0.96,y:0.87,z:0.7,w:1},
-			White:{x:1,y:1,z:1,w:1},
-			WhiteSmoke:{x:0.96,y:0.96,z:0.96,w:1},
-			Yellow:{x:1,y:1,z:0,w:1},
-			YellowGreen:{x:0.6,y:0.8,z:0.2,w:1}
+			AliceBlue: { x: 0.94, y: 0.97, z: 1, w: 1 },
+			AntiqueWhite: { x: 0.98, y: 0.92, z: 0.84, w: 1 },
+			Aqua: { x: 0, y: 1, z: 1, w: 1 },
+			Aquamarine: { x: 0.5, y: 1, z: 0.83, w: 1 },
+			Azure: { x: 0.94, y: 1, z: 1, w: 1 },
+			Beige: { x: 0.96, y: 0.96, z: 0.86, w: 1 },
+			Bisque: { x: 1, y: 0.89, z: 0.77, w: 1 },
+			Black: { x: 0, y: 0, z: 0, w: 1 },
+			BlanchedAlmond: { x: 1, y: 0.92, z: 0.8, w: 1 },
+			Blue: { x: 0, y: 0, z: 1, w: 1 },
+			BlueViolet: { x: 0.54, y: 0.17, z: 0.89, w: 1 },
+			Brown: { x: 0.65, y: 0.16, z: 0.16, w: 1 },
+			BurlyWood: { x: 0.87, y: 0.72, z: 0.53, w: 1 },
+			CadetBlue: { x: 0.37, y: 0.62, z: 0.63, w: 1 },
+			Chartreuse: { x: 0.5, y: 1, z: 0, w: 1 },
+			Chocolate: { x: 0.82, y: 0.41, z: 0.12, w: 1 },
+			Coral: { x: 1, y: 0.5, z: 0.31, w: 1 },
+			CornflowerBlue: { x: 0.39, y: 0.58, z: 0.93, w: 1 },
+			Cornsilk: { x: 1, y: 0.97, z: 0.86, w: 1 },
+			Crimson: { x: 0.86, y: 0.08, z: 0.24, w: 1 },
+			Cyan: { x: 0, y: 1, z: 1, w: 1 },
+			DarkBlue: { x: 0, y: 0, z: 0.55, w: 1 },
+			DarkCyan: { x: 0, y: 0.55, z: 0.55, w: 1 },
+			DarkGoldenRod: { x: 0.72, y: 0.53, z: 0.04, w: 1 },
+			DarkGray: { x: 0.66, y: 0.66, z: 0.66, w: 1 },
+			DarkGrey: { x: 0.66, y: 0.66, z: 0.66, w: 1 },
+			DarkGreen: { x: 0, y: 0.39, z: 0, w: 1 },
+			DarkKhaki: { x: 0.74, y: 0.72, z: 0.42, w: 1 },
+			DarkMagenta: { x: 0.55, y: 0, z: 0.55, w: 1 },
+			DarkOliveGreen: { x: 0.33, y: 0.42, z: 0.18, w: 1 },
+			DarkOrange: { x: 1, y: 0.55, z: 0, w: 1 },
+			DarkOrchid: { x: 0.6, y: 0.2, z: 0.8, w: 1 },
+			DarkRed: { x: 0.55, y: 0, z: 0, w: 1 },
+			DarkSalmon: { x: 0.91, y: 0.59, z: 0.48, w: 1 },
+			DarkSeaGreen: { x: 0.56, y: 0.74, z: 0.56, w: 1 },
+			DarkSlateBlue: { x: 0.28, y: 0.24, z: 0.55, w: 1 },
+			DarkSlateGray: { x: 0.18, y: 0.31, z: 0.31, w: 1 },
+			DarkSlateGrey: { x: 0.18, y: 0.31, z: 0.31, w: 1 },
+			DarkTurquoise: { x: 0, y: 0.81, z: 0.82, w: 1 },
+			DarkViolet: { x: 0.58, y: 0, z: 0.83, w: 1 },
+			DeepPink: { x: 1, y: 0.08, z: 0.58, w: 1 },
+			DeepSkyBlue: { x: 0, y: 0.75, z: 1, w: 1 },
+			DimGray: { x: 0.41, y: 0.41, z: 0.41, w: 1 },
+			DimGrey: { x: 0.41, y: 0.41, z: 0.41, w: 1 },
+			DodgerBlue: { x: 0.12, y: 0.56, z: 1, w: 1 },
+			FireBrick: { x: 0.7, y: 0.13, z: 0.13, w: 1 },
+			FloralWhite: { x: 1, y: 0.98, z: 0.94, w: 1 },
+			ForestGreen: { x: 0.13, y: 0.55, z: 0.13, w: 1 },
+			Fuchsia: { x: 1, y: 0, z: 1, w: 1 },
+			Gainsboro: { x: 0.86, y: 0.86, z: 0.86, w: 1 },
+			GhostWhite: { x: 0.97, y: 0.97, z: 1, w: 1 },
+			Gold: { x: 1, y: 0.84, z: 0, w: 1 },
+			GoldenRod: { x: 0.85, y: 0.65, z: 0.13, w: 1 },
+			Gray: { x: 0.5, y: 0.5, z: 0.5, w: 1 },
+			Grey: { x: 0.5, y: 0.5, z: 0.5, w: 1 },
+			Green: { x: 0, y: 0.5, z: 0, w: 1 },
+			GreenYellow: { x: 0.68, y: 1, z: 0.18, w: 1 },
+			HoneyDew: { x: 0.94, y: 1, z: 0.94, w: 1 },
+			HotPink: { x: 1, y: 0.41, z: 0.71, w: 1 },
+			IndianRed: { x: 0.8, y: 0.36, z: 0.36, w: 1 },
+			Indigo: { x: 0.29, y: 0, z: 0.51, w: 1 },
+			Ivory: { x: 1, y: 1, z: 0.94, w: 1 },
+			Khaki: { x: 0.94, y: 0.9, z: 0.55, w: 1 },
+			Lavender: { x: 0.9, y: 0.9, z: 0.98, w: 1 },
+			LavenderBlush: { x: 1, y: 0.94, z: 0.96, w: 1 },
+			LawnGreen: { x: 0.49, y: 0.99, z: 0, w: 1 },
+			LemonChiffon: { x: 1, y: 0.98, z: 0.8, w: 1 },
+			LightBlue: { x: 0.68, y: 0.85, z: 0.9, w: 1 },
+			LightCoral: { x: 0.94, y: 0.5, z: 0.5, w: 1 },
+			LightCyan: { x: 0.88, y: 1, z: 1, w: 1 },
+			LightGoldenRodYellow: { x: 0.98, y: 0.98, z: 0.82, w: 1 },
+			LightGray: { x: 0.83, y: 0.83, z: 0.83, w: 1 },
+			LightGrey: { x: 0.83, y: 0.83, z: 0.83, w: 1 },
+			LightGreen: { x: 0.56, y: 0.93, z: 0.56, w: 1 },
+			LightPink: { x: 1, y: 0.71, z: 0.76, w: 1 },
+			LightSalmon: { x: 1, y: 0.63, z: 0.48, w: 1 },
+			LightSeaGreen: { x: 0.13, y: 0.7, z: 0.67, w: 1 },
+			LightSkyBlue: { x: 0.53, y: 0.81, z: 0.98, w: 1 },
+			LightSlateGray: { x: 0.47, y: 0.53, z: 0.6, w: 1 },
+			LightSlateGrey: { x: 0.47, y: 0.53, z: 0.6, w: 1 },
+			LightSteelBlue: { x: 0.69, y: 0.77, z: 0.87, w: 1 },
+			LightYellow: { x: 1, y: 1, z: 0.88, w: 1 },
+			Lime: { x: 0, y: 1, z: 0, w: 1 },
+			LimeGreen: { x: 0.2, y: 0.8, z: 0.2, w: 1 },
+			Linen: { x: 0.98, y: 0.94, z: 0.9, w: 1 },
+			Magenta: { x: 1, y: 0, z: 1, w: 1 },
+			Maroon: { x: 0.5, y: 0, z: 0, w: 1 },
+			MediumAquaMarine: { x: 0.4, y: 0.8, z: 0.67, w: 1 },
+			MediumBlue: { x: 0, y: 0, z: 0.8, w: 1 },
+			MediumOrchid: { x: 0.73, y: 0.33, z: 0.83, w: 1 },
+			MediumPurple: { x: 0.58, y: 0.44, z: 0.86, w: 1 },
+			MediumSeaGreen: { x: 0.24, y: 0.7, z: 0.44, w: 1 },
+			MediumSlateBlue: { x: 0.48, y: 0.41, z: 0.93, w: 1 },
+			MediumSpringGreen: { x: 0, y: 0.98, z: 0.6, w: 1 },
+			MediumTurquoise: { x: 0.28, y: 0.82, z: 0.8, w: 1 },
+			MediumVioletRed: { x: 0.78, y: 0.08, z: 0.52, w: 1 },
+			MidnightBlue: { x: 0.1, y: 0.1, z: 0.44, w: 1 },
+			MintCream: { x: 0.96, y: 1, z: 0.98, w: 1 },
+			MistyRose: { x: 1, y: 0.89, z: 0.88, w: 1 },
+			Moccasin: { x: 1, y: 0.89, z: 0.71, w: 1 },
+			NavajoWhite: { x: 1, y: 0.87, z: 0.68, w: 1 },
+			Navy: { x: 0, y: 0, z: 0.5, w: 1 },
+			OldLace: { x: 0.99, y: 0.96, z: 0.9, w: 1 },
+			Olive: { x: 0.5, y: 0.5, z: 0, w: 1 },
+			OliveDrab: { x: 0.42, y: 0.56, z: 0.14, w: 1 },
+			Orange: { x: 1, y: 0.65, z: 0, w: 1 },
+			OrangeRed: { x: 1, y: 0.27, z: 0, w: 1 },
+			Orchid: { x: 0.85, y: 0.44, z: 0.84, w: 1 },
+			PaleGoldenRod: { x: 0.93, y: 0.91, z: 0.67, w: 1 },
+			PaleGreen: { x: 0.6, y: 0.98, z: 0.6, w: 1 },
+			PaleTurquoise: { x: 0.69, y: 0.93, z: 0.93, w: 1 },
+			PaleVioletRed: { x: 0.86, y: 0.44, z: 0.58, w: 1 },
+			PapayaWhip: { x: 1, y: 0.94, z: 0.84, w: 1 },
+			PeachPuff: { x: 1, y: 0.85, z: 0.73, w: 1 },
+			Peru: { x: 0.8, y: 0.52, z: 0.25, w: 1 },
+			Pink: { x: 1, y: 0.75, z: 0.8, w: 1 },
+			Plum: { x: 0.87, y: 0.63, z: 0.87, w: 1 },
+			PowderBlue: { x: 0.69, y: 0.88, z: 0.9, w: 1 },
+			Purple: { x: 0.5, y: 0, z: 0.5, w: 1 },
+			RebeccaPurple: { x: 0.4, y: 0.2, z: 0.6, w: 1 },
+			Red: { x: 1, y: 0, z: 0, w: 1 },
+			RosyBrown: { x: 0.74, y: 0.56, z: 0.56, w: 1 },
+			RoyalBlue: { x: 0.25, y: 0.41, z: 0.88, w: 1 },
+			SaddleBrown: { x: 0.55, y: 0.27, z: 0.07, w: 1 },
+			Salmon: { x: 0.98, y: 0.5, z: 0.45, w: 1 },
+			SandyBrown: { x: 0.96, y: 0.64, z: 0.38, w: 1 },
+			SeaGreen: { x: 0.18, y: 0.55, z: 0.34, w: 1 },
+			SeaShell: { x: 1, y: 0.96, z: 0.93, w: 1 },
+			Sienna: { x: 0.63, y: 0.32, z: 0.18, w: 1 },
+			Silver: { x: 0.75, y: 0.75, z: 0.75, w: 1 },
+			SkyBlue: { x: 0.53, y: 0.81, z: 0.92, w: 1 },
+			SlateBlue: { x: 0.42, y: 0.35, z: 0.8, w: 1 },
+			SlateGray: { x: 0.44, y: 0.5, z: 0.56, w: 1 },
+			SlateGrey: { x: 0.44, y: 0.5, z: 0.56, w: 1 },
+			Snow: { x: 1, y: 0.98, z: 0.98, w: 1 },
+			SpringGreen: { x: 0, y: 1, z: 0.5, w: 1 },
+			SteelBlue: { x: 0.27, y: 0.51, z: 0.71, w: 1 },
+			Tan: { x: 0.82, y: 0.71, z: 0.55, w: 1 },
+			Teal: { x: 0, y: 0.5, z: 0.5, w: 1 },
+			Thistle: { x: 0.85, y: 0.75, z: 0.85, w: 1 },
+			Tomato: { x: 1, y: 0.39, z: 0.28, w: 1 },
+			Turquoise: { x: 0.25, y: 0.88, z: 0.82, w: 1 },
+			Violet: { x: 0.93, y: 0.51, z: 0.93, w: 1 },
+			Wheat: { x: 0.96, y: 0.87, z: 0.7, w: 1 },
+			White: { x: 1, y: 1, z: 1, w: 1 },
+			WhiteSmoke: { x: 0.96, y: 0.96, z: 0.96, w: 1 },
+			Yellow: { x: 1, y: 1, z: 0, w: 1 },
+			YellowGreen: { x: 0.6, y: 0.8, z: 0.2, w: 1 }
 		};
 	}
 
@@ -737,7 +737,7 @@ class Vec4{
  * 4x4 matrix class.
  * @memberof HB
  */
-class Mat4{
+class Mat4 {
 	/**
 	 * Use this for creating a new matrix.
 	 * @param {number} identity - Value to use in 'aa', 'bb', 'cc' and 'dd'.
@@ -822,12 +822,12 @@ class Mat4{
 	 * @see [Wikipedia]{@link https://en.wikipedia.org/wiki/Orthographic_projection#Geometry}
 	 */
 	static orthographic(out, left, right, top, bottom, near = -1, far = 1) {
-		const rl = right-left, tb = top-bottom, fn = far-near;
+		const rl = right - left, tb = top - bottom, fn = far - near;
 
-		out.aa = 2/rl, out.ab =    0, out.ac =     0, out.ad = -(right+left)/rl;
-		out.ba =    0, out.bb = 2/tb, out.bc =     0, out.bd = -(top+bottom)/tb;
-		out.ca =    0, out.cb =    0, out.cc = -2/fn, out.cd =   -(far+near)/fn;
-		out.da =    0, out.db =    0, out.dc =     0, out.dd =                1;
+		out.aa = 2 / rl, out.ab = 0, out.ac = 0, out.ad = -(right + left) / rl;
+		out.ba = 0, out.bb = 2 / tb, out.bc = 0, out.bd = -(top + bottom) / tb;
+		out.ca = 0, out.cb = 0, out.cc = -2 / fn, out.cd = -(far + near) / fn;
+		out.da = 0, out.db = 0, out.dc = 0, out.dd = 1;
 
 		return out;
 	}
@@ -923,8 +923,8 @@ class Mat4{
 	 * @returns {Object} The 'out' matrix.
 	 */
 	static rotate(out, matrix, up, angle) {
-		const sinAngle = Math.sin(angle/2);
-		const x = up.x * sinAngle, y = up.y * sinAngle, z = up.z * sinAngle, w = Math.cos(angle/2);
+		const sinAngle = Math.sin(angle / 2);
+		const x = up.x * sinAngle, y = up.y * sinAngle, z = up.z * sinAngle, w = Math.cos(angle / 2);
 
 		const x2 = x + x, y2 = y + y, z2 = z + z;
 
@@ -934,9 +934,9 @@ class Mat4{
 		const wx = w * x2, wy = w * y2, wz = w * z2;
 
 		return this.multMat4(out, matrix, {
-			aa: 1-yy-zz, ab: yx+wz, ac: zx-wy, ad: 0,
-			ba: yx-wz, bb: 1-xx-zz, bc: zy+wx, bd: 0,
-			ca: zx+wy, cb: zy+wx, cc: 1-xx-yy, cd: 0,
+			aa: 1 - yy - zz, ab: yx + wz, ac: zx - wy, ad: 0,
+			ba: yx - wz, bb: 1 - xx - zz, bc: zy + wx, bd: 0,
+			ca: zx + wy, cb: zy + wx, cc: 1 - xx - yy, cd: 0,
 			da: 0, db: 0, dc: 0, dd: 1
 		});
 	}

@@ -1,7 +1,7 @@
 import { gl } from './common.js';
 import { Camera } from "./camera.js";
 import { shader, Shader } from "./shader.js";
-import { VertexArray, vertexArray, vertexStride, vertexBuffer, vertices, indexBuffer, indices } from "./buffer.js";
+import { VertexArray, vertexArray, vertexBuffer, vertices, indexBuffer, indices } from "./buffer.js";
 import { Texture, textures, font, fontData } from "./texture.js";
 import { Vec2 } from './math.js';
 
@@ -322,7 +322,7 @@ class Renderer {
 	 * @param {HB.Vec4} color - Color of the triangle.
 	 */
 	drawBatchedTriangle(x1, y1, x2, y2, x3, y3, color) {
-		const start = this.batchedVertexCount * vertexStride;
+		const start = this.batchedVertexCount * vertexArray.layout.stride;
 		vertices[start] = x1;
 		vertices[start + 1] = y1;
 		vertices[start + 2] = color.x;
@@ -410,7 +410,7 @@ class Renderer {
 	 * @param {number} sh=1 - UV height of the texture, 0-1.
 	 */
 	drawArbitraryBatchedQuad(x0, y0, x1, y1, x2, y2, x3, y3, tex = 0, col = HB.Vec4.one, textRange = 0, sx = 0, sy = 0, sw = 1, sh = 1) {
-		const start = this.batchedVertexCount * vertexStride;
+		const start = this.batchedVertexCount * vertexArray.layout.stride;
 		vertices[start] = x0;
 		vertices[start + 1] = y0;
 		vertices[start + 2] = col.x;
@@ -499,7 +499,7 @@ class Renderer {
 	 * @readonly
 	 */
 	flushBatch() {
-		vertexBuffer.partialWrite(vertices, this.batchedVertexCount * vertexStride);
+		vertexBuffer.partialWrite(vertices, this.batchedVertexCount * vertexArray.layout.stride);
 		indexBuffer.partialWrite(indices, this.batchedIndexCount);
 		this.drawIndexedTriangles(this.batchedIndexCount);
 		this.resetBatch();

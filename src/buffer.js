@@ -1,6 +1,6 @@
 import { gl } from './common.js';
 import { shader } from './shader.js';
-import { bytes } from './utility.js';
+import { VertexLayout } from './vertex_layout.js';
 
 /**
  * (DO NOT USE) Variable to keep track of the vertex array object.
@@ -9,13 +9,6 @@ import { bytes } from './utility.js';
  * @memberof HB
  */
 let vertexArray = undefined;
-/**
- * (DO NOT USE) Variable to keep track of the vertex stride, see [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer#parameters}.
- * @readonly
- * @type {number}
- * @memberof HB
- */
-let vertexStride = undefined;
 /**
  * (DO NOT USE) Variable to keep track of the vertex buffer.
  * @readonly
@@ -71,7 +64,7 @@ class VertexBuffer {
 	 * @readonly
 	 */
 	static init(maxVertexCount = 4000) {
-		vertices = new Float32Array(maxVertexCount * vertexStride);
+		vertices = new Float32Array(maxVertexCount * vertexArray.layout.stride);
 		vertexBuffer = new VertexBuffer(vertices);
 	}
 
@@ -201,55 +194,11 @@ class VertexArray {
 		this.bind();
 
 		/**
-		 * (DO NOT USE) Class with the layout (vertex stride, etc.) of 1 vertex.
-		 * @readonly
-		 * @alias HB.VertexArray.Layout
-		 */
-		class Layout {
-			/**
-			 * (DO NOT USE) Internal use by Hummingbird only, sets {@link HB.vertexStride} to 0.
-			 * @constructor
-			 * @readonly
-			 * @memberof HB
-			 */
-			constructor() {
-				this.elements = [];
-				this.stride = 0;
-				vertexStride = 0;
-			}
-
-			/**
-			 * (DO NOT USE) Add a new attribute for rendering a vertex.
-			 * @readonly
-			 * @param {string} name - Name of attribute in the shader.
-			 * @param {GLenum} type - Type of data, see [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer#parameters}.
-			 * @param {number} count - Amount of bytes for this attribute.
-			 * @param {boolean} normalized=false - Whether integers should be normalized into a certain range when being cast to a float, [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/vertexAttribPointer#parameters}.
-			 * @returns {number} Location of the attribute in the shader.
-			 */
-			add(name, type, count, normalized = false) {
-				vertexStride += count;
-				const index = shader.getAttribLocation(name);
-				if (index !== -1) this.elements.push({ index: index, type: type, count: count, normalized: normalized });
-				this.stride += count * bytes(type);
-				return index;
-			}
-
-			/**
-			 * (DO NOT USE) Method to clear all elements and reset the stride of this class.
-			 * @readonly
-			 */
-			clear() {
-				this.elements = [];
-				this.stride = 0;
-			}
-		}
-		/**
 		 * (DO NOT USE) The vertex layout of the active vertex buffer.
 		 * @readonly
-		 * @type {HB.VertexArray.Layout}
+		 * @type {HB.VertexLayout}
 		 */
-		this.layout = new Layout();
+		this.layout = new VertexLayout();
 	}
 
 	/**
@@ -259,11 +208,11 @@ class VertexArray {
 	 */
 	static init(maxVertexCount, maxIndexCount) {
 		vertexArray = new VertexArray();
-		vertexArray.layout.add('aVertexPosition', gl.FLOAT, 2);
-		vertexArray.layout.add('aVertexColor', gl.FLOAT, 4);
-		vertexArray.layout.add('aTexturePosition', gl.FLOAT, 2);
-		vertexArray.layout.add('aTextureId', gl.FLOAT, 1);
-		vertexArray.layout.add('aTextRange', gl.FLOAT, 1);
+		vertexArray.layout.add(shader, 'aVertexPosition', gl.FLOAT, 2);
+		vertexArray.layout.add(shader, 'aVertexColor', gl.FLOAT, 4);
+		vertexArray.layout.add(shader, 'aTexturePosition', gl.FLOAT, 2);
+		vertexArray.layout.add(shader, 'aTextureId', gl.FLOAT, 1);
+		vertexArray.layout.add(shader, 'aTextRange', gl.FLOAT, 1);
 
 		VertexBuffer.init(maxVertexCount);
 		vertexArray.addBuffer(vertexBuffer);
@@ -279,13 +228,7 @@ class VertexArray {
 	addBuffer(vertexBuffer) {
 		this.bind();
 		vertexBuffer.bind();
-
-		let offset = 0;
-		this.layout.elements.forEach((element) => {
-			gl.enableVertexAttribArray(element.index);
-			gl.vertexAttribPointer(element.index, element.count, element.type, element.normalized, this.layout.stride, offset);
-			offset += element.count * bytes(element.type);
-		});
+		this.layout.enable();
 	}
 
 	/**
@@ -304,7 +247,7 @@ class VertexArray {
 	*/
 	delete() {
 		this.unbind();
-		vertexArray.layout.elements.forEach((element) => gl.disableVertexAttribArray(element.index));
+		this.layout.disable();
 		this.ext.deleteVertexArrayOES(this.id);
 	}
 }
@@ -312,7 +255,6 @@ class VertexArray {
 export {
 	VertexArray,
 	vertexArray,
-	vertexStride,
 	VertexBuffer,
 	vertexBuffer,
 	vertices,

@@ -25,10 +25,9 @@
   },
   "homepage": "https://github.com/brandon-doornbos/hummingbird-js#readme",
   "devDependencies": {
-    "@ampproject/rollup-plugin-closure-compiler": "^0.26.0",
-    "clean-jsdoc-theme": "^3.2.7",
-    "jsdoc": "^3.6.7",
-    "rollup": "^2.52.3",
-    "rollup-plugin-jsdoc": "^0.1.2"
+    "rollup": "^2.70.1",
+    "rollup-plugin-terser": "^7.0.2",
+    "rollup-plugin-jsdoc": "^0.1.2",
+    "clean-jsdoc-theme": "^3.3.4"
   }
 }

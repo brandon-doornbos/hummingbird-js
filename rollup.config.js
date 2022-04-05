@@ -1,5 +1,5 @@
-import compiler from '@ampproject/rollup-plugin-closure-compiler';
 import jsdoc from 'rollup-plugin-jsdoc';
+import { terser } from "rollup-plugin-terser";
 
 export default [
 	{
@@ -25,8 +25,8 @@ export default [
 			intro: '/* Hummingbird by SantaClausNL, https://github.com/brandon-doornbos/hummingbird-js */'
 		},
 		plugins: [
-			compiler({
-				language_out: "ECMASCRIPT_2015"
+			terser({
+				ecma: 2015
 			})
 		]
 	}

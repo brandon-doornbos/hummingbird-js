@@ -147,7 +147,7 @@ class Texture {
 
 	/**
 	 * (DO NOT USE) Internal method binding the texture to a specific slot.
-	 * @param {number} slot - Which slot, 1-16.
+	 * @param {number} slot - Which slot.
 	 * @readonly
 	 */
 	bind(slot = 1) {

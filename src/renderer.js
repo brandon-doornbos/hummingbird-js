@@ -473,9 +473,13 @@ class Renderer {
 	getBatchTextureIndex(texture) {
 		let textureIndex = this.batchTextureCache[texture.name];
 		if (textureIndex === undefined) {
-			if ((this.batchTextureIndex + 1) >= this.textureUnits) this.flushBatch();
-			this.batchTextureCache[texture.name] = textureIndex = this.batchTextureIndex;
-			texture.bind(this.batchTextureIndex++);
+			textureIndex = this.batchTextureIndex;
+			texture.bind(textureIndex);
+			this.batchTextureCache[texture.name] = textureIndex;
+
+			this.batchTextureIndex += 1;
+			if (this.batchTextureIndex > this.textureUnits)
+				this.flushBatch();
 		}
 		return textureIndex;
 	}

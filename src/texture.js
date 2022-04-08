@@ -1,5 +1,4 @@
 import { gl } from './common.js';
-import { loadFile } from './utility.js';
 import { Math } from './math.js';
 import { font_b64, font_data } from './font.js';
 

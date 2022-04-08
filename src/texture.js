@@ -40,8 +40,9 @@ class Texture {
 	 */
 	constructor(name, path, out = textures, callback = function () { console.log("Texture loaded: " + this.name); }, filter = gl.LINEAR, wrap = gl.CLAMP_TO_EDGE) {
 		this.id = gl.createTexture();
-		this.createTexture(path, filter, wrap);
 		this.name = name;
+		this.onLoadCallback = callback;
+		this.createTexture(path, filter, wrap);
 
 		if (out === undefined) {
 			textures[this.name] = this;
@@ -50,8 +51,6 @@ class Texture {
 		} else if (out instanceof Object) {
 			out[this.name] = this;
 		}
-
-		this.onLoadCallback = callback;
 	}
 
 	/**

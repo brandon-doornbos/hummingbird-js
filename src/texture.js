@@ -1,6 +1,7 @@
 import { gl } from './common.js';
 import { loadFile } from './utility.js';
 import { Math } from './math.js';
+import { font_b64, font_data } from './font.js';
 
 /**
  * This Object has all textures indexed by name to be used in the texture draw methods.
@@ -59,8 +60,8 @@ class Texture {
 	 * @readonly
 	 */
 	static init() {
-		loadFile("https://projects.brandond.nl/Hummingbird/assets/arial.json", 'json', (data) => fontData = data);
-		font = new Texture('Hummingbird_Font-Atlas', 'https://projects.brandond.nl/Hummingbird/assets/arial.png');
+		fontData = JSON.parse(font_data);
+		font = new Texture('Hummingbird_Font-Atlas', font_b64);
 
 		new Texture('Hummingbird_Error');
 		textures.Hummingbird_Error.onLoadCallback();

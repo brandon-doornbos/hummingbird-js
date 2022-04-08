@@ -4,6 +4,7 @@ export * from './camera.js';
 export * from './shader_source.js';
 export * from './shader.js';
 export * from './buffer.js';
+export * from './font.js';
 export * from './texture.js';
 export * from './utility.js';
 export * from './math.js';

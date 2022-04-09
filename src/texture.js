@@ -1,6 +1,6 @@
 import { gl } from './common.js';
 import { Math } from './math.js';
-import { font_b64, font_data } from './font.js';
+import { font_b64 } from './font.js';
 
 /**
  * This Object has all textures indexed by name to be used in the texture draw methods.
@@ -8,12 +8,6 @@ import { font_b64, font_data } from './font.js';
  * @memberof HB
  */
 const textures = {};
-/**
- * (DO NOT USE) Variable for the kernings, size, etc. of the included font.
- * @readonly
- * @memberof HB
- */
-let fontData = undefined;
 /**
  * (DO NOT USE) Texture with the included font.
  * @readonly
@@ -58,7 +52,6 @@ class Texture {
 	 * @readonly
 	 */
 	static init() {
-		fontData = JSON.parse(font_data);
 		font = new Texture('Hummingbird_Font-Atlas', font_b64);
 
 		new Texture('Hummingbird_Error');
@@ -171,6 +164,5 @@ class Texture {
 export {
 	Texture,
 	textures,
-	fontData,
 	font
 };

@@ -7,7 +7,7 @@ import { vec2, mat4 } from 'gl-matrix';
  * Hummingbird version.
  * @memberof HB
  */
-const version = "v0.7.0";
+const version = "v0.7.1";
 /**
  * Overwrite this function to access the built in 'setup' function, which is fired after {@link HB.internalSetup} finishes.
  * @type {Function}

@@ -2,7 +2,8 @@ import { gl } from './common.js';
 import { Camera } from "./camera.js";
 import { shader, Shader } from "./shader.js";
 import { VertexArray, vertexArray, vertexBuffer, vertices, indexBuffer, indices } from "./buffer.js";
-import { Texture, textures, font, fontData } from './texture.js';
+import * as fontData from './font_data.json';
+import { Texture, textures, font } from './texture.js';
 import { vec2 } from 'gl-matrix';
 import * as Colors from './colors.json'
 
@@ -244,20 +245,6 @@ class Renderer {
 	 */
 	colorText(string, pos, size = 12, align = 'start-start', color) {
 		const alignTo = align.split('-');
-
-		if (fontData === undefined) {
-			let newPos = Vec2.fromVec2(pos), newSize = Vec2.new(string.length * size * 0.5, size);
-			switch (alignTo[0]) {
-				case 'center': newPos.x -= newSize.x * 0.5; break;
-				case 'end': newPos.x -= newSize.x; break;
-			}
-			switch (alignTo[1]) {
-				case 'center': newPos.y -= newSize.y * 0.5; break;
-				case 'end': newPos.y -= newSize.y; break;
-			}
-			this.textureRectangle(newPos, newSize, textures.Hummingbird_Error);
-			return;
-		}
 
 		const glyphs = [], kernings = {};
 		const scalar = size / fontData.info.size;

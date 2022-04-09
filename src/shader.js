@@ -1,6 +1,5 @@
 import { gl } from './common.js';
 import { shaders } from './shader_source.js';
-import { Mat4 } from './math.js';
 
 /**
  * This class instance includes all shader logic.
@@ -156,12 +155,9 @@ class Shader {
 	 * @readonly
 	 * @param {string} type - Type of value, "f" for floats only, see [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/WebGLRenderingContext/uniformMatrix}.
 	 * @param {string} name - Name of the uniform.
-	 * @param {HB.Mat4} matrix - Hummingbird matrix.
+	 * @param {glMatrix.mat4} matrix - Matrix.
 	 */
-	setUniformMatrix(type, name, matrix) {
-		const glMatrix = Mat4.toArray(matrix);
-		gl['uniformMatrix' + Math.sqrt(glMatrix.length) + type + 'v'](this.getUniformLocation(name), false, glMatrix);
-	}
+	setUniformMatrix(type, name, matrix) { gl['uniformMatrix' + Math.sqrt(matrix.length) + type + 'v'](this.getUniformLocation(name), false, matrix); }
 
 	/**
 	 * (DO NOT USE) Method to bind this shader program (set it as active).

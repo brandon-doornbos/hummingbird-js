@@ -1,12 +1,13 @@
 import { renderer, Renderer } from './renderer.js';
 import { camera } from './camera.js';
-import { initMathObjects, Vec2, Mat4 } from './math.js';
+import { initMathObjects, Math as HBMath } from './math.js';
+import { vec2, mat4 } from 'gl-matrix';
 
 /**
  * Hummingbird version.
  * @memberof HB
  */
-const version = "v0.6.8";
+const version = "v0.7.0";
 /**
  * Overwrite this function to access the built in 'setup' function, which is fired after {@link HB.internalSetup} finishes.
  * @type {Function}
@@ -68,16 +69,16 @@ let prevTime = 0;
 let mouseMoved = new Function();
 /**
  * The current mouse position on the canvas (top-left is 0,0; constrained from 0 to {@link HB.canvas.size}).
- * @type {HB.Vec2}
+ * @type {glMatrix.vec2}
  * @memberof HB
  */
-const mousePosition = { x: 0, y: 0 };
+const mousePosition = vec2.create();
 /**
  * The current mouse position on the page (top-left of canvas is 0,0; unconstrained).
- * @type {HB.Vec2}
+ * @type {glMatrix.vec2}
  * @memberof HB
  */
-const mousePositionFree = { x: 0, y: 0 };
+const mousePositionFree = vec2.create();
 /**
  * Overwrite this function to access the 'mousedown' event. MDN{@link https://developer.mozilla.org/en-US/docs/Web/API/Element/mousedown_event}
  * @param {MouseEvent} event
@@ -133,8 +134,8 @@ let windowResized = new Function();
  * Variable that contains the canvas.
  * @readonly
  * @type HTMLCanvasElement
- * @property {HB.Vec2} size - 2D Vector with the canvas width and height.
- * @property {HB.Vec2} center - 2D Vector with the canvas center.
+ * @property {glMatrix.vec2} size - 2D Vector with the canvas width and height.
+ * @property {glMatrix.vec2} center - 2D Vector with the canvas center.
  * @memberof HB
  */
 let canvas = undefined;
@@ -208,8 +209,8 @@ function init(width = 100, height = 100, options = {}) {
 		if (options.parent === undefined) document.body.appendChild(p); else options.parent.appendChild(p);
 	} else {
 		canvas.width = width, canvas.height = height;
-		canvas.size = Vec2.new(canvas.width, canvas.height);
-		canvas.center = Vec2.new(canvas.width / 2, canvas.height / 2);
+		canvas.size = vec2.fromValues(canvas.width, canvas.height);
+		canvas.center = vec2.fromValues(canvas.width * 0.5, canvas.height * 0.5);
 		canvas.id = (options.id === undefined) ? "HummingbirdCanvas" : options.id;
 		canvas.setAttribute('alt', 'Hummingbird canvas element.');
 
@@ -226,12 +227,12 @@ function init(width = 100, height = 100, options = {}) {
 	});
 	window.addEventListener('mousemove', (event) => {
 		const rect = canvas.getBoundingClientRect();
-		Vec2.set(mousePosition,
+		vec2.set(mousePosition,
 			event.clientX - ((canvas.clientWidth - canvas.width) * 0.5 + HB.canvas.clientLeft + rect.left),
 			event.clientY - ((canvas.clientHeight - canvas.height) * 0.5 + HB.canvas.clientTop + rect.top)
 		);
-		Vec2.copy(mousePositionFree, mousePosition);
-		Vec2.constrain(mousePosition, 0, canvas.width, 0, canvas.height);
+		vec2.copy(mousePositionFree, mousePosition);
+		vec2.set(mousePosition, HBMath.constrain(mousePosition[0], 0, canvas.width), HBMath.constrain(mousePosition[1], 0, canvas.height));
 		HB.mouseMoved(event);
 	});
 	window.addEventListener('mousedown', (event) => {
@@ -262,10 +263,10 @@ function init(width = 100, height = 100, options = {}) {
  */
 function resizeCanvas(width = 100, height = 100) {
 	canvas.width = width, canvas.height = height;
-	Vec2.set(canvas.size, canvas.width, canvas.height);
-	Vec2.set(canvas.center, canvas.width / 2, canvas.height / 2);
+	vec2.set(canvas.size, canvas.width, canvas.height);
+	vec2.set(canvas.center, canvas.width / 2, canvas.height / 2);
 	gl.viewport(0, 0, canvas.width, canvas.height);
-	Mat4.orthographic(camera.projectionMatrix, 0, canvas.width, 0, canvas.height);
+	mat4.ortho(camera.projectionMatrix, 0, canvas.width, canvas.height, 0, -1, 1);
 }
 
 /**

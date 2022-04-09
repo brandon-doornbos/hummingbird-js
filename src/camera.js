@@ -1,6 +1,6 @@
 import { gl, canvas } from './common.js';
 import { shader } from './shader.js';
-import { Vec3, Mat4 } from './math.js';
+import { vec3, mat4 } from 'gl-matrix';
 
 /**
  * Class instance with all camera logic.
@@ -28,26 +28,25 @@ class Camera {
 		 * (DO NOT USE) Internal variable to keep track of the ModelViewProjection matrix.
 		 * @readonly
 		 */
-		this.MVP = Mat4.new();
+		this.MVP = mat4.create();
 		/**
 		 * (DO NOT USE) Internal variable to keep track of the Projection matrix.
 		 * @readonly
 		 */
-		this.projectionMatrix = Mat4.new();
-		Mat4.orthographic(this.projectionMatrix, 0, canvas.width, 0, canvas.height, -1, 1);
-		// Mat4.perspective(this.projectionMatrix);
+		this.projectionMatrix = mat4.create();
+		mat4.ortho(this.projectionMatrix, 0, canvas.width, canvas.height, 0, -1, 1);
 
 		/**
 		 * (DO NOT USE) Internal variable to keep track of the View matrix.
 		 * @readonly
 		 */
-		this.viewMatrix = Mat4.new(1);
+		this.viewMatrix = mat4.create();
 		/**
 		 * (DO NOT USE) Internal variable to keep track of the Model matrix.
 		 * @ignore
 		 * @readonly
 		 */
-		// this.modelMatrix = Mat4.new(1);
+		// this.modelMatrix = mat4.create();
 	}
 
 	/**
@@ -60,43 +59,43 @@ class Camera {
 
 	/**
 	 * Method for setting the ModelViewProjection matrix.
-	 * @param {HB.Mat4} mvp=HB.Camera.MVP - Optional MVP to render with.
+	 * @param {glMatrix.mat4} mvp=HB.Camera.MVP - Optional MVP to render with.
 	 */
 	setMVP(mvp) {
 		if (mvp === undefined) {
-			// const modelView = Mat4.new(1);
-			// Mat4.multMat4(modelView, this.modelMatrix, this.viewMatrix);
-			Mat4.multMat4(this.MVP, this.viewMatrix, this.projectionMatrix);
-			Mat4.transpose(this.MVP, this.MVP);
+			// const modelView = mat4.create();
+			// mat4.multiply(modelView, this.viewMatrix, this.modelMatrix);
+			mat4.multiply(this.MVP, this.projectionMatrix, this.viewMatrix);
 			shader.setUniformMatrix('f', 'uMVP', this.MVP);
 		} else {
-			Mat4.transpose(mvp, mvp);
 			shader.setUniformMatrix('f', 'uMVP', mvp);
 		}
 	}
 
 	/**
 	 * Method for translating the camera.
-	 * @param {HB.Vec3} vector3 - 3D Vector to move by.
+	 * @param {glMatrix.vec3} vector3 - 3D Vector to move by.
 	 */
-	translate(vector3) { Mat4.translate(this.viewMatrix, this.viewMatrix, vector3); }
+	translate(vector3) {
+		mat4.translate(this.viewMatrix, this.viewMatrix, vector3);
+	}
 	/**
 	 * Method for zooming the camera to the center.
 	 * @param {number} amount - Amount to zoom by (in the order of 0.05) negative values to zoom out.
 	 */
 	zoom(amount) {
-		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-canvas.center.x, -canvas.center.y));
-		Mat4.scale(this.viewMatrix, this.viewMatrix, 1 + amount);
-		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(canvas.center.x, canvas.center.y));
+		mat4.translate(this.viewMatrix, this.viewMatrix, vec3.fromValues(canvas.center[0], canvas.center[1], 0));
+		mat4.scale(this.viewMatrix, this.viewMatrix, vec3.fromValues(1 + amount, 1 + amount, 1 + amount));
+		mat4.translate(this.viewMatrix, this.viewMatrix, vec3.fromValues(-canvas.center[0], -canvas.center[1], 0));
 	}
 	/**
 	 * Method for rotating the camera around the center.
 	 * @param {number} angle - Amount to rotate by (clockwise) in radians.
 	 */
 	rotate(angle) {
-		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(-canvas.center.x, -canvas.center.y));
-		Mat4.rotateZ(this.viewMatrix, this.viewMatrix, angle);
-		Mat4.translate(this.viewMatrix, this.viewMatrix, Vec3.new(canvas.center.x, canvas.center.y));
+		mat4.translate(this.viewMatrix, this.viewMatrix, vec3.fromValues(canvas.center[0], canvas.center[1], 0));
+		mat4.rotateZ(this.viewMatrix, this.viewMatrix, angle);
+		mat4.translate(this.viewMatrix, this.viewMatrix, vec3.fromValues(-canvas.center[0], -canvas.center[1], 0));
 	}
 }
 

@@ -2,8 +2,9 @@ import { gl } from './common.js';
 import { Camera } from "./camera.js";
 import { shader, Shader } from "./shader.js";
 import { VertexArray, vertexArray, vertexBuffer, vertices, indexBuffer, indices } from "./buffer.js";
-import { Texture, textures, font, fontData } from "./texture.js";
-import { Vec2 } from './math.js';
+import { Texture, textures, font, fontData } from './texture.js';
+import { vec2 } from 'gl-matrix';
+import * as Colors from './colors.json'
 
 /**
  * This class instance includes all rendering methods.
@@ -85,29 +86,29 @@ class Renderer {
 
 	/**
 	 * Method for clearing the screen with a certain color, can only be called when a batch has been started.
-	 * @param {HB.Vec4} color - Color to clear the screen with.
+	 * @param {glMatrix.vec4} color - Color to clear the screen with.
 	 */
 	clear(color) {
-		if (color !== undefined) gl.clearColor(color.x, color.y, color.z, color.w);
+		if (color !== undefined) gl.clearColor(color[0], color[1], color[2], color[3]);
 		gl.clear(gl.COLOR_BUFFER_BIT);
 	}
 
 	/**
 	 * Method for drawing a colored point on screen, can only be called when a batch has been started.
-	 * @param {HB.Vec2} pos - Center position at which to draw the point.
+	 * @param {glMatrix.vec2} pos - Center position at which to draw the point.
 	 * @param {number} size=1 - Size of the point, the point is a square defaulting to 1 pixel.
-	 * @param {HB.Vec4} color - Color of the point.
+	 * @param {glMatrix.vec4} color - Color of the point.
 	 */
 	colorPoint(pos, size = 1, color) {
 		this.flushBatchIfBufferFilled();
 		const halfSize = size * 0.5;
-		this.drawBatchedQuad(pos.x - halfSize, pos.y - halfSize, size, size, 0, color);
+		this.drawBatchedQuad(pos[0] - halfSize, pos[1] - halfSize, size, size, 0, color);
 	}
 
 	/**
 	 * Method for drawing a colored polygon on screen, can only be called when a batch has been started.
-	 * @param {Array} points - Array of {@link HB.Vec2}s with positions of all points.
-	 * @param {HB.Vec4} color - Color of the polygon.
+	 * @param {Array} points - Array of {@link glMatrix.vec2}s with positions of all points.
+	 * @param {glMatrix.vec4} color - Color of the polygon.
 	 * @param {number} center=0 - Element of points Array which indicates the center of the polygon, only needed occasionally for concave polygons.
 	 */
 	colorPolygon(points, color, center = 0) {
@@ -117,9 +118,9 @@ class Renderer {
 			this.flushBatchIfBufferFilled(3, 3);
 
 			this.drawBatchedTriangle(
-				points[center].x, points[center].y,
-				points[i].x, points[i].y,
-				points[i + 1].x, points[i + 1].y,
+				points[center][0], points[center][1],
+				points[i][0], points[i][1],
+				points[i + 1][0], points[i + 1][1],
 				color
 			);
 		}
@@ -127,32 +128,32 @@ class Renderer {
 
 	/**
 	 * Method for drawing a colored rectangle on screen, can only be called when a batch has been started.
-	 * @param {HB.Vec2} pos - Top-left position of the rectangle.
-	 * @param {HB.Vec2} size - Size of the rectangle.
-	 * @param {HB.Vec4} color - Color of the rectangle.
+	 * @param {glMatrix.vec2} pos - Top-left position of the rectangle.
+	 * @param {glMatrix.vec2} size - Size of the rectangle.
+	 * @param {glMatrix.vec4} color - Color of the rectangle.
 	 */
 	colorRectangle(pos, size, color) {
 		this.flushBatchIfBufferFilled();
-		this.drawBatchedQuad(pos.x, pos.y, size.x, size.y, 0, color);
+		this.drawBatchedQuad(pos[0], pos[1], size[0], size[1], 0, color);
 	}
 
 	/**
 	 * Method for drawing a textured rectangle on screen, can only be called when a batch has been started.
-	 * @param {HB.Vec2} pos - Top-left position of the rectangle.
-	 * @param {HB.Vec2} size - Size of the rectangle.
+	 * @param {glMatrix.vec2} pos - Top-left position of the rectangle.
+	 * @param {glMatrix.vec2} size - Size of the rectangle.
 	 * @param {HB.Texture} texture - {@link HB.Texture} instance to texture with.
 	 */
 	textureRectangle(pos, size, texture) {
 		this.flushBatchIfBufferFilled();
-		this.drawBatchedQuad(pos.x, pos.y, size.x, size.y, this.getBatchTextureIndex(texture));
+		this.drawBatchedQuad(pos[0], pos[1], size[0], size[1], this.getBatchTextureIndex(texture));
 	}
 
 	/**
 	 * Method for drawing a rotated colored rectangle on screen, can only be called when a batch has been started.
-	 * @param {HB.Vec2} pos - Top-left position of the rectangle.
-	 * @param {HB.Vec2} size - Size of the rectangle.
-	 * @param {number} angle - Angle in radians with which the rectangle gets rotated around its center (pos.x+size.x/2, pos.y+size.y/2).
-	 * @param {HB.Vec4} color - Color of the rectangle.
+	 * @param {glMatrix.vec2} pos - Top-left position of the rectangle.
+	 * @param {glMatrix.vec2} size - Size of the rectangle.
+	 * @param {number} angle - Angle in radians with which the rectangle gets rotated around its center (pos[0]+size[0]/2, pos[1]+size[1]/2).
+	 * @param {glMatrix.vec4} color - Color of the rectangle.
 	 */
 	rotatedColorRectangle(pos, size, angle, color) {
 		this.flushBatchIfBufferFilled();
@@ -161,9 +162,9 @@ class Renderer {
 
 	/**
 	 * Method for drawing a rotated textured rectangle on screen, can only be called when a batch has been started.
-	 * @param {HB.Vec2} pos - Top-left position of the rectangle.
-	 * @param {HB.Vec2} size - Size of the rectangle.
-	 * @param {number} angle - Angle in radians with which the rectangle gets rotated around its center (pos.x + (size.x / 2), pos.y + (size.y / 2)).
+	 * @param {glMatrix.vec2} pos - Top-left position of the rectangle.
+	 * @param {glMatrix.vec2} size - Size of the rectangle.
+	 * @param {number} angle - Angle in radians with which the rectangle gets rotated around its center (pos[0] + (size[0] / 2), pos[1] + (size[1] / 2)).
 	 * @param {HB.Texture} texture - {@link HB.Texture} instance to texture with.
 	 */
 	rotatedTextureRectangle(pos, size, angle, texture) {
@@ -174,69 +175,71 @@ class Renderer {
 	/**
 	 * (DO NOT USE) Internal method for drawing a rotated rectangle on screen. Use {@link HB.Renderer#rotatedColorRectangle} or {@link HB.Renderer#rotatedTextureRectangle} instead. Can only be called when a batch has been started.
 	 * @readonly
-	 * @param {HB.Vec2} pos - Top-left position of the rectangle.
-	 * @param {HB.Vec2} size - Size of the rectangle.
-	 * @param {number} angle - Angle in radians with which the rectangle gets rotated around its center (pos.x + (size.x / 2), pos.y + (size.y / 2)).
+	 * @param {glMatrix.vec2} pos - Top-left position of the rectangle.
+	 * @param {glMatrix.vec2} size - Size of the rectangle.
+	 * @param {number} angle - Angle in radians with which the rectangle gets rotated around its center (pos[0] + (size[0] / 2), pos[1] + (size[1] / 2)).
 	 * @param {HB.Texture} texture=0 - If available, {@link HB.Texture} instance to texture with.
-	 * @param {HB.Vec4} color={@link HB.Vec4.one} - If available, color of the rectangle.
+	 * @param {glMatrix.vec4} color={@link HB.Colors.White} - If available, color of the rectangle.
 	 */
-	drawRectangleWithRotation(pos, size, angle, texture = 0, color = HB.Vec4.one) {
+	drawRectangleWithRotation(pos, size, angle, texture = 0, color = Colors.White) {
 		angle = HB.Math.radians(angle);
-		const cosX = size.x * -0.5 * Math.cos(angle), cosY = size.y * -0.5 * Math.cos(angle);
-		const cosX1 = size.x * 0.5 * Math.cos(angle), cosY1 = size.y * 0.5 * Math.cos(angle);
-		const sinX = size.x * -0.5 * Math.sin(angle), sinY = size.y * -0.5 * Math.sin(angle);
-		const sinX1 = size.x * 0.5 * Math.sin(angle), sinY1 = size.y * 0.5 * Math.sin(angle);
+		const cosX = size[0] * -0.5 * Math.cos(angle), cosY = size[1] * -0.5 * Math.cos(angle);
+		const cosX1 = size[0] * 0.5 * Math.cos(angle), cosY1 = size[1] * 0.5 * Math.cos(angle);
+		const sinX = size[0] * -0.5 * Math.sin(angle), sinY = size[1] * -0.5 * Math.sin(angle);
+		const sinX1 = size[0] * 0.5 * Math.sin(angle), sinY1 = size[1] * 0.5 * Math.sin(angle);
 
 		this.drawArbitraryBatchedQuad(
-			cosX - sinY + pos.x + size.x / 2, sinX + cosY + pos.y + size.y / 2,
-			cosX1 - sinY + pos.x + size.x / 2, sinX1 + cosY + pos.y + size.y / 2,
-			cosX1 - sinY1 + pos.x + size.x / 2, sinX1 + cosY1 + pos.y + size.y / 2,
-			cosX - sinY1 + pos.x + size.x / 2, sinX + cosY1 + pos.y + size.y / 2,
+			cosX - sinY + pos[0] + size[0] / 2, sinX + cosY + pos[1] + size[1] / 2,
+			cosX1 - sinY + pos[0] + size[0] / 2, sinX1 + cosY + pos[1] + size[1] / 2,
+			cosX1 - sinY1 + pos[0] + size[0] / 2, sinX1 + cosY1 + pos[1] + size[1] / 2,
+			cosX - sinY1 + pos[0] + size[0] / 2, sinX + cosY1 + pos[1] + size[1] / 2,
 			texture, color
 		);
 	}
 
 	/**
 	 * Method for drawing a colored line on screen from one point to another, can only be called when a batch has been started.
-	 * @param {HB.Vec2} vectorA - First point of the line.
-	 * @param {HB.Vec2} vectorB - Second point of the line.
+	 * @param {glMatrix.vec2} vectorA - First point of the line.
+	 * @param {glMatrix.vec2} vectorB - Second point of the line.
 	 * @param {number} thickness - The thickness of the line in pixels.
-	 * @param {HB.Vec4} color - Color of the rectangle.
+	 * @param {glMatrix.vec4} color - Color of the rectangle.
 	 */
 	colorLine(vectorA, vectorB, thickness, color) {
-		const angle0 = Vec2.angleBetweenVec2(vectorA, vectorB);
-		const angleA = Vec2.fromAngle(angle0 - Math.PI / 2, thickness / 2);
-		const angleB = Vec2.fromAngle(angle0 + Math.PI / 2, thickness / 2);
+		const angle0 = Math.atan2(vectorB[1] - vectorA[1], vectorB[0] - vectorA[0]);
+		let angleA = vec2.fromValues(thickness * 0.5, 0);
+		vec2.rotate(angleA, angleA, vec2.create(), angle0 - Math.PI * 0.5);
+		let angleB = vec2.fromValues(thickness * 0.5, 0);
+		vec2.rotate(angleB, angleB, vec2.create(), angle0 + Math.PI * 0.5);
 
 		this.flushBatchIfBufferFilled();
 
 		this.drawArbitraryBatchedQuad(
-			vectorA.x - angleA.x, vectorA.y - angleA.y,
-			vectorA.x + angleA.x, vectorA.y + angleA.y,
-			vectorB.x - angleB.x, vectorB.y - angleB.y,
-			vectorB.x + angleB.x, vectorB.y + angleB.y,
+			vectorA[0] - angleA[0], vectorA[1] - angleA[1],
+			vectorA[0] + angleA[0], vectorA[1] + angleA[1],
+			vectorB[0] - angleB[0], vectorB[1] - angleB[1],
+			vectorB[0] + angleB[0], vectorB[1] + angleB[1],
 			0, color
 		);
 	}
 
 	/**
 	 * Method for drawing a colored ellipse on screen, can only be called when a batch has been started.
-	 * @param {HB.Vec2} pos - Top-left position of the ellipse.
-	 * @param {HB.Vec2} size - Size of the ellipse's individual axes.
-	 * @param {HB.Vec4} color - Color of the ellipse.
+	 * @param {glMatrix.vec2} pos - Top-left position of the ellipse.
+	 * @param {glMatrix.vec2} size - Size of the ellipse's individual axes.
+	 * @param {glMatrix.vec4} color - Color of the ellipse.
 	 */
 	colorEllipse(pos, size, color) {
 		this.flushBatchIfBufferFilled();
-		this.drawBatchedQuad(pos.x, pos.y, size.x, size.y, this.getBatchTextureIndex(textures.Hummingbird_Circle), color);
+		this.drawBatchedQuad(pos[0], pos[1], size[0], size[1], this.getBatchTextureIndex(textures.Hummingbird_Circle), color);
 	}
 
 	/**
 	 * Method for drawing colored text on screen, can only be called when a batch has been started.
 	 * @param {string} string - ASCII text to be rendered, see the charset in {@link https://projects.brandond.nl/Hummingbird/assets/arial_pretty.json} for all characters.
-	 * @param {HB.Vec2} pos - Position of the text, anchor-point determined by the align parameter.
+	 * @param {glMatrix.vec2} pos - Position of the text, anchor-point determined by the align parameter.
 	 * @param {number} size=12 - Pixel size (height) of the text.
 	 * @param {string} align="start-start" - Where to place the anchor-point, this is a string formatted as "'x-anchor'-'y-anchor'", e.g. "end-center". Possible values are [start, center, end], modelled after [this]{@link https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/textAlign#options}.
-	 * @param {HB.Vec4} color - Color of the text.
+	 * @param {glMatrix.vec4} color - Color of the text.
 	 * @returns {number} Final width of the rendered text.
 	 */
 	colorText(string, pos, size = 12, align = 'start-start', color) {
@@ -297,7 +300,7 @@ class Renderer {
 			if (this.flushBatchIfBufferFilled()) textureIndex = this.getBatchTextureIndex(font);
 
 			this.drawBatchedQuad(
-				pos.x + glyph.xoff * scalar + offsetx, pos.y + glyph.yoff * scalar + offsety,
+				pos[0] + glyph.xoff * scalar + offsetx, pos[1] + glyph.yoff * scalar + offsety,
 				glyph.w * scalar, glyph.h * scalar,
 				textureIndex, color, scalar * fontData.distanceField.distanceRange,
 				glyph.x / fontData.common.scaleW, glyph.y / fontData.common.scaleH,
@@ -319,16 +322,16 @@ class Renderer {
 	 * @param {number} y2 - Y-coordinate of the second point.
 	 * @param {number} x3 - X-coordinate of the third point.
 	 * @param {number} y3 - Y-coordinate of the third point.
-	 * @param {HB.Vec4} color - Color of the triangle.
+	 * @param {glMatrix.vec4} color - Color of the triangle.
 	 */
 	drawBatchedTriangle(x1, y1, x2, y2, x3, y3, color) {
 		const start = this.batchedVertexCount * vertexArray.layout.stride;
 		vertices[start] = x1;
 		vertices[start + 1] = y1;
-		vertices[start + 2] = color.x;
-		vertices[start + 3] = color.y;
-		vertices[start + 4] = color.z;
-		vertices[start + 5] = color.w;
+		vertices[start + 2] = color[0];
+		vertices[start + 3] = color[1];
+		vertices[start + 4] = color[2];
+		vertices[start + 5] = color[3];
 		vertices[start + 6] = 0;
 		vertices[start + 7] = 1;
 		vertices[start + 8] = 0;
@@ -336,10 +339,10 @@ class Renderer {
 
 		vertices[start + 10] = x2;
 		vertices[start + 11] = y2;
-		vertices[start + 12] = color.x;
-		vertices[start + 13] = color.y;
-		vertices[start + 14] = color.z;
-		vertices[start + 15] = color.w;
+		vertices[start + 12] = color[0];
+		vertices[start + 13] = color[1];
+		vertices[start + 14] = color[2];
+		vertices[start + 15] = color[3];
 		vertices[start + 16] = 0.5;
 		vertices[start + 17] = 0.5;
 		vertices[start + 18] = 0;
@@ -347,10 +350,10 @@ class Renderer {
 
 		vertices[start + 20] = x3;
 		vertices[start + 21] = y3;
-		vertices[start + 22] = color.x;
-		vertices[start + 23] = color.y;
-		vertices[start + 24] = color.z;
-		vertices[start + 25] = color.w;
+		vertices[start + 22] = color[0];
+		vertices[start + 23] = color[1];
+		vertices[start + 24] = color[2];
+		vertices[start + 25] = color[3];
 		vertices[start + 26] = 1;
 		vertices[start + 27] = 1;
 		vertices[start + 28] = 0;
@@ -371,7 +374,7 @@ class Renderer {
 	 * @param {number} w - Width of the quad.
 	 * @param {number} h - Height of the quad.
 	 * @param {number} tex - Optional internal batch-specific texture ID.
-	 * @param {HB.Vec4} col - Optional color of the quad.
+	 * @param {glMatrix.vec4} col - Optional color of the quad.
 	 * @param {number} textRange - Optional value to check whether text is being rendered and anti-alias it.
 	 * @param {number} sx - UV x-coordinate of the texture, 0-1.
 	 * @param {number} sy - UV y-coordinate of the texture, 0-1.
@@ -402,21 +405,21 @@ class Renderer {
 	 * @param {number} x3 - Bottom-left x-coordinate.
 	 * @param {number} y3 - Bottom-left y-coordinate.
 	 * @param {number} tex=0 - Optional internal batch-specific texture ID.
-	 * @param {HB.Vec4} col={@link HB.Vec4.one} - Optional color of the quad.
+	 * @param {glMatrix.vec4} col={@link HB.Colors.White} - Optional color of the quad.
 	 * @param {number} textRange=0 - Optional value to check whether text is being rendered and anti-alias it.
 	 * @param {number} sx=0 - UV x-coordinate of the texture, 0-1.
 	 * @param {number} sy=0 - UV y-coordinate of the texture, 0-1.
 	 * @param {number} sw=1 - UV width of the texture, 0-1.
 	 * @param {number} sh=1 - UV height of the texture, 0-1.
 	 */
-	drawArbitraryBatchedQuad(x0, y0, x1, y1, x2, y2, x3, y3, tex = 0, col = HB.Vec4.one, textRange = 0, sx = 0, sy = 0, sw = 1, sh = 1) {
+	drawArbitraryBatchedQuad(x0, y0, x1, y1, x2, y2, x3, y3, tex = 0, col = Colors.White, textRange = 0, sx = 0, sy = 0, sw = 1, sh = 1) {
 		const start = this.batchedVertexCount * vertexArray.layout.stride;
 		vertices[start] = x0;
 		vertices[start + 1] = y0;
-		vertices[start + 2] = col.x;
-		vertices[start + 3] = col.y;
-		vertices[start + 4] = col.z;
-		vertices[start + 5] = col.w;
+		vertices[start + 2] = col[0];
+		vertices[start + 3] = col[1];
+		vertices[start + 4] = col[2];
+		vertices[start + 5] = col[3];
 		vertices[start + 6] = sx;
 		vertices[start + 7] = sy;
 		vertices[start + 8] = tex;
@@ -424,10 +427,10 @@ class Renderer {
 
 		vertices[start + 10] = x1;
 		vertices[start + 11] = y1;
-		vertices[start + 12] = col.x;
-		vertices[start + 13] = col.y;
-		vertices[start + 14] = col.z;
-		vertices[start + 15] = col.w;
+		vertices[start + 12] = col[0];
+		vertices[start + 13] = col[1];
+		vertices[start + 14] = col[2];
+		vertices[start + 15] = col[3];
 		vertices[start + 16] = sx + sw;
 		vertices[start + 17] = sy;
 		vertices[start + 18] = tex;
@@ -435,10 +438,10 @@ class Renderer {
 
 		vertices[start + 20] = x2;
 		vertices[start + 21] = y2;
-		vertices[start + 22] = col.x;
-		vertices[start + 23] = col.y;
-		vertices[start + 24] = col.z;
-		vertices[start + 25] = col.w;
+		vertices[start + 22] = col[0];
+		vertices[start + 23] = col[1];
+		vertices[start + 24] = col[2];
+		vertices[start + 25] = col[3];
 		vertices[start + 26] = sx + sw;
 		vertices[start + 27] = sy + sh;
 		vertices[start + 28] = tex;
@@ -446,10 +449,10 @@ class Renderer {
 
 		vertices[start + 30] = x3;
 		vertices[start + 31] = y3;
-		vertices[start + 32] = col.x;
-		vertices[start + 33] = col.y;
-		vertices[start + 34] = col.z;
-		vertices[start + 35] = col.w;
+		vertices[start + 32] = col[0];
+		vertices[start + 33] = col[1];
+		vertices[start + 34] = col[2];
+		vertices[start + 35] = col[3];
 		vertices[start + 36] = sx;
 		vertices[start + 37] = sy + sh;
 		vertices[start + 38] = tex;

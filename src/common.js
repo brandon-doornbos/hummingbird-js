@@ -2,12 +2,8 @@ import { renderer, Renderer } from './renderer.js';
 import { camera } from './camera.js';
 import { initMathObjects, Math as HBMath } from './math.js';
 import { vec2, mat4 } from 'gl-matrix';
+import { version } from '../package.json';
 
-/**
- * Hummingbird version.
- * @memberof HB
- */
-const version = "v0.7.2";
 /**
  * Overwrite this function to access the built in 'setup' function, which is fired after {@link HB.internalSetup} finishes.
  * @type {Function}
@@ -302,7 +298,6 @@ function internalUpdate(now) {
 window.addEventListener("load", internalSetup);
 
 export {
-	version,
 	setup,
 	update,
 	noUpdate,

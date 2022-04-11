@@ -161,13 +161,13 @@ class HBMath {
 		return start + amt * (end - start);
 	}
 	/**
-	 * Method to constrain a value in a range.
-	 * @param {number} value - Value to constrain.
-	 * @param {number} min - Minimum to constrain to.
-	 * @param {number} max - Maximum to constrain to.
-	 * @returns {number} Original value if it is not constrained.
+	 * Method to clamp a value between a range.
+	 * @param {number} value - Value to clamp.
+	 * @param {number} min - Minimum.
+	 * @param {number} max - Maximum.
+	 * @returns {number} Original value if it is not clamped.
 	 */
-	static constrain(value, min, max) {
+	static clamp(value, min, max) {
 		if (value > max) {
 			return max;
 		} else if (value < min) {

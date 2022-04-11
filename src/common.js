@@ -7,7 +7,7 @@ import { vec2, mat4 } from 'gl-matrix';
  * Hummingbird version.
  * @memberof HB
  */
-const version = "v0.7.1";
+const version = "v0.7.2";
 /**
  * Overwrite this function to access the built in 'setup' function, which is fired after {@link HB.internalSetup} finishes.
  * @type {Function}
@@ -68,13 +68,13 @@ let prevTime = 0;
  */
 let mouseMoved = new Function();
 /**
- * The current mouse position on the canvas (top-left is 0,0; constrained from 0 to {@link HB.canvas.size}).
+ * The current mouse position on the canvas (top-left is 0,0; clamp between 0 and {@link HB.canvas.size}).
  * @type {glMatrix.vec2}
  * @memberof HB
  */
 const mousePosition = vec2.create();
 /**
- * The current mouse position on the page (top-left of canvas is 0,0; unconstrained).
+ * The current mouse position on the page (top-left of canvas is 0,0; unclamped).
  * @type {glMatrix.vec2}
  * @memberof HB
  */
@@ -232,7 +232,7 @@ function init(width = 100, height = 100, options = {}) {
 			event.clientY - ((canvas.clientHeight - canvas.height) * 0.5 + HB.canvas.clientTop + rect.top)
 		);
 		vec2.copy(mousePositionFree, mousePosition);
-		vec2.set(mousePosition, HBMath.constrain(mousePosition[0], 0, canvas.width), HBMath.constrain(mousePosition[1], 0, canvas.height));
+		vec2.set(mousePosition, HBMath.clamp(mousePosition[0], 0, canvas.width), HBMath.clamp(mousePosition[1], 0, canvas.height));
 		HB.mouseMoved(event);
 	});
 	window.addEventListener('mousedown', (event) => {

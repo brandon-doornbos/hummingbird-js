@@ -169,7 +169,7 @@ let start = () => {
    * @memberof HB
    */
 function internalSetup() {
-	console.log("Hummingbird " + version + " by SantaClausNL. https://www.brandond.nl/");
+	console.log("Hummingbird " + version + " by Brandon Doornbos. https://www.brandond.nl/");
 	loadElement.innerText = "LOADING...";
 	loadElement.style = "margin: 0; position: absolute; top: 50%; left: 50%; font-size: 7em; transform: translate(-50%, -50%); font-family: Arial, Helvetica, sans-serif;";
 	document.body.appendChild(loadElement);

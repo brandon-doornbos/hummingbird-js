@@ -1,40 +1,40 @@
 {
-  "name": "hummingbird",
-  "version": "0.7.4",
-  "description": "A game engine for JavaScript running on WebGL.",
-  "main": "src/index.js",
-  "scripts": {
-    "build": "npx rollup -c",
-    "watch": "npx rollup -c -w --watch.exclude ./src/colors.json"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/brandon-doornbos/hummingbird-js.git"
-  },
-  "keywords": [
-    "game",
-    "engine",
-    "javascript",
-    "webgl",
-    "games",
-    "graphics"
-  ],
-  "author": "Brandon Doornbos",
-  "license": "WTFPL",
-  "bugs": {
-    "url": "https://github.com/brandon-doornbos/hummingbird-js/issues"
-  },
-  "homepage": "https://github.com/brandon-doornbos/hummingbird-js#readme",
-  "devDependencies": {
-    "@rollup/plugin-json": "^4.1.0",
-    "@rollup/plugin-node-resolve": "^13.1.3",
-    "clean-jsdoc-theme": "^3.3.4",
-    "jsdoc": "^3.6.10",
-    "rollup": "^2.70.1",
-    "rollup-plugin-jsdoc": "^0.1.2",
-    "rollup-plugin-terser": "^7.0.2"
-  },
-  "dependencies": {
-    "gl-matrix": "^3.4.3"
-  }
+	"name": "hummingbird",
+	"version": "0.7.5",
+	"description": "A game engine for JavaScript running on WebGL.",
+	"main": "src/index.js",
+	"scripts": {
+		"build": "npx rollup -c",
+		"watch": "npx rollup -c -w --watch.exclude ./src/colors.json"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/brandon-doornbos/hummingbird-js.git"
+	},
+	"keywords": [
+		"game",
+		"engine",
+		"javascript",
+		"webgl",
+		"games",
+		"graphics"
+	],
+	"author": "Brandon Doornbos",
+	"license": "WTFPL",
+	"bugs": {
+		"url": "https://github.com/brandon-doornbos/hummingbird-js/issues"
+	},
+	"homepage": "https://github.com/brandon-doornbos/hummingbird-js#readme",
+	"devDependencies": {
+		"@rollup/plugin-json": "^4.1.0",
+		"@rollup/plugin-node-resolve": "^13.1.3",
+		"clean-jsdoc-theme": "^3.3.4",
+		"jsdoc": "^3.6.10",
+		"rollup": "^2.70.1",
+		"rollup-plugin-jsdoc": "^0.1.2",
+		"rollup-plugin-terser": "^7.0.2"
+	},
+	"dependencies": {
+		"gl-matrix": "^3.4.3"
+	}
 }

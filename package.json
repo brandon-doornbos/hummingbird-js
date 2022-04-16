@@ -1,6 +1,6 @@
 {
 	"name": "hummingbird",
-	"version": "0.7.5",
+	"version": "0.7.6",
 	"description": "A game engine for JavaScript running on WebGL.",
 	"main": "src/index.js",
 	"scripts": {
@@ -20,7 +20,7 @@
 		"graphics"
 	],
 	"author": "Brandon Doornbos",
-	"license": "WTFPL",
+	"license": "GPL-3.0",
 	"bugs": {
 		"url": "https://github.com/brandon-doornbos/hummingbird-js/issues"
 	},

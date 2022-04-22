@@ -1,7 +1,8 @@
 import { gl } from './common.js';
 import { Camera } from "./camera.js";
 import { shader, Shader } from "./shader.js";
-import { VertexArray, VertexBuffer, IndexBuffer } from "./buffer.js";
+import { VertexArray } from "./vertex_array.js";
+import { VertexBuffer, IndexBuffer } from "./buffer.js";
 import * as fontData from './font_data.json';
 import { Texture, textures, font } from './texture.js';
 import { vec2 } from 'gl-matrix';

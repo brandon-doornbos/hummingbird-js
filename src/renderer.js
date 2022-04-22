@@ -1,7 +1,7 @@
 import { gl } from './common.js';
 import { Camera } from "./camera.js";
 import { shader, Shader } from "./shader.js";
-import { VertexArray, vertexArray, vertexBuffer, vertices, indexBuffer, indices } from "./buffer.js";
+import { VertexArray, VertexBuffer, IndexBuffer } from "./buffer.js";
 import * as fontData from './font_data.json';
 import { Texture, textures, font } from './texture.js';
 import { vec2 } from 'gl-matrix';
@@ -312,43 +312,43 @@ class Renderer {
 	 * @param {glMatrix.vec4} color - Color of the triangle.
 	 */
 	drawBatchedTriangle(x1, y1, x2, y2, x3, y3, color) {
-		const start = this.batchedVertexCount * vertexArray.layout.stride;
-		vertices[start] = x1;
-		vertices[start + 1] = y1;
-		vertices[start + 2] = color[0];
-		vertices[start + 3] = color[1];
-		vertices[start + 4] = color[2];
-		vertices[start + 5] = color[3];
-		vertices[start + 6] = 0;
-		vertices[start + 7] = 1;
-		vertices[start + 8] = 0;
-		vertices[start + 9] = 0;
+		const start = this.batchedVertexCount * VertexArray.layout.stride;
+		VertexBuffer.data[start] = x1;
+		VertexBuffer.data[start + 1] = y1;
+		VertexBuffer.data[start + 2] = color[0];
+		VertexBuffer.data[start + 3] = color[1];
+		VertexBuffer.data[start + 4] = color[2];
+		VertexBuffer.data[start + 5] = color[3];
+		VertexBuffer.data[start + 6] = 0;
+		VertexBuffer.data[start + 7] = 1;
+		VertexBuffer.data[start + 8] = 0;
+		VertexBuffer.data[start + 9] = 0;
 
-		vertices[start + 10] = x2;
-		vertices[start + 11] = y2;
-		vertices[start + 12] = color[0];
-		vertices[start + 13] = color[1];
-		vertices[start + 14] = color[2];
-		vertices[start + 15] = color[3];
-		vertices[start + 16] = 0.5;
-		vertices[start + 17] = 0.5;
-		vertices[start + 18] = 0;
-		vertices[start + 19] = 0;
+		VertexBuffer.data[start + 10] = x2;
+		VertexBuffer.data[start + 11] = y2;
+		VertexBuffer.data[start + 12] = color[0];
+		VertexBuffer.data[start + 13] = color[1];
+		VertexBuffer.data[start + 14] = color[2];
+		VertexBuffer.data[start + 15] = color[3];
+		VertexBuffer.data[start + 16] = 0.5;
+		VertexBuffer.data[start + 17] = 0.5;
+		VertexBuffer.data[start + 18] = 0;
+		VertexBuffer.data[start + 19] = 0;
 
-		vertices[start + 20] = x3;
-		vertices[start + 21] = y3;
-		vertices[start + 22] = color[0];
-		vertices[start + 23] = color[1];
-		vertices[start + 24] = color[2];
-		vertices[start + 25] = color[3];
-		vertices[start + 26] = 1;
-		vertices[start + 27] = 1;
-		vertices[start + 28] = 0;
-		vertices[start + 29] = 0;
+		VertexBuffer.data[start + 20] = x3;
+		VertexBuffer.data[start + 21] = y3;
+		VertexBuffer.data[start + 22] = color[0];
+		VertexBuffer.data[start + 23] = color[1];
+		VertexBuffer.data[start + 24] = color[2];
+		VertexBuffer.data[start + 25] = color[3];
+		VertexBuffer.data[start + 26] = 1;
+		VertexBuffer.data[start + 27] = 1;
+		VertexBuffer.data[start + 28] = 0;
+		VertexBuffer.data[start + 29] = 0;
 
-		indices[this.batchedIndexCount] = this.batchedVertexCount;
-		indices[this.batchedIndexCount + 1] = this.batchedVertexCount + 1;
-		indices[this.batchedIndexCount + 2] = this.batchedVertexCount + 2;
+		IndexBuffer.data[this.batchedIndexCount] = this.batchedVertexCount;
+		IndexBuffer.data[this.batchedIndexCount + 1] = this.batchedVertexCount + 1;
+		IndexBuffer.data[this.batchedIndexCount + 2] = this.batchedVertexCount + 2;
 
 		this.batchedVertexCount += 3, this.batchedIndexCount += 3;
 	}
@@ -400,57 +400,57 @@ class Renderer {
 	 * @param {number} sh=1 - UV height of the texture, 0-1.
 	 */
 	drawArbitraryBatchedQuad(x0, y0, x1, y1, x2, y2, x3, y3, tex = 0, col = Colors.White, textRange = 0, sx = 0, sy = 0, sw = 1, sh = 1) {
-		const start = this.batchedVertexCount * vertexArray.layout.stride;
-		vertices[start] = x0;
-		vertices[start + 1] = y0;
-		vertices[start + 2] = col[0];
-		vertices[start + 3] = col[1];
-		vertices[start + 4] = col[2];
-		vertices[start + 5] = col[3];
-		vertices[start + 6] = sx;
-		vertices[start + 7] = sy;
-		vertices[start + 8] = tex;
-		vertices[start + 9] = textRange;
+		const start = this.batchedVertexCount * VertexArray.layout.stride;
+		VertexBuffer.data[start] = x0;
+		VertexBuffer.data[start + 1] = y0;
+		VertexBuffer.data[start + 2] = col[0];
+		VertexBuffer.data[start + 3] = col[1];
+		VertexBuffer.data[start + 4] = col[2];
+		VertexBuffer.data[start + 5] = col[3];
+		VertexBuffer.data[start + 6] = sx;
+		VertexBuffer.data[start + 7] = sy;
+		VertexBuffer.data[start + 8] = tex;
+		VertexBuffer.data[start + 9] = textRange;
 
-		vertices[start + 10] = x1;
-		vertices[start + 11] = y1;
-		vertices[start + 12] = col[0];
-		vertices[start + 13] = col[1];
-		vertices[start + 14] = col[2];
-		vertices[start + 15] = col[3];
-		vertices[start + 16] = sx + sw;
-		vertices[start + 17] = sy;
-		vertices[start + 18] = tex;
-		vertices[start + 19] = textRange;
+		VertexBuffer.data[start + 10] = x1;
+		VertexBuffer.data[start + 11] = y1;
+		VertexBuffer.data[start + 12] = col[0];
+		VertexBuffer.data[start + 13] = col[1];
+		VertexBuffer.data[start + 14] = col[2];
+		VertexBuffer.data[start + 15] = col[3];
+		VertexBuffer.data[start + 16] = sx + sw;
+		VertexBuffer.data[start + 17] = sy;
+		VertexBuffer.data[start + 18] = tex;
+		VertexBuffer.data[start + 19] = textRange;
 
-		vertices[start + 20] = x2;
-		vertices[start + 21] = y2;
-		vertices[start + 22] = col[0];
-		vertices[start + 23] = col[1];
-		vertices[start + 24] = col[2];
-		vertices[start + 25] = col[3];
-		vertices[start + 26] = sx + sw;
-		vertices[start + 27] = sy + sh;
-		vertices[start + 28] = tex;
-		vertices[start + 29] = textRange;
+		VertexBuffer.data[start + 20] = x2;
+		VertexBuffer.data[start + 21] = y2;
+		VertexBuffer.data[start + 22] = col[0];
+		VertexBuffer.data[start + 23] = col[1];
+		VertexBuffer.data[start + 24] = col[2];
+		VertexBuffer.data[start + 25] = col[3];
+		VertexBuffer.data[start + 26] = sx + sw;
+		VertexBuffer.data[start + 27] = sy + sh;
+		VertexBuffer.data[start + 28] = tex;
+		VertexBuffer.data[start + 29] = textRange;
 
-		vertices[start + 30] = x3;
-		vertices[start + 31] = y3;
-		vertices[start + 32] = col[0];
-		vertices[start + 33] = col[1];
-		vertices[start + 34] = col[2];
-		vertices[start + 35] = col[3];
-		vertices[start + 36] = sx;
-		vertices[start + 37] = sy + sh;
-		vertices[start + 38] = tex;
-		vertices[start + 39] = textRange;
+		VertexBuffer.data[start + 30] = x3;
+		VertexBuffer.data[start + 31] = y3;
+		VertexBuffer.data[start + 32] = col[0];
+		VertexBuffer.data[start + 33] = col[1];
+		VertexBuffer.data[start + 34] = col[2];
+		VertexBuffer.data[start + 35] = col[3];
+		VertexBuffer.data[start + 36] = sx;
+		VertexBuffer.data[start + 37] = sy + sh;
+		VertexBuffer.data[start + 38] = tex;
+		VertexBuffer.data[start + 39] = textRange;
 
-		indices[this.batchedIndexCount] = this.batchedVertexCount;
-		indices[this.batchedIndexCount + 1] = this.batchedVertexCount + 1;
-		indices[this.batchedIndexCount + 2] = this.batchedVertexCount + 2;
-		indices[this.batchedIndexCount + 3] = this.batchedVertexCount + 2;
-		indices[this.batchedIndexCount + 4] = this.batchedVertexCount + 3;
-		indices[this.batchedIndexCount + 5] = this.batchedVertexCount;
+		IndexBuffer.data[this.batchedIndexCount] = this.batchedVertexCount;
+		IndexBuffer.data[this.batchedIndexCount + 1] = this.batchedVertexCount + 1;
+		IndexBuffer.data[this.batchedIndexCount + 2] = this.batchedVertexCount + 2;
+		IndexBuffer.data[this.batchedIndexCount + 3] = this.batchedVertexCount + 2;
+		IndexBuffer.data[this.batchedIndexCount + 4] = this.batchedVertexCount + 3;
+		IndexBuffer.data[this.batchedIndexCount + 5] = this.batchedVertexCount;
 
 		this.batchedVertexCount += 4, this.batchedIndexCount += 6;
 	}
@@ -493,8 +493,8 @@ class Renderer {
 	 * @readonly
 	 */
 	flushBatch() {
-		vertexBuffer.partialWrite(vertices, this.batchedVertexCount * vertexArray.layout.stride);
-		indexBuffer.partialWrite(indices, this.batchedIndexCount);
+		VertexBuffer.write(this.batchedVertexCount * VertexArray.layout.stride);
+		IndexBuffer.write(this.batchedIndexCount);
 		this.drawIndexedTriangles(this.batchedIndexCount);
 		this.resetBatch();
 	}
@@ -506,7 +506,6 @@ class Renderer {
 	 */
 	drawIndexedTriangles(indexCount) {
 		shader.bind();
-		vertexArray.bind();
 
 		gl.drawElements(gl.TRIANGLES, indexCount, gl.UNSIGNED_SHORT, 0);
 	}
@@ -518,9 +517,9 @@ class Renderer {
 	delete() {
 		for (let tex in textures) textures[tex].delete();
 		shader.delete();
-		vertexArray.delete();
-		vertexBuffer.delete();
-		indexBuffer.delete();
+		VertexArray.delete();
+		VertexBuffer.delete();
+		IndexBuffer.delete();
 	}
 }
 

@@ -3,10 +3,10 @@ import json from '@rollup/plugin-json';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import jsdoc from 'rollup-plugin-jsdoc';
 import { terser } from 'rollup-plugin-terser';
-import { version } from './package.json';
+import { version, main } from './package.json';
 
 export default [{
-	input: './src/index.js',
+	input: main,
 	output: [{
 		file: 'dist/hummingbird.js',
 		format: 'iife',

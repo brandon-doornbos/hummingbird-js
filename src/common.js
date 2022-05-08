@@ -1,7 +1,6 @@
 import { renderer, Renderer } from './renderer.js';
-import { camera } from './camera.js';
 import { initMathObjects, Math as HBMath } from './math.js';
-import { vec2, mat4 } from 'gl-matrix';
+import { vec2 } from 'gl-matrix';
 import { version } from '../package.json';
 
 /**
@@ -261,8 +260,7 @@ function resizeCanvas(width = 100, height = 100) {
 	canvas.width = width, canvas.height = height;
 	vec2.set(canvas.size, canvas.width, canvas.height);
 	vec2.set(canvas.center, canvas.width / 2, canvas.height / 2);
-	gl.viewport(0, 0, canvas.width, canvas.height);
-	mat4.ortho(camera.projectionMatrix, 0, canvas.width, canvas.height, 0, -1, 1);
+	renderer.camera.resize();
 }
 
 /**
@@ -273,7 +271,7 @@ function internalUpdate(now) {
 	deltaTime = now - prevTime;
 	prevTime = now;
 
-	camera.setMVP();
+	renderer.camera.setMVP();
 	renderer.startBatch();
 
 	accumulator += deltaTime;

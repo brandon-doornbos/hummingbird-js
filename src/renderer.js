@@ -52,7 +52,7 @@ class Renderer {
 
 		this.resetBatch();
 
-		Camera.init();
+		this.camera = new Camera();
 	}
 
 	/**

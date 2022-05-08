@@ -119,19 +119,19 @@ HB.update = function () {
 }
 
 HB.fixedUpdate = function () {
-	if (HB.keysPressed['w']) HB.camera.translate(HB.vec3.fromValues(0, cameraSpeed, 0));
-	if (HB.keysPressed['a']) HB.camera.translate(HB.vec3.fromValues(cameraSpeed, 0, 0));
-	if (HB.keysPressed['s']) HB.camera.translate(HB.vec3.fromValues(0, -cameraSpeed, 0));
-	if (HB.keysPressed['d']) HB.camera.translate(HB.vec3.fromValues(-cameraSpeed, 0, 0));
+	if (HB.keysPressed['w']) HB.renderer.camera.translate(HB.vec3.fromValues(0, cameraSpeed, 0));
+	if (HB.keysPressed['a']) HB.renderer.camera.translate(HB.vec3.fromValues(cameraSpeed, 0, 0));
+	if (HB.keysPressed['s']) HB.renderer.camera.translate(HB.vec3.fromValues(0, -cameraSpeed, 0));
+	if (HB.keysPressed['d']) HB.renderer.camera.translate(HB.vec3.fromValues(-cameraSpeed, 0, 0));
 
-	if (HB.keysPressed['e']) HB.camera.zoom(0.05);
-	if (HB.keysPressed['q']) HB.camera.zoom(-0.05);
+	if (HB.keysPressed['e']) HB.renderer.camera.zoom(0.05);
+	if (HB.keysPressed['q']) HB.renderer.camera.zoom(-0.05);
 
-	// if (HB.keysPressed['e']) HB.camera.translate(HB.vec3.fromValues(0, 0, 0.1));
-	// if (HB.keysPressed['q']) HB.camera.translate(HB.vec3.fromValues(0, 0, -0.1));
+	// if (HB.keysPressed['e']) HB.renderer.camera.translate(HB.vec3.fromValues(0, 0, 0.1));
+	// if (HB.keysPressed['q']) HB.renderer.camera.translate(HB.vec3.fromValues(0, 0, -0.1));
 
-	// if (HB.keysPressed['e']) HB.camera.rotate(HB.Math.radians(1));
-	// if (HB.keysPressed['q']) HB.camera.rotate(HB.Math.radians(-1));
+	// if (HB.keysPressed['e']) HB.renderer.camera.rotate(HB.Math.radians(1));
+	// if (HB.keysPressed['q']) HB.renderer.camera.rotate(HB.Math.radians(-1));
 
 	polygon.update();
 

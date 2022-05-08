@@ -16,24 +16,16 @@ function bytes(type) {
 
 /**
  * Load a file.
- * @memberof HB
- * @param {string} path - Path of the file.
- * @param {string} type="text" - Type of the file [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/Body#Methods}.
- * @param {Function} callback - Callback with 1 argument which will receive data.
- * @fires loadFile:callback
- * @returns {Object} Object with 'data' and 'path' string properties.
+ * @param {string} path
+ * @param {string} type Defaults to "text", see [MDN]{@link https://developer.mozilla.org/en-US/docs/Web/API/Body#Methods}.
  */
-function loadFile(path, type = 'text', callback) {
-	let returnValue = { data: "", path };
-
-	const options = { method: 'GET' };
-	fetch(path, options).then((res) => {
-		return res[type]();
-	}).then((data) => {
-		callback(data);
-	}).catch();
-
-	return returnValue;
+export async function loadFile(path, type = "text") {
+	return new Promise((resolve, reject) => {
+		fetch(path, { method: "GET" })
+			.then((res) => { return res[type](); })
+			.then((data) => { resolve(data); })
+			.catch((error) => { reject(error); });
+	});
 }
 
 /**
@@ -66,6 +58,5 @@ function generateId(length = 8, lowercase = true, uppercase = false, numbers = f
 
 export {
 	bytes,
-	loadFile,
 	generateId
 };

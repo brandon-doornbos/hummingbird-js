@@ -1,27 +1,19 @@
 {
-	"plugins": [],
-	"recurseDepth": 10,
-	"source": {
-		"include": "./src/",
-		"includePattern": ".+\\.js(doc|x)?$",
-		"excludePattern": "(^|\\/|\\\\)_"
-	},
-	"sourceType": "module",
-	"tags": {
-		"allowUnknownTags": true,
-		"dictionaries": [
-			"jsdoc",
-			"closure"
-		]
-	},
-	"templates": {
-		"cleverLinks": false,
-		"monospaceLinks": false
-	},
-	"opts": {
-		"template": "node_modules/clean-jsdoc-theme",
-		"theme_opts": {
-			"theme": "dark",
+    "source": {
+        "include": ["src", "README.md"],
+        "includePattern": ".js$",
+        "excludePattern": "(node_modules/|docs)"
+    },
+    "plugins": ["plugins/markdown"],
+    "opts": {
+        "encoding": "utf8",
+        "readme": "./README.md",
+        "destination": "docs/",
+        "recurse": true,
+        "verbose": true,
+        "template": "./node_modules/clean-jsdoc-theme",
+        "theme_opts": {
+            "default_theme": "dark",
 			"menu": [
 				{
 					"title": "Trello Board",
@@ -44,6 +36,10 @@
 					"target": "_blank"
 				}
 			]
-		}
-	}
+        }
+    },
+    "markdown": {
+        "hardwrap": false,
+        "idInHeadings": true
+    }
 }
